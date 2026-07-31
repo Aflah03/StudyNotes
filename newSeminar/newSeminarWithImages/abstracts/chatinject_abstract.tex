@@ -1,0 +1,45 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{times}
+\usepackage{parskip}
+\usepackage[hidelinks]{hyperref}
+
+% ======================= EDIT YOUR DETAILS =======================
+\newcommand{\studentname}{Aflah Muhammed P}
+% Change the roll number below:
+\newcommand{\rollno}{TVE23CSXXX}
+% Change your guide name below:
+\newcommand{\guidename}{Prof. Guide Name}
+% Change the date below (e.g. August 20, 2026):
+\newcommand{\seminardate}{\today}
+% =================================================================
+
+\begin{document}
+\begin{center}
+  {\LARGE\bfseries ChatInject: How Forged Chat Formatting Tricks AI Agents into Obeying Attackers}\\[8pt]
+  {\large\bfseries Seminar Abstract}\\[6pt]
+  {\normalsize \seminardate}
+\end{center}
+\vspace{1.5em}
+
+\section*{Abstract}
+AI agents built on large language models (LLMs) increasingly do real work by reading emails, browsing web pages, and calling external tools. Connecting a model to the outside world creates a new security risk: an attacker can hide instructions inside the content the agent reads, and the agent may follow them as if they came from its real user. This threat is called indirect prompt injection. Under the hood, chat models organize every conversation using a hidden formatting scheme called a chat template, which uses special markers to label who is speaking, namely the system, the user, or the assistant. Most earlier attacks simply wrote plain-text commands like "ignore previous instructions," which modern models are increasingly trained to resist. Far less attention has been paid to whether an attacker can abuse the chat template itself. If an agent cannot tell the difference between genuine conversation structure and a forged copy of it, the door is open to a much stronger attack.
+
+This paper introduces ChatInject, an attack that disguises malicious text so it looks like the model's own chat template, making the agent treat injected content as a legitimate conversation turn rather than as data. The authors also build a persuasion-driven Multi-turn variant that gradually coaxes the agent across several fake turns until it accepts otherwise suspicious actions. Tested across many frontier LLMs on the AgentDojo and InjecAgent benchmarks, ChatInject raises the average attack success rate from 5.18\% to 32.05\% on AgentDojo and from 15.13\% to 45.90\% on InjecAgent, with the Multi-turn version reaching 52.33\% on InjecAgent. The forged-template payloads transfer across models and stay effective even against closed-source systems whose templates are secret, and common prompt-based defenses do little to stop them. This talk explains what chat templates are, how the attack forges them, why it works so well, and what it means for building safer agents. We will close with the paper's limitations and open questions for future defenses.
+
+\section*{Key Reference Papers}
+\begin{enumerate}
+  \item ChatInject: Abusing Chat Templates for Prompt Injection in LLM Agents, Hwan Chang, Yonghyun Jun, Hwanhee Lee, arXiv:2509.22830 (ICLR 2026), 2025
+  \item AgentDojo: A Dynamic Environment to Evaluate Prompt Injection Attacks and Defenses for LLM Agents, Debenedetti et al., NeurIPS Datasets and Benchmarks, 2024
+  \item InjecAgent: Benchmarking Indirect Prompt Injections in Tool-Integrated Large Language Model Agents, Zhan et al., Findings of ACL, 2024
+\end{enumerate}
+\vspace{1.5em}
+
+\noindent\textbf{Submitted By}\\
+\studentname\\
+\rollno
+
+\vspace{1em}
+\noindent\textbf{Guide}\\
+\guidename
+\end{document}

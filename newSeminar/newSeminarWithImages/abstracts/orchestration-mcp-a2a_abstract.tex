@@ -1,0 +1,45 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{times}
+\usepackage{parskip}
+\usepackage[hidelinks]{hyperref}
+
+% ======================= EDIT YOUR DETAILS =======================
+\newcommand{\studentname}{Aflah Muhammed P}
+% Change the roll number below:
+\newcommand{\rollno}{TVE23CSXXX}
+% Change your guide name below:
+\newcommand{\guidename}{Prof. Guide Name}
+% Change the date below (e.g. August 20, 2026):
+\newcommand{\seminardate}{\today}
+% =================================================================
+
+\begin{document}
+\begin{center}
+  {\LARGE\bfseries Orchestrating Teams of AI Agents: Architectures, the MCP and A2A Protocols, and Enterprise Adoption}\\[8pt]
+  {\large\bfseries Seminar Abstract}\\[6pt]
+  {\normalsize \seminardate}
+\end{center}
+\vspace{1.5em}
+
+\section*{Abstract}
+Modern AI assistants started as single "agents" that each handled one narrow job, such as answering FAQs or drafting a daily report. As tasks grow more complex, one agent is rarely enough, so the field is shifting toward teams of specialized agents that work together, much like a group of employees dividing up a project. But putting many autonomous agents in the same system creates new problems: they can duplicate work, contradict each other, or take actions that break company rules. They also need a reliable way to use external tools (like databases and APIs) and a reliable way to talk to each other. Without a coordinating "brain" and shared communication standards, a multi-agent system becomes chaotic and hard to trust. This is especially risky for enterprises that need every action to be safe, auditable, and policy-compliant. The paper tackles exactly this coordination-and-communication gap.
+
+This paper by Adimulam, Gupta, and Kumar (Skan AI) presents a unified blueprint for orchestrating multi-agent systems, pulling together planning, policy enforcement, shared state, and quality checks into one coordinating "orchestration layer." Its most practical contribution is a clear explanation of two emerging communication standards: the Model Context Protocol (MCP), which standardizes how an agent calls external tools and data, and the Agent-to-Agent (A2A) protocol, which lets specialized agents negotiate, delegate, and share results with one another. It also describes the different agent roles (worker, service, and support agents), how governance and observability keep the system safe and transparent, and how to deploy such systems in real enterprises. The paper backs this up with industry case studies from banking, software engineering, and customer service that report large efficiency gains. This talk will explain the architecture in plain terms, walk through MCP versus A2A with a simple analogy, and highlight what these ideas mean for anyone building or securing AI agents. No heavy math required; the goal is intuition about how agents coordinate and communicate.
+
+\section*{Key Reference Papers}
+\begin{enumerate}
+  \item The Orchestration of Multi-Agent Systems: Architectures, Protocols, and Enterprise Adoption, A. Adimulam, R. Gupta, and S. Kumar, arXiv:2601.13671, 2026.
+  \item What is the Model Context Protocol (MCP)?, Model Context Protocol Documentation, 2025.
+  \item Agent2Agent (A2A) Protocol Documentation, The Linux Foundation (A2A Project), 2025.
+\end{enumerate}
+\vspace{1.5em}
+
+\noindent\textbf{Submitted By}\\
+\studentname\\
+\rollno
+
+\vspace{1em}
+\noindent\textbf{Guide}\\
+\guidename
+\end{document}

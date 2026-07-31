@@ -1,0 +1,45 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{times}
+\usepackage{parskip}
+\usepackage[hidelinks]{hyperref}
+
+% ======================= EDIT YOUR DETAILS =======================
+\newcommand{\studentname}{Aflah Muhammed P}
+% Change the roll number below:
+\newcommand{\rollno}{TVE23CSXXX}
+% Change your guide name below:
+\newcommand{\guidename}{Prof. Guide Name}
+% Change the date below (e.g. August 20, 2026):
+\newcommand{\seminardate}{\today}
+% =================================================================
+
+\begin{document}
+\begin{center}
+  {\LARGE\bfseries IPIGuard: Planning Tool Use Up Front to Stop Prompt Injection in AI Agents}\\[8pt]
+  {\large\bfseries Seminar Abstract}\\[6pt]
+  {\normalsize \seminardate}
+\end{center}
+\vspace{1.5em}
+
+\section*{Abstract}
+AI agents built on large language models (LLMs) can now do far more than chat: they call external tools to read files, browse websites, send messages, and even move money. To act in the world, an agent has to read data from outside sources, but that data is not always trustworthy. Attackers can hide instructions inside a web page, email, or document that the agent later reads. When the agent reads this poisoned content, it may mistake the hidden text for a genuine command from its user. This is called an Indirect Prompt Injection (IPI) attack, and it can make an agent leak private data or take unauthorized actions. Most existing defenses try to prompt or teach the model to ignore such tricks, but they add no hard structural limits, so a strong enough attack can still slip through and trigger malicious tool calls.
+
+This paper introduces IPIGuard, a defense that changes how an agent executes a task rather than just how it is prompted. Before reading any untrusted data, IPIGuard makes the agent plan all of the tools it will use as a Tool Dependency Graph, a map showing which tool calls depend on which. During execution the agent may only follow this pre-approved plan, so hidden instructions cannot add brand-new tool calls. Three mechanisms named argument estimation, node expansion, and fake tool invocation let the fixed plan still handle unknown values and safe read-only lookups without opening security holes. On the AgentDojo benchmark, across six LLMs and four attack types, IPIGuard cut the average attack success rate to about 0.69 percent while keeping usefulness near the no-defense level. This talk will explain IPI attacks in plain terms, walk through the graph-based method with a worked example, and review the results and trade-offs.
+
+\section*{Key Reference Papers}
+\begin{enumerate}
+  \item IPIGuard: A Novel Tool Dependency Graph-Based Defense Against Indirect Prompt Injection in LLM Agents, Hengyu An, Jinghuai Zhang, Tianyu Du, Chunyi Zhou, Qingming Li, Tao Lin, Shouling Ji, EMNLP 2025 (arXiv:2508.15310), 2025
+  \item AgentDojo: A Dynamic Environment to Evaluate Attacks and Defenses for LLM Agents, Edoardo Debenedetti et al., NeurIPS Datasets and Benchmarks Track, 2024
+  \item Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection, Kai Greshake et al., ACM Workshop on Artificial Intelligence and Security (AISec), 2023
+\end{enumerate}
+\vspace{1.5em}
+
+\noindent\textbf{Submitted By}\\
+\studentname\\
+\rollno
+
+\vspace{1em}
+\noindent\textbf{Guide}\\
+\guidename
+\end{document}

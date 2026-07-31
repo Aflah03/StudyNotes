@@ -1,0 +1,45 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{times}
+\usepackage{parskip}
+\usepackage[hidelinks]{hyperref}
+
+% ======================= EDIT YOUR DETAILS =======================
+\newcommand{\studentname}{Aflah Muhammed P}
+% Change the roll number below:
+\newcommand{\rollno}{TVE23CSXXX}
+% Change your guide name below:
+\newcommand{\guidename}{Prof. Guide Name}
+% Change the date below (e.g. August 20, 2026):
+\newcommand{\seminardate}{\today}
+% =================================================================
+
+\begin{document}
+\begin{center}
+  {\LARGE\bfseries Large Language Models for Planning: How AI Agents Turn a Goal into Step-by-Step Actions}\\[8pt]
+  {\large\bfseries Seminar Abstract}\\[6pt]
+  {\normalsize \seminardate}
+\end{center}
+\vspace{1.5em}
+
+\section*{Abstract}
+Planning is the skill of turning a high-level goal, such as book me a three-day trip or tidy this room, into an ordered sequence of concrete steps that actually achieves the goal. It is a core ability we expect from any intelligent agent, because it requires understanding the environment, reasoning about cause and effect, and making decisions in the right order. For decades, planning was handled by specialized classical planners that need the world described in rigid formal languages, which are precise but hard to write and brittle when the real world changes. Large Language Models (LLMs), the technology behind chatbots like ChatGPT, changed this picture, because they can read a goal in plain English and propose a plan without any hand-crafted rules. However, LLMs also make mistakes, invent invalid steps, and lose track over long tasks, so simply asking one to make a plan is not enough. As LLM-powered agents move into real applications like web browsing, coding, and robotics, researchers have produced a flood of different techniques to make their planning more reliable. This has created a need to step back and organize the whole landscape into a clear map.
+
+This talk is based on a 2025 survey that provides exactly that map: a comprehensive and systematic review of how LLMs are used for planning. The authors first lay out the basic vocabulary of automated planning, then sort the many existing methods into three easy-to-remember families. The first family bolts external helpers onto the LLM, such as classical planners or tools, so the model does not have to do everything alone. The second family fine-tunes the LLM itself by training it on example plans and on feedback about what worked and what failed. The third family adds search and task decomposition, breaking a hard task into smaller pieces and exploring several candidate plans before committing to one. The survey also collects the benchmarks and metrics people use to measure planning quality, so we can compare methods fairly. Finally, it discusses why LLMs can plan at all and where the field should go next. In this seminar we will walk through the three families with concrete examples, see how planning is evaluated, and finish with the open challenges that make this an exciting area to work in.
+
+\section*{Key Reference Papers}
+\begin{enumerate}
+  \item Large Language Models for Planning: A Comprehensive and Systematic Survey, Cao, Men, Liu, Zhang, Li, Lin, Sui, Cao, Liu, Zhao, arXiv:2505.19683, 2025
+  \item ReAct: Synergizing Reasoning and Acting in Language Models, Yao et al., ICLR, 2023
+  \item Tree of Thoughts: Deliberate Problem Solving with Large Language Models, Yao et al., NeurIPS, 2023
+\end{enumerate}
+\vspace{1.5em}
+
+\noindent\textbf{Submitted By}\\
+\studentname\\
+\rollno
+
+\vspace{1em}
+\noindent\textbf{Guide}\\
+\guidename
+\end{document}

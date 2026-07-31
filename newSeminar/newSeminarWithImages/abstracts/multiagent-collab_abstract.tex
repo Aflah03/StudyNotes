@@ -1,0 +1,45 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{times}
+\usepackage{parskip}
+\usepackage[hidelinks]{hyperref}
+
+% ======================= EDIT YOUR DETAILS =======================
+\newcommand{\studentname}{Aflah Muhammed P}
+% Change the roll number below:
+\newcommand{\rollno}{TVE23CSXXX}
+% Change your guide name below:
+\newcommand{\guidename}{Prof. Guide Name}
+% Change the date below (e.g. August 20, 2026):
+\newcommand{\seminardate}{\today}
+% =================================================================
+
+\begin{document}
+\begin{center}
+  {\LARGE\bfseries How AI Agents Team Up: Understanding Multi-Agent Collaboration in Large Language Models}\\[8pt]
+  {\large\bfseries Seminar Abstract}\\[6pt]
+  {\normalsize \seminardate}
+\end{center}
+\vspace{1.5em}
+
+\section*{Abstract}
+Large Language Models (LLMs) such as ChatGPT can write, reason, and answer questions, but a single model working alone often struggles with large, multi-step problems. A fast-growing idea is to connect several LLM-powered "agents" so they can solve tasks together, much like a team of specialists tackling one project. Each agent can take on a role, keep its own memory, use tools, and talk to the others. Once you have many agents, though, new questions appear: who are the agents, how should they communicate, should they cooperate or compete, and how do you keep the group organized and on task? Until recently there was no shared vocabulary for describing these choices, which made it hard to compare systems or design new ones. This paper surveys the emerging field of LLM-based multi-agent systems and organizes it into one clear framework. It aims to give researchers and students a common language for talking about how agents collaborate.
+
+The authors provide an extensive survey of how LLM agents collaborate and introduce an extensible framework built around five dimensions: the actors (which agents are involved), the type of interaction (cooperation, competition, or a blend called coopetition), the structure (centralized, decentralized or peer-to-peer, and hierarchical), the strategy (rule-based, role-based, or model-based), and the coordination protocol (static or dynamic). Using this framework, they review and categorize many existing systems, including CAMEL, AutoGen, MetaGPT, and ChatDev. They also survey real-world uses across 5G and 6G networks, Industry 5.0, question answering, and social and cultural simulations. Finally, they highlight open challenges such as scalability, cost, safety, explainability, and cascading failures, and they point to future directions toward what they call artificial collective intelligence. This talk will walk through the framework step by step, show concrete example systems, and explain why a shared vocabulary helps anyone building or securing agent teams. No heavy math is required to follow along.
+
+\section*{Key Reference Papers}
+\begin{enumerate}
+  \item Multi-Agent Collaboration Mechanisms: A Survey of LLMs, Khanh-Tung Tran, Dung Dao, Minh-Duong Nguyen, Quoc-Viet Pham, Barry O'Sullivan, Hoang D. Nguyen, arXiv:2501.06322, 2025
+  \item CAMEL: Communicative Agents for Mind Exploration of Large Language Model Society, Guohao Li et al., NeurIPS, 2023
+  \item AutoGen: Enabling Next-Gen LLM Applications via Multi-Agent Conversation, Qingyun Wu et al., arXiv:2308.08155, 2023
+\end{enumerate}
+\vspace{1.5em}
+
+\noindent\textbf{Submitted By}\\
+\studentname\\
+\rollno
+
+\vspace{1em}
+\noindent\textbf{Guide}\\
+\guidename
+\end{document}

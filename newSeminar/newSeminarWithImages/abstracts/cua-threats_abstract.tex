@@ -1,0 +1,45 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{times}
+\usepackage{parskip}
+\usepackage[hidelinks]{hyperref}
+
+% ======================= EDIT YOUR DETAILS =======================
+\newcommand{\studentname}{Aflah Muhammed P}
+% Change the roll number below:
+\newcommand{\rollno}{TVE23CSXXX}
+% Change your guide name below:
+\newcommand{\guidename}{Prof. Guide Name}
+% Change the date below (e.g. August 20, 2026):
+\newcommand{\seminardate}{\today}
+% =================================================================
+
+\begin{document}
+\begin{center}
+  {\LARGE\bfseries JARVIS or Ultron? A Beginner's Guide to the Safety and Security Threats of Computer-Using AI Agents}\\[8pt]
+  {\large\bfseries Seminar Abstract}\\[6pt]
+  {\normalsize \seminardate}
+\end{center}
+\vspace{1.5em}
+
+\section*{Abstract}
+Artificial intelligence has moved beyond simple chatbots that only answer questions in text. A new class of systems, called Computer-Using Agents (CUAs), can now look at a screen, click buttons, type text, browse the web, and control desktop or mobile applications on their own. These agents are powered by large language models, the same technology behind tools like ChatGPT, but they are given the ability to take real actions on a real computer. This makes them extremely useful for automating everyday tasks, but it also opens a brand-new set of dangers. When an AI can actually click and type, a single mistake or a hidden malicious trick can lead to deleted files, leaked passwords, or unauthorized purchases. Because these agents combine several software parts and read information from many sources at once, the ways they can fail or be attacked are far more complicated than for an ordinary chatbot. Understanding these risks has therefore become a pressing concern for anyone building or using such agents.
+
+This paper is a survey, meaning it organizes and summarizes a large body of existing research rather than proposing one new system. The authors screened more than 700 candidate papers and analyzed 124 in depth to build a clear map of the field. They first define what a Computer-Using Agent is and split it into three parts: perception (reading the screen), the brain (reasoning, memory, and planning), and action (clicking and typing). They then sort security threats into two families: intrinsic threats that come from the agent's own weaknesses, and extrinsic threats caused by outside attackers, including prompt injection and jailbreaks. They also present a taxonomy of fourteen defense strategies and catalog the benchmarks, datasets, and metrics used to test agent safety. The memorable JARVIS-or-Ultron framing asks whether we can build genuinely helpful assistants without accidentally creating harmful ones. This talk walks through the agent architecture, the threat and defense taxonomies, and the evaluation tools, using plain everyday examples throughout.
+
+\section*{Key Reference Papers}
+\begin{enumerate}
+  \item A Survey on the Safety and Security Threats of Computer-Using Agents: JARVIS or Ultron?, Ada Chen, Yongjiang Wu, Junyuan Zhang, Jingyu Xiao, Shu Yang, Jen-tse Huang, Kun Wang, Wenxuan Wang, Shuai Wang, arXiv:2505.10924 (ACL 2026), 2025
+  \item MobileSafetyBench: Evaluating Safety of Autonomous Agents in Mobile Device Control, Juyong Lee et al., arXiv, 2024
+  \item R-Judge: Benchmarking Safety Risk Awareness for LLM Agents, Tongxin Yuan et al., EMNLP Findings, 2024
+\end{enumerate}
+\vspace{1.5em}
+
+\noindent\textbf{Submitted By}\\
+\studentname\\
+\rollno
+
+\vspace{1em}
+\noindent\textbf{Guide}\\
+\guidename
+\end{document}

@@ -1,0 +1,45 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{times}
+\usepackage{parskip}
+\usepackage[hidelinks]{hyperref}
+
+% ======================= EDIT YOUR DETAILS =======================
+\newcommand{\studentname}{Aflah Muhammed P}
+% Change the roll number below:
+\newcommand{\rollno}{TVE23CSXXX}
+% Change your guide name below:
+\newcommand{\guidename}{Prof. Guide Name}
+% Change the date below (e.g. August 20, 2026):
+\newcommand{\seminardate}{\today}
+% =================================================================
+
+\begin{document}
+\begin{center}
+  {\LARGE\bfseries Guarding AI Assistants: A Multi-Agent LLM Pipeline That Stops Prompt Injection Attacks}\\[8pt]
+  {\large\bfseries Seminar Abstract}\\[6pt]
+  {\normalsize \seminardate}
+\end{center}
+\vspace{1.5em}
+
+\section*{Abstract}
+Large language models (LLMs) like ChatGPT now power chatbots, coding assistants, and autonomous agents that read emails, browse the web, and call other software tools. These systems take their orders as plain-English instructions, which is convenient but also risky, because an attacker can hide malicious instructions inside a user message, a web page, or a document. This trick, known as prompt injection, can make a model ignore its original rules, leak private data, run harmful code, or misuse connected tools. Security groups such as OWASP now rank prompt injection as the number-one risk for LLM applications. Traditional fixes, like carefully worded rules or simple keyword filters, are easy to bypass because attackers keep inventing new phrasings and encodings. As more real products give LLMs access to sensitive actions, a reliable, real-time defense has become urgent. This talk introduces one promising approach to that problem.
+
+This paper proposes a multi-agent defense pipeline: instead of trusting one model to police itself, it uses several specialized LLM agents that work together to catch and neutralize attacks. In this design a detector flags suspicious input, a sanitizer strips or rewrites the malicious parts, a verifier or guard agent checks that the final answer is safe and still useful, and a coordinator screens and routes incoming queries. The authors test two arrangements, a sequential chain of agents and a hierarchical coordinator-led system, against 400 attack instances spanning 55 attack types in 8 categories. Without any defense, attacks succeeded 30 percent of the time on the ChatGLM model and 20 percent on Llama2. With the pipeline in place, the attack success rate dropped to 0 percent while normal queries still worked. The talk will explain what prompt injection is, how the agent pipeline is built, the two architectures, and the experimental results, then discuss what the approach means for building safer AI agents and where its limits lie.
+
+\section*{Key Reference Papers}
+\begin{enumerate}
+  \item A Multi-Agent LLM Defense Pipeline Against Prompt Injection Attacks, S M Asif Hossain, Ruksat Khan Shayoni, Mohd Ruhul Ameen, Akif Islam, M. F. Mridha, Jungpil Shin, arXiv:2509.14285 (accepted at IEEE WIECON-ECE 2025), 2025.
+  \item OWASP Top 10 for Large Language Model Applications, OWASP Foundation, 2023.
+  \item Prompt Injection Attacks and Defenses in LLM-Integrated Applications, Liu et al., 2024.
+\end{enumerate}
+\vspace{1.5em}
+
+\noindent\textbf{Submitted By}\\
+\studentname\\
+\rollno
+
+\vspace{1em}
+\noindent\textbf{Guide}\\
+\guidename
+\end{document}

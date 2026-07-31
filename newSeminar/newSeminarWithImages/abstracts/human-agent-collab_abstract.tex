@@ -1,0 +1,45 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{times}
+\usepackage{parskip}
+\usepackage[hidelinks]{hyperref}
+
+% ======================= EDIT YOUR DETAILS =======================
+\newcommand{\studentname}{Aflah Muhammed P}
+% Change the roll number below:
+\newcommand{\rollno}{TVE23CSXXX}
+% Change your guide name below:
+\newcommand{\guidename}{Prof. Guide Name}
+% Change the date below (e.g. August 20, 2026):
+\newcommand{\seminardate}{\today}
+% =================================================================
+
+\begin{document}
+\begin{center}
+  {\LARGE\bfseries Humans in the Loop: How People and LLM Agents Work Better Together}\\[8pt]
+  {\large\bfseries Seminar Abstract}\\[6pt]
+  {\normalsize \seminardate}
+\end{center}
+\vspace{1.5em}
+
+\section*{Abstract}
+Large language models like the ones behind ChatGPT can now be turned into "agents" — programs that plan, use tools, and take actions to finish tasks on their own. This has fueled a rush to build fully autonomous agents that need no human help. In practice, though, these agents are still unreliable: they invent facts (a problem called hallucination), struggle with long or complicated tasks, and can raise safety and ethical concerns when left unsupervised. That makes it risky to hand them important real-world jobs without a person watching. A promising alternative is to keep a human "in the loop," letting people and agents team up so each covers the other's weaknesses. But the research on exactly how humans should fit into agent systems has been scattered across many papers with no shared vocabulary. This survey sets out to organize that fast-growing field.
+
+This paper presents the first comprehensive, structured survey of LLM-based human-agent systems, which it abbreviates as LLM-HAS. It defines the core building blocks of any such system: the environment and profiling of who is involved, the kinds of human feedback, the interaction types, the orchestration (who acts when), and the communication between humans and agents. It introduces useful classifications, including four types of human feedback (evaluative, corrective, guidance, and implicit) and a five-level "Human Agency Scale" that measures how much a task depends on people. The authors also survey real applications in areas like coding, embodied robots, gaming, and finance, and catalog the benchmarks used to test these systems. Finally, they lay out open challenges such as handling the variability of real humans, measuring human effort rather than just agent accuracy, and ensuring safety. This talk will walk through the survey's framework, show concrete example systems, and highlight why designed human collaboration currently beats full autonomy.
+
+\section*{Key Reference Papers}
+\begin{enumerate}
+  \item LLM-Based Human-Agent Collaboration and Interaction Systems: A Survey, Henry Peng Zou, Wei-Chieh Huang, Yaozu Wu, et al., arXiv:2505.00753, 2025 (ACL 2026 Findings).
+  \item MetaGPT: Meta Programming for a Multi-Agent Collaborative Framework, Sirui Hong et al., ICLR, 2024.
+  \item MINT: Evaluating LLMs in Multi-turn Interaction with Tools and Language Feedback, Xingyao Wang et al., ICLR, 2024.
+\end{enumerate}
+\vspace{1.5em}
+
+\noindent\textbf{Submitted By}\\
+\studentname\\
+\rollno
+
+\vspace{1em}
+\noindent\textbf{Guide}\\
+\guidename
+\end{document}

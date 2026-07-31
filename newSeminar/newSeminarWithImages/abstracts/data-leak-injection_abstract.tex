@@ -1,0 +1,45 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{times}
+\usepackage{parskip}
+\usepackage[hidelinks]{hyperref}
+
+% ======================= EDIT YOUR DETAILS =======================
+\newcommand{\studentname}{Aflah Muhammed P}
+% Change the roll number below:
+\newcommand{\rollno}{TVE23CSXXX}
+% Change your guide name below:
+\newcommand{\guidename}{Prof. Guide Name}
+% Change the date below (e.g. August 20, 2026):
+\newcommand{\seminardate}{\today}
+% =================================================================
+
+\begin{document}
+\begin{center}
+  {\LARGE\bfseries When Helpful Agents Overshare: How Simple Hidden Prompts Leak Personal Data}\\[8pt]
+  {\large\bfseries Seminar Abstract}\\[6pt]
+  {\normalsize \seminardate}
+\end{center}
+\vspace{1.5em}
+
+\section*{Abstract}
+AI assistants are increasingly built as agents: instead of only chatting, they call tools such as banking APIs, email, and databases to finish tasks on a user's behalf. To do their job, these agents read outside content like account statements, messages, and web pages, and much of that content is not written by the trusted user. This opens the door to prompt injection, where an attacker hides instructions inside the content the agent reads, hoping the agent will follow them instead of the user. A special danger is that agents naturally observe personal data while working, so a hidden instruction could quietly redirect that data to an attacker. Most earlier studies of prompt injection focused on generic tasks, leaving the specific risk of leaking observed personal data underexplored. This risk matters because agents are now being deployed in sensitive settings such as banking, where even a small leak can cause real harm.
+
+This paper studies how simple, plain-language injected instructions can trick a tool-calling agent into leaking personal data it saw during a normal task. The authors build a fictitious banking agent, design data flow based attacks, and add them to AgentDojo, a standard benchmark for agent security, while also creating a richer synthetic dataset of human-AI banking conversations. Testing six language models, they find attacks cause a 15 to 50 percentage point drop in task success and an average attack success rate around 20 percent on 16 tasks, and about 15 percent across an extended set of 48 tasks. Interestingly, most models resist leaking highly sensitive items like passwords due to safety training, yet still leak other personal details, and password leakage rises when it is requested together with one or two extra details. Tasks that involve data extraction or authorization are the most vulnerable, because their structure resembles the attack itself. Some defenses can drive the attack success rate to zero, but usually at the cost of the agent completing fewer legitimate tasks. The talk will explain the threat, walk through the banking scenario, present the numbers, and discuss what they mean for building safer agents.
+
+\section*{Key Reference Papers}
+\begin{enumerate}
+  \item Simple Prompt Injection Attacks Can Leak Personal Data Observed by LLM Agents During Task Execution, Meysam Alizadeh, Zeynab Samei, Daria Stetsenko, Fabrizio Gilardi, arXiv:2506.01055, 2025
+  \item AgentDojo: A Dynamic Environment to Evaluate Attacks and Defenses for LLM Agents, Edoardo Debenedetti et al., NeurIPS (arXiv:2406.13352), 2024
+  \item Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection, Kai Greshake et al., ACM Workshop on AI and Security, 2023
+\end{enumerate}
+\vspace{1.5em}
+
+\noindent\textbf{Submitted By}\\
+\studentname\\
+\rollno
+
+\vspace{1em}
+\noindent\textbf{Guide}\\
+\guidename
+\end{document}

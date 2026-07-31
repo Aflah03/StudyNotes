@@ -1,0 +1,45 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{times}
+\usepackage{parskip}
+\usepackage[hidelinks]{hyperref}
+
+% ======================= EDIT YOUR DETAILS =======================
+\newcommand{\studentname}{Aflah Muhammed P}
+% Change the roll number below:
+\newcommand{\rollno}{TVE23CSXXX}
+% Change your guide name below:
+\newcommand{\guidename}{Prof. Guide Name}
+% Change the date below (e.g. August 20, 2026):
+\newcommand{\seminardate}{\today}
+% =================================================================
+
+\begin{document}
+\begin{center}
+  {\LARGE\bfseries MARS: Peer Review for AI - Making Multi-Agent Reasoning Twice as Efficient}\\[8pt]
+  {\large\bfseries Seminar Abstract}\\[6pt]
+  {\normalsize \seminardate}
+\end{center}
+\vspace{1.5em}
+
+\section*{Abstract}
+Large language models (LLMs) such as ChatGPT are strong at language but often stumble on multi-step reasoning when they work alone. A popular fix is to let several AI agents collaborate and argue, a technique called Multi-Agent Debate (MAD). In debate, every agent reads and responds to every other agent over several rounds, and this back-and-forth tends to improve the final answer. However, all of that cross-talk is expensive: it consumes many tokens (the chunks of text an LLM processes and is billed for) and takes a long time to run. As debates grow with more agents and more rounds, the cost grows quickly, which makes these systems hard to deploy in practice. The core tension is therefore between accuracy, which benefits from collaboration, and efficiency, which suffers from too much communication. This talk examines a method that aims to keep the accuracy while cutting the cost roughly in half.
+
+This paper introduces MARS (Multi-Agent Review System), which organizes AI agents like the academic peer-review process instead of an open debate. One author agent writes an initial solution, several reviewer agents independently critique it and return a decision plus comments, and a meta-reviewer combines those reviews into a final decision and guidance for revision. The key insight is that reviewers never talk to each other, which removes most of the expensive communication while still gathering diverse feedback. Across benchmarks such as MMLU, GPQA, and GSM8K, and using several LLMs including GPT-4o-mini and Llama3.3-70b, MARS matches the accuracy of Multi-Agent Debate. At the same time it reduces both token usage and inference time by approximately half. The talk will explain the peer-review analogy, walk through how the agents interact, present the efficiency-versus-accuracy results, and discuss what this means for building cheaper reasoning systems.
+
+\section*{Key Reference Papers}
+\begin{enumerate}
+  \item MARS: toward more efficient multi-agent collaboration for LLM reasoning, Xiao Wang, Jia Wang, Yijie Wang, Pengtao Dang, Sha Cao, Chi Zhang, arXiv:2509.20502, 2025
+  \item Improving Factuality and Reasoning in Language Models through Multiagent Debate, Yilun Du et al., arXiv:2305.14325, 2023
+  \item Chain-of-Thought Prompting Elicits Reasoning in Large Language Models, Jason Wei et al., NeurIPS, 2022
+\end{enumerate}
+\vspace{1.5em}
+
+\noindent\textbf{Submitted By}\\
+\studentname\\
+\rollno
+
+\vspace{1em}
+\noindent\textbf{Guide}\\
+\guidename
+\end{document}
