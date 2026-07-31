@@ -1,0 +1,45 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{times}
+\usepackage{parskip}
+\usepackage[hidelinks]{hyperref}
+
+% ======================= EDIT YOUR DETAILS =======================
+\newcommand{\studentname}{Aflah Muhammed P}
+% Change the roll number below:
+\newcommand{\rollno}{TVE23CSXXX}
+% Change your guide name below:
+\newcommand{\guidename}{Prof. Guide Name}
+% Change the date below (e.g. August 20, 2026):
+\newcommand{\seminardate}{\today}
+% =================================================================
+
+\begin{document}
+\begin{center}
+  {\LARGE\bfseries Trustworthy LLM Agents: Mapping the Threats and Defenses of AI Agents}\\[8pt]
+  {\large\bfseries Seminar Abstract}\\[6pt]
+  {\normalsize \seminardate}
+\end{center}
+\vspace{1.5em}
+
+\section*{Abstract}
+Large Language Models such as ChatGPT are increasingly wrapped inside AI agents, which are systems that can plan, remember past steps, call external tools, and even team up with other agents to finish a task on their own. This shift from a passive chatbot to an active agent makes them far more capable, but it also opens many new ways for things to go wrong. A plain language model only takes text in and gives text out, whereas an agent reads the web, stores information in memory, runs code, and talks to other agents, giving an attacker many more entry points. Familiar risks, such as tricking a model into ignoring its safety rules, now combine with brand new ones like poisoning an agent's memory or hijacking the tools it uses. Because most earlier safety research studied the language model alone, it does not cover these agent-specific dangers. As agents begin handling real tasks like booking travel, writing code, or managing money, understanding how they can be attacked and defended becomes urgent. This paper surveys that fast-moving landscape and gives it a clear structure.
+
+The authors propose TrustAgent, a framework that organizes the trustworthiness of LLM agents into a clear, modular map. They split an agent into intrinsic parts (its brain or core model, its memory, and its tools) and extrinsic relationships (with the user, with other agents, and with the surrounding environment). For each part they collect the newly emerging attacks, the matching defenses, and the benchmarks used to test them, all viewed through properties such as safety, privacy, truthfulness, fairness, and robustness. The survey shows, for example, that defenses for tool use are still scarce and that reliable ways to evaluate memory attacks barely exist. It also compares itself against earlier trustworthy-LLM and agent-security surveys to highlight what is new. The talk will walk through the TrustAgent map, give concrete examples of each attack and defense, and end with the open problems the authors flag for future work.
+
+\section*{Key Reference Papers}
+\begin{enumerate}
+  \item A Survey on Trustworthy LLM Agents: Threats and Countermeasures, Miao Yu, Fanci Meng, Xinyun Zhou et al., arXiv:2503.09648, 2025
+  \item Trustworthy LLMs: A Survey and Guideline for Evaluating Large Language Models' Alignment, Yang Liu et al., arXiv, 2023
+  \item TrustLLM: Trustworthiness in Large Language Models, Yue Huang, Lichao Sun et al., ICML, 2024
+\end{enumerate}
+\vspace{1.5em}
+
+\noindent\textbf{Submitted By}\\
+\studentname\\
+\rollno
+
+\vspace{1em}
+\noindent\textbf{Guide}\\
+\guidename
+\end{document}

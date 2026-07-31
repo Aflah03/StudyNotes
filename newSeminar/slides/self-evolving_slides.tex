@@ -1,0 +1,198 @@
+\documentclass[10pt]{beamer}
+\usetheme{Madrid}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[T1]{fontenc}
+\setbeamertemplate{navigation symbols}{}
+
+% ======================= EDIT YOUR DETAILS =======================
+\newcommand{\studentname}{Aflah Muhammed P}
+% Change the university roll/registration number:
+\newcommand{\rollno}{TVE23CSXXX}
+% Change your class roll number:
+\newcommand{\rollclass}{Roll No: XX}
+% Change your guide name:
+\newcommand{\guidename}{Prof. Guide Name}
+% Change department / college / short-institute if needed:
+\newcommand{\deptname}{Department of Computer Science and Engineering}
+\newcommand{\collegename}{College of Engineering Trivandrum}
+\newcommand{\shortinst}{CET}
+% Change the seminar date:
+\newcommand{\seminardate}{\today}
+% =================================================================
+
+\title[B.Tech Seminar]{Self-Evolving AI Agents: How Agents Learn to Improve Themselves (What, When, How, and Where to Evolve)}
+\subtitle{Based on: A Survey of Self-Evolving Agents: What, When, How, and Where to Evolve on the Path to Artificial Super Intelligence (arXiv:2507.21046, 2025)}
+\author[\studentname\ (\shortinst)]{\studentname \\ \small \rollno \\ \small \rollclass \\ \small Guide: \guidename}
+\institute[]{\deptname \\ \collegename}
+\date{\seminardate}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+\begin{frame}{Table of Contents}
+  \tableofcontents
+\end{frame}
+
+\section{Introduction}
+\begin{frame}{Introduction}
+\begin{itemize}
+  \item LLM agents are powerful but stay frozen after training
+  \item Static models cannot adapt to new tasks or changing knowledge
+  \item Real deployments need agents that learn from experience
+  \item Shift from bigger static models to self-evolving agents
+  \item First systematic survey mapping this emerging field
+\end{itemize}
+\end{frame}
+
+\section{Literature Survey}
+\begin{frame}{Literature Survey / Background}
+  \small
+  \begin{tabular}{@{}p{2.7cm}p{2.3cm}p{5.6cm}@{}}
+    \toprule
+    \textbf{Title} & \textbf{Author} & \textbf{Summary} \\
+    \midrule
+    Reflexion: Verbal Reinforcement Learning & Shinn et al., 2023 & Agents reflect on failures in natural language and store the notes to improve on later attempts. \\
+    \addlinespace
+    Voyager: Open-Ended Embodied Agent & Wang et al., 2023 & A Minecraft agent that continually writes and reuses its own skill library to keep learning new abilities. \\
+    \addlinespace
+    Self-Refine: Iterative Refinement with Self-Feedback & Madaan et al., 2023 & A model critiques its own output and revises it repeatedly, improving quality without any extra training. \\
+    \addlinespace
+    \bottomrule
+  \end{tabular}
+\end{frame}
+
+\section{Motivation}
+\begin{frame}{Motivation}
+\begin{itemize}
+  \item Frozen models cannot fix their own recurring mistakes
+  \item Retraining by engineers is slow and expensive
+  \item Open-ended environments constantly present novel situations
+  \item Field is scattered with no unified framework
+\end{itemize}
+\end{frame}
+
+\section{Problem Statement}
+\begin{frame}{Problem Statement}
+  \begin{block}{}
+  Current LLM agents remain static after training and cannot adapt to new tasks, evolving knowledge, or dynamic interactions. This survey asks how agents can instead evolve themselves, and organizes existing methods around what, when, how, and where evolution happens.
+  \end{block}
+\end{frame}
+
+\section{Objectives}
+\begin{frame}{Objectives}
+\begin{itemize}
+  \item Define self-evolving agents systematically and clearly
+  \item Organize the field by what, when, how, where to evolve
+  \item Review evaluation metrics and benchmarks for such agents
+  \item Survey applications in coding, education, and healthcare
+  \item Identify open challenges and future research directions
+\end{itemize}
+\end{frame}
+
+\section{Methodology}
+\begin{frame}[allowframebreaks]{Methodology / Approach}
+\begin{itemize}
+  \item Survey and organize a large body of prior work
+  \item WHAT: evolve model, memory, tools, or architecture
+  \item WHEN: intra-test-time versus inter-test-time adaptation
+  \item HOW: scalar rewards, textual feedback, single or multi-agent
+  \item WHERE: coding, education, healthcare application domains
+  \item Analyze evaluation, safety, scalability, and co-evolution
+\end{itemize}
+\end{frame}
+
+\section{Key Concepts}
+\begin{frame}[allowframebreaks]{Key Concepts}
+  \begin{description}
+    \item[What to evolve] Which part changes: the model, its memory, its tools, or its overall architecture.
+    \item[When to evolve] Whether adaptation happens during a single task or carries across tasks over time.
+    \item[How to evolve] Update signals: numeric rewards, natural-language feedback, or single- and multi-agent interaction.
+    \item[Where to evolve] Application domains such as coding, education, and healthcare where evolution is deployed.
+    \item[Feedback-driven self-improvement] Reflexion-style loops where the agent reads feedback and revises its own behavior.
+  \end{description}
+\end{frame}
+
+\section{System Architecture}
+\begin{frame}{System Architecture / How It Works}
+  \begin{block}{Overview}
+  A diagram can show a continuous loop. The agent acts in an environment, then receives a feedback signal that is either a scalar reward or written textual critique. A reflection or update step interprets that feedback and applies a change to one of four components: the model parameters, the memory store, the tool set, or the workflow architecture. The loop then repeats, and the framework tags each method by when the update occurs (within a task versus between tasks) and whether one agent or several cooperating agents are involved.
+  \end{block}
+  % TIP: insert a diagram here, e.g.:
+  % \begin{center}\includegraphics[width=0.7\textwidth]{your-figure.png}\end{center}
+\end{frame}
+
+\section{Results}
+\begin{frame}[allowframebreaks]{Results / Findings}
+\begin{itemize}
+  \item First systematic, unified survey of self-evolving agents
+  \item Roughly 77 pages with 9 figures organizing the field
+  \item Framework built on four questions: what, when, how, where
+  \item Feedback is mainly numeric rewards or natural-language critique
+  \item Applications already span coding, education, and healthcare
+\end{itemize}
+\end{frame}
+
+\section{Discussion}
+\begin{frame}{Discussion}
+\begin{itemize}
+  \item Evolving memory or tools can beat costly model retraining
+  \item A shared vocabulary helps compare very different methods
+  \item Self-improving agents connect to the long-term ASI vision
+  \item Framework doubles as a design checklist for practitioners
+\end{itemize}
+\end{frame}
+
+\section{Challenges}
+\begin{frame}{Limitations \& Challenges}
+\begin{itemize}
+  \item Survey defines and organizes; it runs no new experiments
+  \item Fast-moving field means coverage can quickly become dated
+  \item Evaluation of self-evolving agents remains immature
+  \item Safety and control of self-modifying agents largely unsolved
+\end{itemize}
+\end{frame}
+
+\section{Future Work}
+\begin{frame}{Future Work}
+\begin{itemize}
+  \item Build robust benchmarks tailored to evolving agents
+  \item Prevent catastrophic forgetting during continual adaptation
+  \item Study safety and alignment of self-modifying agents
+  \item Understand co-evolution dynamics in multi-agent systems
+\end{itemize}
+\end{frame}
+
+\section{Conclusion}
+\begin{frame}{Conclusion}
+\begin{itemize}
+  \item Static LLM agents cannot adapt after deployment
+  \item Self-evolving agents learn continually from experience and feedback
+  \item Four questions organize the field: what, when, how, where
+  \item Safety, scalability, and evaluation are the key open challenges
+\end{itemize}
+\end{frame}
+
+\section{References}
+\begin{frame}[allowframebreaks]{References}
+  \footnotesize
+  \begin{enumerate}
+    \item A Survey of Self-Evolving Agents: What, When, How, and Where to Evolve on the Path to Artificial Super Intelligence, Huan-ang Gao, Jiayi Geng, Wenyue Hua, Mengkang Hu, et al., Transactions on Machine Learning Research (arXiv:2507.21046), 2025-2026
+    \item Reflexion: Language Agents with Verbal Reinforcement Learning, Noah Shinn, Federico Cassano, Ashwin Gopinath, Karthik Narasimhan, Shunyu Yao, NeurIPS, 2023
+    \item Self-Refine: Iterative Refinement with Self-Feedback, Aman Madaan et al., NeurIPS, 2023
+    \item Voyager: An Open-Ended Embodied Agent with Large Language Models, Guanzhi Wang et al., arXiv:2305.16291, 2023
+    \item Godel Agent: A Self-Referential Agent Framework for Recursive Self-Improvement, Xunjian Yin et al., arXiv:2410.04444, 2024
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[plain]
+  \begin{center}
+    {\Huge Thank You}\\[1em]
+    {\large Questions?}
+  \end{center}
+\end{frame}
+
+\end{document}

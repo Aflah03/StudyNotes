@@ -1,0 +1,199 @@
+\documentclass[10pt]{beamer}
+\usetheme{Madrid}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[T1]{fontenc}
+\setbeamertemplate{navigation symbols}{}
+
+% ======================= EDIT YOUR DETAILS =======================
+\newcommand{\studentname}{Aflah Muhammed P}
+% Change the university roll/registration number:
+\newcommand{\rollno}{TVE23CSXXX}
+% Change your class roll number:
+\newcommand{\rollclass}{Roll No: XX}
+% Change your guide name:
+\newcommand{\guidename}{Prof. Guide Name}
+% Change department / college / short-institute if needed:
+\newcommand{\deptname}{Department of Computer Science and Engineering}
+\newcommand{\collegename}{College of Engineering Trivandrum}
+\newcommand{\shortinst}{CET}
+% Change the seminar date:
+\newcommand{\seminardate}{\today}
+% =================================================================
+
+\title[B.Tech Seminar]{Trustworthy LLM Agents: Mapping the Threats and Defenses of AI Agents}
+\subtitle{Based on: A Survey on Trustworthy LLM Agents: Threats and Countermeasures (arXiv:2503.09648, 2025)}
+\author[\studentname\ (\shortinst)]{\studentname \\ \small \rollno \\ \small \rollclass \\ \small Guide: \guidename}
+\institute[]{\deptname \\ \collegename}
+\date{\seminardate}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+\begin{frame}{Table of Contents}
+  \tableofcontents
+\end{frame}
+
+\section{Introduction}
+\begin{frame}{Introduction}
+\begin{itemize}
+  \item LLMs are evolving from chatbots into acting agents
+  \item Agents add memory, external tools, and other agents
+  \item New abilities create many new security weak points
+  \item Old LLM-only safety research misses agent risks
+  \item Survey maps agent threats and their matching defenses
+\end{itemize}
+\end{frame}
+
+\section{Literature Survey}
+\begin{frame}{Literature Survey / Background}
+  \small
+  \begin{tabular}{@{}p{2.7cm}p{2.3cm}p{5.6cm}@{}}
+    \toprule
+    \textbf{Title} & \textbf{Author} & \textbf{Summary} \\
+    \midrule
+    Trustworthy LLMs: A Survey and Guideline & Liu et al., 2023 & Defines multiple categories of trustworthiness for standalone language models, but does not cover agent-specific modules like memory and tools. \\
+    \addlinespace
+    TrustLLM: Trustworthiness in Large Language Models & Huang et al., 2024 & Evaluates LLM trustworthiness across six perspectives with benchmarks, yet focuses on models rather than acting agents. \\
+    \addlinespace
+    Surveys on LLM Agent Security & He et al., 2024; Gan et al., 2024 & Review agent attacks and defenses, but often omit multi-agent systems or lack a unified modular taxonomy. \\
+    \addlinespace
+    \bottomrule
+  \end{tabular}
+\end{frame}
+
+\section{Motivation}
+\begin{frame}{Motivation}
+\begin{itemize}
+  \item Agents now take real actions in the world
+  \item Failures cause real harm, not just wrong text
+  \item Published attacks currently outpace available defenses
+  \item No unified map of agent trustworthiness existed
+\end{itemize}
+\end{frame}
+
+\section{Problem Statement}
+\begin{frame}{Problem Statement}
+  \begin{block}{}
+  Existing trustworthiness research targets standalone LLMs and cannot capture the new threats that appear once models gain memory, tools, and the ability to work with other agents. A unified framework is needed to organize agent-specific attacks, defenses, and evaluation methods.
+  \end{block}
+\end{frame}
+
+\section{Objectives}
+\begin{frame}{Objectives}
+\begin{itemize}
+  \item Propose a modular taxonomy of agent trustworthiness
+  \item Separate intrinsic and extrinsic risk dimensions
+  \item Catalog emerging attacks and their matching defenses
+  \item Collect benchmarks for evaluating agent safety
+  \item Identify open gaps and future research directions
+\end{itemize}
+\end{frame}
+
+\section{Methodology}
+\begin{frame}[allowframebreaks]{Methodology / Approach}
+\begin{itemize}
+  \item Deconstruct an agent into its core modules
+  \item Intrinsic view covers brain, memory, and tools
+  \item Extrinsic view covers user, other agents, environment
+  \item Map attacks and defenses onto each module
+  \item Assess through five trustworthiness properties
+  \item Compare coverage against prior related surveys
+\end{itemize}
+\end{frame}
+
+\section{Key Concepts}
+\begin{frame}[allowframebreaks]{Key Concepts}
+  \begin{description}
+    \item[TrustAgent Framework] Modular map organizing agent trustworthiness into intrinsic and extrinsic dimensions with attacks, defenses, and evaluation.
+    \item[Intrinsic Dimensions] The agent's internal parts: brain (core model), memory, and the tools it uses.
+    \item[Extrinsic Dimensions] The agent's outward links: the user, other agents, and the surrounding environment.
+    \item[Trustworthiness Properties] Safety, privacy, truthfulness, fairness, and robustness applied across every module.
+    \item[Attack-Defense Pairing] Each threat area is matched with known countermeasures and evaluation methods.
+  \end{description}
+\end{frame}
+
+\section{System Architecture}
+\begin{frame}{System Architecture / How It Works}
+  \begin{block}{Overview}
+  Picture a single agent at the center containing three stacked boxes: the brain (the core LLM that plans and reasons), the memory (stored and retrieved knowledge), and the tools (external APIs or functions). Around this agent, three arrows connect outward to the user it serves, to other agents in a multi-agent system, and to the surrounding environment it acts in. Each internal box and each external arrow is a labeled entry point that carries its own attacks, defenses, and benchmarks. All of these are evaluated against the five trustworthiness properties, so the diagram doubles as both a system view and a risk map.
+  \end{block}
+  % TIP: insert a diagram here, e.g.:
+  % \begin{center}\includegraphics[width=0.7\textwidth]{your-figure.png}\end{center}
+\end{frame}
+
+\section{Results}
+\begin{frame}[allowframebreaks]{Results / Findings}
+\begin{itemize}
+  \item Published attacks currently outpace available defenses
+  \item Tool-use defenses are notably scarce
+  \item Memory and multi-agent evaluation remain immature
+  \item AgentHarm benchmark offers 110 malicious agent tasks
+  \item R-Judge covers 27 risk scenarios; S-Eval spans 8 dimensions
+\end{itemize}
+\end{frame}
+
+\section{Discussion}
+\begin{frame}{Discussion}
+\begin{itemize}
+  \item Acting agents sharply widen the attack surface
+  \item Multi-agent systems tend to face the most risk
+  \item Defenses and benchmarks lag behind attacks
+  \item A unified taxonomy helps locate weak points
+\end{itemize}
+\end{frame}
+
+\section{Challenges}
+\begin{frame}{Limitations \& Challenges}
+\begin{itemize}
+  \item Survey maps the field but runs no new experiments
+  \item Fast-moving area, so coverage is a snapshot in time
+  \item Some risk areas have too few studies to compare
+  \item Static benchmarks miss dynamic agent behavior
+\end{itemize}
+\end{frame}
+
+\section{Future Work}
+\begin{frame}{Future Work}
+\begin{itemize}
+  \item Build stronger defenses for agent tool use
+  \item Create reliable memory and multi-agent benchmarks
+  \item Develop dynamic, context-aware evaluation methods
+  \item Design trust mechanisms for agent-user interaction
+\end{itemize}
+\end{frame}
+
+\section{Conclusion}
+\begin{frame}{Conclusion}
+\begin{itemize}
+  \item TrustAgent unifies agent trustworthiness into one map
+  \item Intrinsic and extrinsic modules organize the risks
+  \item Attacks lead, so defenses and tests must catch up
+  \item Framework guides safer future agent design
+\end{itemize}
+\end{frame}
+
+\section{References}
+\begin{frame}[allowframebreaks]{References}
+  \footnotesize
+  \begin{enumerate}
+    \item A Survey on Trustworthy LLM Agents: Threats and Countermeasures, Miao Yu, Fanci Meng, Xinyun Zhou, Shilong Wang, Junyuan Mao, Linsey Pang, Tianlong Chen, Kun Wang, Xinfeng Li, Yongfeng Zhang, Bo An, Qingsong Wen, arXiv:2503.09648, 2025
+    \item Trustworthy LLMs: A Survey and Guideline for Evaluating Large Language Models' Alignment, Yang Liu et al., arXiv, 2023
+    \item TrustLLM: Trustworthiness in Large Language Models, Yue Huang, Lichao Sun et al., ICML, 2024
+    \item Universal and Transferable Adversarial Attacks on Aligned Language Models (GCG), Andy Zou et al., arXiv, 2023
+    \item Improving Factuality and Reasoning in Language Models through Multiagent Debate, Yilun Du et al., arXiv, 2023
+    \item AgentHarm: A Benchmark for Measuring Harmfulness of LLM Agents, Maksym Andriushchenko et al., ICLR, 2025
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[plain]
+  \begin{center}
+    {\Huge Thank You}\\[1em]
+    {\large Questions?}
+  \end{center}
+\end{frame}
+
+\end{document}

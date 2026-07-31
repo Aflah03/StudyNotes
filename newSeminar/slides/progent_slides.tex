@@ -1,0 +1,199 @@
+\documentclass[10pt]{beamer}
+\usetheme{Madrid}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[T1]{fontenc}
+\setbeamertemplate{navigation symbols}{}
+
+% ======================= EDIT YOUR DETAILS =======================
+\newcommand{\studentname}{Aflah Muhammed P}
+% Change the university roll/registration number:
+\newcommand{\rollno}{TVE23CSXXX}
+% Change your class roll number:
+\newcommand{\rollclass}{Roll No: XX}
+% Change your guide name:
+\newcommand{\guidename}{Prof. Guide Name}
+% Change department / college / short-institute if needed:
+\newcommand{\deptname}{Department of Computer Science and Engineering}
+\newcommand{\collegename}{College of Engineering Trivandrum}
+\newcommand{\shortinst}{CET}
+% Change the seminar date:
+\newcommand{\seminardate}{\today}
+% =================================================================
+
+\title[B.Tech Seminar]{Progent: Least-Privilege Security for AI Agents}
+\subtitle{Based on: Progent: Securing AI Agents with Privilege Control (arXiv:2504.11703, 2025)}
+\author[\studentname\ (\shortinst)]{\studentname \\ \small \rollno \\ \small \rollclass \\ \small Guide: \guidename}
+\institute[]{\deptname \\ \collegename}
+\date{\seminardate}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+\begin{frame}{Table of Contents}
+  \tableofcontents
+\end{frame}
+
+\section{Introduction}
+\begin{frame}{Introduction}
+\begin{itemize}
+  \item AI agents now take real actions by calling external tools
+  \item Tool access exposes agents to indirect prompt injection attacks
+  \item Injected instructions can transfer money or delete files
+  \item Detecting every malicious instruction is unreliable and easily bypassed
+  \item Progent instead controls what actions the agent is allowed
+\end{itemize}
+\end{frame}
+
+\section{Literature Survey}
+\begin{frame}{Literature Survey / Background}
+  \small
+  \begin{tabular}{@{}p{2.7cm}p{2.3cm}p{5.6cm}@{}}
+    \toprule
+    \textbf{Title} & \textbf{Author} & \textbf{Summary} \\
+    \midrule
+    AgentDojo benchmark & Debenedetti et al., 2024 & A dynamic environment for evaluating prompt injection attacks and defenses on tool-using LLM agents; used to measure Progent. \\
+    \addlinespace
+    Agent Security Bench (ASB) & Zhang et al., 2025 & A benchmark formalizing attacks and defenses for LLM agents; the second benchmark Progent is evaluated on. \\
+    \addlinespace
+    Indirect prompt injection threat & Greshake et al., 2023 & Showed that hidden instructions in retrieved content can hijack LLM applications, motivating the need for agent defenses. \\
+    \addlinespace
+    \bottomrule
+  \end{tabular}
+\end{frame}
+
+\section{Motivation}
+\begin{frame}{Motivation}
+\begin{itemize}
+  \item Agents behave autonomously and probabilistically, so mistakes are hard to prevent
+  \item Security needs shift with each task and execution state
+  \item There is a real tradeoff between security and usefulness
+  \item Detection-based defenses miss novel or disguised attacks
+\end{itemize}
+\end{frame}
+
+\section{Problem Statement}
+\begin{frame}{Problem Statement}
+  \begin{block}{}
+  AI agents that call tools can be hijacked by indirect prompt injection into performing unauthorized actions. The challenge is to block these unwanted actions deterministically while still letting the agent complete its legitimate task.
+  \end{block}
+\end{frame}
+
+\section{Objectives}
+\begin{frame}{Objectives}
+\begin{itemize}
+  \item Enforce least privilege on every agent tool call
+  \item Block unnecessary or injected actions deterministically
+  \item Preserve utility so real tasks still succeed
+  \item Generate and update policies automatically without hand-writing
+  \item Prevent silent privilege escalation under adversarial input
+\end{itemize}
+\end{frame}
+
+\section{Methodology}
+\begin{frame}[allowframebreaks]{Methodology / Approach}
+\begin{itemize}
+  \item Represent privilege as a security policy of symbolic rules
+  \item Rules cover tool names and their argument values
+  \item An LLM auto-generates the initial policy from the user task
+  \item Check every tool call against the policy deterministically
+  \item LLM proposes policy updates as new information arrives
+  \item SMT solver labels updates as auto-applied narrowing or approval-needed expansion
+\end{itemize}
+\end{frame}
+
+\section{Key Concepts}
+\begin{frame}[allowframebreaks]{Key Concepts}
+  \begin{description}
+    \item[Privilege control] Grant the agent only the tool calls its current task requires, blocking everything else.
+    \item[Policy language] Symbolic allow/forbid rules over tool names and arguments, implemented with JSON Schema and conditions.
+    \item[Deterministic enforcement] A fixed procedure checks each tool call, so blocking does not depend on the LLM.
+    \item[Monotonic confinement] Allowed actions can only shrink automatically; expansions require explicit human approval.
+    \item[SMT-based updates] The Z3 solver decides if a policy change is a narrowing or an expansion.
+  \end{description}
+\end{frame}
+
+\section{System Architecture}
+\begin{frame}{System Architecture / How It Works}
+  \begin{block}{Overview}
+  The pipeline starts when a user gives a task to the agent. An LLM policy generator turns that task into an initial security policy of symbolic rules. As the agent runs, each tool call it wants to make passes through a deterministic policy enforcer that either allows or blocks it. When the agent gathers new information, an LLM may propose a policy update, which is sent to a Z3 SMT solver that classifies it as a narrowing (applied automatically) or an expansion (routed to a human for approval). A diagram would show task to policy generation, then a loop of agent to enforcer to tool, with the update path branching through the SMT solver.
+  \end{block}
+  % TIP: insert a diagram here, e.g.:
+  % \begin{center}\includegraphics[width=0.7\textwidth]{your-figure.png}\end{center}
+\end{frame}
+
+\section{Results}
+\begin{frame}[allowframebreaks]{Results / Findings}
+\begin{itemize}
+  \item AgentDojo attack success rate cut from 39.9 percent to 1.0 percent
+  \item ASB attack success rate cut from 70.3 percent to 3.9 percent
+  \item Agent utility stayed high while attacks were blocked
+  \item Outperformed detection and delimiting-style defense baselines
+  \item Worked in real frameworks: LangChain and OpenAI Agents SDK
+\end{itemize}
+\end{frame}
+
+\section{Discussion}
+\begin{frame}{Discussion}
+\begin{itemize}
+  \item Guardrails outside the LLM are more robust than model self-defense
+  \item Least privilege transfers effectively from classic security to agents
+  \item Automatic policy generation makes the approach practical to adopt
+  \item Shrink-only updates keep the safe default under adversarial input
+\end{itemize}
+\end{frame}
+
+\section{Challenges}
+\begin{frame}{Limitations \& Challenges}
+\begin{itemize}
+  \item Initial policy quality depends on the LLM generator
+  \item Expansion updates need human approval, adding friction
+  \item Some flexibility is traded for strong deterministic guarantees
+  \item Evaluated on specific benchmarks, so unseen tasks may differ
+\end{itemize}
+\end{frame}
+
+\section{Future Work}
+\begin{frame}{Future Work}
+\begin{itemize}
+  \item Improve automatic policy generation for complex, multi-step tasks
+  \item Reduce the need for human approval on safe expansions
+  \item Extend and test on more agent frameworks and domains
+  \item Study robustness against adaptive attackers targeting the policy
+\end{itemize}
+\end{frame}
+
+\section{Conclusion}
+\begin{frame}{Conclusion}
+\begin{itemize}
+  \item Progent secures agents through least-privilege policy control
+  \item Deterministic checks block injected and unnecessary tool calls
+  \item Monotonic confinement prevents silent privilege escalation
+  \item Strong attack reduction with high utility on AgentDojo and ASB
+\end{itemize}
+\end{frame}
+
+\section{References}
+\begin{frame}[allowframebreaks]{References}
+  \footnotesize
+  \begin{enumerate}
+    \item Progent: Securing AI Agents with Privilege Control, Tianneng Shi, Jingxuan He, Zhun Wang, Hongwei Li, Linyu Wu, Wenbo Guo, Dawn Song, arXiv:2504.11703, 2025
+    \item AgentDojo: A Dynamic Environment to Evaluate Prompt Injection Attacks and Defenses for LLM Agents, Debenedetti et al., NeurIPS Datasets and Benchmarks, 2024
+    \item Agent Security Bench (ASB): Formalizing and Benchmarking Attacks and Defenses in LLM-based Agents, Zhang et al., 2025
+    \item Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection, Greshake et al., 2023
+    \item Z3: An Efficient SMT Solver, De Moura and Bjorner, TACAS, 2008
+    \item CaMeL: Defeating Prompt Injections by Design, Debenedetti et al., 2025
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[plain]
+  \begin{center}
+    {\Huge Thank You}\\[1em]
+    {\large Questions?}
+  \end{center}
+\end{frame}
+
+\end{document}

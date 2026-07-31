@@ -1,0 +1,199 @@
+\documentclass[10pt]{beamer}
+\usetheme{Madrid}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[T1]{fontenc}
+\setbeamertemplate{navigation symbols}{}
+
+% ======================= EDIT YOUR DETAILS =======================
+\newcommand{\studentname}{Aflah Muhammed P}
+% Change the university roll/registration number:
+\newcommand{\rollno}{TVE23CSXXX}
+% Change your class roll number:
+\newcommand{\rollclass}{Roll No: XX}
+% Change your guide name:
+\newcommand{\guidename}{Prof. Guide Name}
+% Change department / college / short-institute if needed:
+\newcommand{\deptname}{Department of Computer Science and Engineering}
+\newcommand{\collegename}{College of Engineering Trivandrum}
+\newcommand{\shortinst}{CET}
+% Change the seminar date:
+\newcommand{\seminardate}{\today}
+% =================================================================
+
+\title[B.Tech Seminar]{Guarding AI Assistants: A Multi-Agent LLM Pipeline That Stops Prompt Injection Attacks}
+\subtitle{Based on: A Multi-Agent LLM Defense Pipeline Against Prompt Injection Attacks (arXiv:2509.14285, 2025)}
+\author[\studentname\ (\shortinst)]{\studentname \\ \small \rollno \\ \small \rollclass \\ \small Guide: \guidename}
+\institute[]{\deptname \\ \collegename}
+\date{\seminardate}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+\begin{frame}{Table of Contents}
+  \tableofcontents
+\end{frame}
+
+\section{Introduction}
+\begin{frame}{Introduction}
+\begin{itemize}
+  \item LLM assistants now run tools, browse, and act autonomously
+  \item Prompt injection hides malicious instructions inside trusted input
+  \item OWASP ranks it the top LLM security risk
+  \item Single-model defenses and keyword filters are easily bypassed
+  \item Paper proposes teamwork among specialized guard agents
+\end{itemize}
+\end{frame}
+
+\section{Literature Survey}
+\begin{frame}{Literature Survey / Background}
+  \small
+  \begin{tabular}{@{}p{2.7cm}p{2.3cm}p{5.6cm}@{}}
+    \toprule
+    \textbf{Title} & \textbf{Author} & \textbf{Summary} \\
+    \midrule
+    OWASP Top 10 for LLM Applications & OWASP Foundation (2023) & Industry list ranking prompt injection as the leading security threat facing large language model applications today. \\
+    \addlinespace
+    Prompt Injection Attacks and Defenses in LLM-Integrated Applications & Liu et al. (2024) & Formalizes and benchmarks prompt injection attacks and existing defenses, showing many current safeguards remain insufficient. \\
+    \addlinespace
+    Multi-Agent Security Frameworks for LLMs & Muliarevych and Gosmar & Explores analyzer, validator, sanitizer, and policy-enforcer agents cooperating to secure LLM applications, motivating multi-agent defenses. \\
+    \addlinespace
+    \bottomrule
+  \end{tabular}
+\end{frame}
+
+\section{Motivation}
+\begin{frame}{Motivation}
+\begin{itemize}
+  \item Injected instructions can leak data or misuse tools
+  \item Attackers keep inventing new phrasings and encodings
+  \item Static prompts and keyword filters cannot keep up
+  \item Tool-using agents need real-time, adaptable protection
+\end{itemize}
+\end{frame}
+
+\section{Problem Statement}
+\begin{frame}{Problem Statement}
+  \begin{block}{}
+  Prompt injection lets attackers override an LLM's instructions to leak data, run code, or misuse tools. The paper asks how to detect and neutralize such attacks in real time without breaking normal, legitimate use.
+  \end{block}
+\end{frame}
+
+\section{Objectives}
+\begin{frame}{Objectives}
+\begin{itemize}
+  \item Build a real-time defense against prompt injection
+  \item Use specialized agents for detection, sanitization, verification
+  \item Compare sequential and hierarchical pipeline designs
+  \item Test across many attack types and two models
+  \item Preserve correct answers for legitimate queries
+\end{itemize}
+\end{frame}
+
+\section{Methodology}
+\begin{frame}[allowframebreaks]{Methodology / Approach}
+\begin{itemize}
+  \item Split defense across cooperating specialized LLM agents
+  \item Detector flags suspicious or malicious input patterns
+  \item Sanitizer removes or rewrites the harmful parts
+  \item Verifier or guard checks output safety and usefulness
+  \item Coordinator screens, routes, and gates incoming queries
+  \item Two designs: sequential chain and hierarchical coordinator
+\end{itemize}
+\end{frame}
+
+\section{Key Concepts}
+\begin{frame}[allowframebreaks]{Key Concepts}
+  \begin{description}
+    \item[Detector agent] Scans input for injection patterns, encodings, and anomalies before the model acts on it.
+    \item[Sanitizer agent] Neutralizes flagged content by stripping or rewriting malicious instructions while keeping useful meaning.
+    \item[Verifier / Guard agent] Validates final output against policies, enforcing format and blocking leaks or unsafe actions.
+    \item[Coordinator agent] Classifies and routes inputs, refusing clearly malicious queries before they reach the main model.
+    \item[Two architectures] Sequential chain vets output after generation; hierarchical coordinator gates input before generation.
+  \end{description}
+\end{frame}
+
+\section{System Architecture}
+\begin{frame}{System Architecture / How It Works}
+  \begin{block}{Overview}
+  A user query enters the pipeline and is first screened by a coordinator or detector agent that classifies it as safe or suspicious. Suspicious input is passed to a sanitizer that strips or rewrites malicious instructions, and clearly malicious input can be refused outright. In the sequential chain-of-agents design, the domain LLM produces a candidate answer that a guard or verifier agent then mandatorily checks before release. In the hierarchical design, the coordinator gates the input up front and orchestrates the specialized agents. Only content that passes verification is returned to the user, so a diagram runs input to coordinator/detector to sanitizer to LLM to verifier to safe output.
+  \end{block}
+  % TIP: insert a diagram here, e.g.:
+  % \begin{center}\includegraphics[width=0.7\textwidth]{your-figure.png}\end{center}
+\end{frame}
+
+\section{Results}
+\begin{frame}[allowframebreaks]{Results / Findings}
+\begin{itemize}
+  \item Tested 400 attack instances, 55 types, 8 categories
+  \item Baseline attack success 30 percent on ChatGLM, 20 percent on Llama2
+  \item Multi-agent pipeline cut attack success to 0 percent
+  \item Highest-risk tool and delegation attacks fell from 100 to 0 percent
+  \item Legitimate queries were still answered correctly
+\end{itemize}
+\end{frame}
+
+\section{Discussion}
+\begin{frame}{Discussion}
+\begin{itemize}
+  \item Dividing defense across agents beats single-model self-policing
+  \item Layered checks catch diverse and obfuscated attacks
+  \item Approach fits real-time, tool-using agent deployments
+  \item Complements, does not replace, secure system design
+\end{itemize}
+\end{frame}
+
+\section{Challenges}
+\begin{frame}{Limitations \& Challenges}
+\begin{itemize}
+  \item Only two models, ChatGLM and Llama2, were tested
+  \item Extra agents add latency and compute cost
+  \item 0 percent may not hold against future adaptive attacks
+  \item Benign-query and latency metrics not fully reported
+\end{itemize}
+\end{frame}
+
+\section{Future Work}
+\begin{frame}{Future Work}
+\begin{itemize}
+  \item Test on more and larger models
+  \item Measure latency and false-positive rates precisely
+  \item Defend against adaptive and indirect injections
+  \item Optimize agents for lower overhead
+\end{itemize}
+\end{frame}
+
+\section{Conclusion}
+\begin{frame}{Conclusion}
+\begin{itemize}
+  \item Multi-agent pipeline stops prompt injection in real time
+  \item Attack success cut from 20 to 30 percent down to 0
+  \item Specialized cooperating agents outperform single-model defenses
+  \item A practical step toward safer tool-using AI agents
+\end{itemize}
+\end{frame}
+
+\section{References}
+\begin{frame}[allowframebreaks]{References}
+  \footnotesize
+  \begin{enumerate}
+    \item A Multi-Agent LLM Defense Pipeline Against Prompt Injection Attacks, S M Asif Hossain, Ruksat Khan Shayoni, Mohd Ruhul Ameen, Akif Islam, M. F. Mridha, Jungpil Shin, arXiv:2509.14285 (accepted at IEEE WIECON-ECE 2025), 2025.
+    \item OWASP Top 10 for Large Language Model Applications, OWASP Foundation, 2023.
+    \item Prompt Injection Attacks and Defenses in LLM-Integrated Applications, Liu et al., 2024.
+    \item Polymorphic Prompt Assembly: A Defense Against Prompt Injection, Wang et al., 2025.
+    \item Multi-Agent Security Frameworks for LLM Applications, Muliarevych and Gosmar.
+    \item Language Models are Few-Shot Learners, Brown et al., NeurIPS, 2020.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[plain]
+  \begin{center}
+    {\Huge Thank You}\\[1em]
+    {\large Questions?}
+  \end{center}
+\end{frame}
+
+\end{document}

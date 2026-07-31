@@ -1,0 +1,199 @@
+\documentclass[10pt]{beamer}
+\usetheme{Madrid}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[T1]{fontenc}
+\setbeamertemplate{navigation symbols}{}
+
+% ======================= EDIT YOUR DETAILS =======================
+\newcommand{\studentname}{Aflah Muhammed P}
+% Change the university roll/registration number:
+\newcommand{\rollno}{TVE23CSXXX}
+% Change your class roll number:
+\newcommand{\rollclass}{Roll No: XX}
+% Change your guide name:
+\newcommand{\guidename}{Prof. Guide Name}
+% Change department / college / short-institute if needed:
+\newcommand{\deptname}{Department of Computer Science and Engineering}
+\newcommand{\collegename}{College of Engineering Trivandrum}
+\newcommand{\shortinst}{CET}
+% Change the seminar date:
+\newcommand{\seminardate}{\today}
+% =================================================================
+
+\title[B.Tech Seminar]{How AI Agents Team Up: Understanding Multi-Agent Collaboration in Large Language Models}
+\subtitle{Based on: Multi-Agent Collaboration Mechanisms: A Survey of LLMs (arXiv:2501.06322, 2025)}
+\author[\studentname\ (\shortinst)]{\studentname \\ \small \rollno \\ \small \rollclass \\ \small Guide: \guidename}
+\institute[]{\deptname \\ \collegename}
+\date{\seminardate}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+\begin{frame}{Table of Contents}
+  \tableofcontents
+\end{frame}
+
+\section{Introduction}
+\begin{frame}{Introduction}
+\begin{itemize}
+  \item AI is moving from single models to teams of cooperating LLM agents
+  \item Each agent has a goal, memory, and can act and communicate
+  \item Agent teams tackle complex, multi-step tasks better than one model
+  \item The field grew fast but lacked shared vocabulary and structure
+  \item This survey maps how LLM agents collaborate into one framework
+\end{itemize}
+\end{frame}
+
+\section{Literature Survey}
+\begin{frame}{Literature Survey / Background}
+  \small
+  \begin{tabular}{@{}p{2.7cm}p{2.3cm}p{5.6cm}@{}}
+    \toprule
+    \textbf{Title} & \textbf{Author} & \textbf{Summary} \\
+    \midrule
+    CAMEL: Communicative Agents for Mind Exploration & Guohao Li et al., 2023 & Role-playing framework where two cooperating agents converse through assigned roles to complete a shared task autonomously. \\
+    \addlinespace
+    MetaGPT: Meta Programming for Multi-Agent Collaboration & Sirui Hong et al., 2024 & Encodes human Standard Operating Procedures so role-based agents work assembly-line style to build software collaboratively. \\
+    \addlinespace
+    Improving Factuality and Reasoning through Multiagent Debate & Yilun Du et al., 2023 & Multiple agents debate and critique each other's answers, improving factual accuracy and reasoning over a single model. \\
+    \addlinespace
+    \bottomrule
+  \end{tabular}
+\end{frame}
+
+\section{Motivation}
+\begin{frame}{Motivation}
+\begin{itemize}
+  \item Single LLMs struggle with large, complex, multi-step tasks
+  \item Many real problems split naturally into specialized roles
+  \item Rapidly growing MAS research had no unifying framework
+  \item Hard to compare, reuse, or secure systems without shared terms
+\end{itemize}
+\end{frame}
+
+\section{Problem Statement}
+\begin{frame}{Problem Statement}
+  \begin{block}{}
+  There is no common framework or vocabulary for describing how LLM-based agents collaborate, which makes multi-agent systems hard to compare, design, and improve. This survey aims to characterize and organize those collaboration mechanisms.
+  \end{block}
+\end{frame}
+
+\section{Objectives}
+\begin{frame}{Objectives}
+\begin{itemize}
+  \item Survey the collaborative aspect of LLM multi-agent systems
+  \item Introduce an extensible framework with clear key dimensions
+  \item Classify existing systems using consistent shared vocabulary
+  \item Review applications across networks, industry, QA, and society
+  \item Identify open challenges and future research directions
+\end{itemize}
+\end{frame}
+
+\section{Methodology}
+\begin{frame}[allowframebreaks]{Methodology / Approach}
+\begin{itemize}
+  \item Define a single agent by model, objective, environment, input, output
+  \item Characterize collaboration along five key dimensions
+  \item Actors: which agents join and what expertise they bring
+  \item Types: cooperation, competition, or coopetition
+  \item Structures: centralized, decentralized, or hierarchical
+  \item Strategies and protocols: rule/role/model-based, static or dynamic
+\end{itemize}
+\end{frame}
+
+\section{Key Concepts}
+\begin{frame}[allowframebreaks]{Key Concepts}
+  \begin{description}
+    \item[Actors] The agents involved, each assigned objectives based on their expertise and role in the team.
+    \item[Interaction types] Cooperation toward shared goals, competition for individual goals, or coopetition mixing both.
+    \item[Structures] Team shape: centralized hub, decentralized peer-to-peer, or layered hierarchical organization.
+    \item[Strategies] How behavior is controlled: fixed rules, specialized roles, or reasoning about others' intentions.
+    \item[Coordination protocols] Static preset communication channels, or dynamic ones adjusted by a manager or orchestration graph.
+  \end{description}
+\end{frame}
+
+\section{System Architecture}
+\begin{frame}{System Architecture / How It Works}
+  \begin{block}{Overview}
+  Draw each agent as a box holding its model (LLM plus memory and system prompt), its objective, and its input-to-output action loop. Then show a group of these agents connected by message arrows, with the connection pattern set by the chosen structure: a centralized layout has one hub agent routing all messages, a decentralized layout has agents linked peer-to-peer, and a hierarchical layout stacks agents in layers of authority. A coordination protocol governs the turn order and handoffs along those arrows, either fixed in advance (static) or adjusted on the fly by a manager agent or an orchestration graph (dynamic). Labeling the interaction type (cooperation, competition, or coopetition) on the whole diagram completes the picture.
+  \end{block}
+  % TIP: insert a diagram here, e.g.:
+  % \begin{center}\includegraphics[width=0.7\textwidth]{your-figure.png}\end{center}
+\end{frame}
+
+\section{Results}
+\begin{frame}[allowframebreaks]{Results / Findings}
+\begin{itemize}
+  \item Delivers a unified five-dimension collaboration framework
+  \item Classifies systems like CAMEL, AutoGen, MetaGPT, ChatDev consistently
+  \item Organizes three interaction types and three structures
+  \item Covers four domains: 5G/6G, Industry 5.0, QA, social/cultural
+  \item Notes multi-agent debate tends to improve factuality and reasoning
+\end{itemize}
+\end{frame}
+
+\section{Discussion}
+\begin{frame}{Discussion}
+\begin{itemize}
+  \item Shared vocabulary lets teams compare and reuse designs
+  \item Choice of structure and strategy should match the task
+  \item Agent teams broaden LLM impact across many real domains
+  \item Framework is a practical design checklist, not just theory
+\end{itemize}
+\end{frame}
+
+\section{Challenges}
+\begin{frame}{Limitations \& Challenges}
+\begin{itemize}
+  \item LLMs are standalone models, not trained for collaboration
+  \item Agent behavior is hard to explain and predict
+  \item Coordination cost and complexity grow with more agents
+  \item Safety risks: hallucination spread and cascading failures
+\end{itemize}
+\end{frame}
+
+\section{Future Work}
+\begin{frame}{Future Work}
+\begin{itemize}
+  \item Design better collaboration channels and adaptive role assignment
+  \item Integrate domain knowledge and pick strategies per task
+  \item Add safety and ethical governance for agent teams
+  \item Advance toward scalable artificial collective intelligence
+\end{itemize}
+\end{frame}
+
+\section{Conclusion}
+\begin{frame}{Conclusion}
+\begin{itemize}
+  \item LLM agents are shifting AI from lone models to teams
+  \item A five-dimension framework maps how these teams collaborate
+  \item It classifies existing systems and real-world applications
+  \item Open challenges in scale, cost, and safety guide future work
+\end{itemize}
+\end{frame}
+
+\section{References}
+\begin{frame}[allowframebreaks]{References}
+  \footnotesize
+  \begin{enumerate}
+    \item Multi-Agent Collaboration Mechanisms: A Survey of LLMs, Khanh-Tung Tran, Dung Dao, Minh-Duong Nguyen, Quoc-Viet Pham, Barry O'Sullivan, Hoang D. Nguyen, arXiv:2501.06322, 2025
+    \item CAMEL: Communicative Agents for Mind Exploration of Large Language Model Society, Guohao Li et al., NeurIPS, 2023
+    \item AutoGen: Enabling Next-Gen LLM Applications via Multi-Agent Conversation, Qingyun Wu et al., arXiv:2308.08155, 2023
+    \item MetaGPT: Meta Programming for a Multi-Agent Collaborative Framework, Sirui Hong et al., ICLR, 2024
+    \item Communicative Agents for Software Development (ChatDev), Chen Qian et al., ACL, 2024
+    \item Improving Factuality and Reasoning in Language Models through Multiagent Debate, Yilun Du et al., ICML, 2023
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[plain]
+  \begin{center}
+    {\Huge Thank You}\\[1em]
+    {\large Questions?}
+  \end{center}
+\end{frame}
+
+\end{document}

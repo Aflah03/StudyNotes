@@ -1,0 +1,198 @@
+\documentclass[10pt]{beamer}
+\usetheme{Madrid}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[T1]{fontenc}
+\setbeamertemplate{navigation symbols}{}
+
+% ======================= EDIT YOUR DETAILS =======================
+\newcommand{\studentname}{Aflah Muhammed P}
+% Change the university roll/registration number:
+\newcommand{\rollno}{TVE23CSXXX}
+% Change your class roll number:
+\newcommand{\rollclass}{Roll No: XX}
+% Change your guide name:
+\newcommand{\guidename}{Prof. Guide Name}
+% Change department / college / short-institute if needed:
+\newcommand{\deptname}{Department of Computer Science and Engineering}
+\newcommand{\collegename}{College of Engineering Trivandrum}
+\newcommand{\shortinst}{CET}
+% Change the seminar date:
+\newcommand{\seminardate}{\today}
+% =================================================================
+
+\title[B.Tech Seminar]{IPIGuard: Planning Tool Use Up Front to Stop Prompt Injection in AI Agents}
+\subtitle{Based on: IPIGuard: A Novel Tool Dependency Graph-Based Defense Against Indirect Prompt Injection in LLM Agents (arXiv:2508.15310, 2025)}
+\author[\studentname\ (\shortinst)]{\studentname \\ \small \rollno \\ \small \rollclass \\ \small Guide: \guidename}
+\institute[]{\deptname \\ \collegename}
+\date{\seminardate}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+\begin{frame}{Table of Contents}
+  \tableofcontents
+\end{frame}
+
+\section{Introduction}
+\begin{frame}{Introduction}
+\begin{itemize}
+  \item LLM agents now call tools to act in the real world
+  \item Agents must read untrusted external data to do their jobs
+  \item Hidden instructions in that data can hijack the agent
+  \item This threat is called indirect prompt injection, or IPI
+  \item IPIGuard defends by controlling how the agent executes tasks
+\end{itemize}
+\end{frame}
+
+\section{Literature Survey}
+\begin{frame}{Literature Survey / Background}
+  \small
+  \begin{tabular}{@{}p{2.7cm}p{2.3cm}p{5.6cm}@{}}
+    \toprule
+    \textbf{Title} & \textbf{Author} & \textbf{Summary} \\
+    \midrule
+    Not What You've Signed Up For: Indirect Prompt Injection & Greshake et al., 2023 & Introduced indirect prompt injection, showing hidden text in fetched content can compromise real LLM-integrated applications and agents. \\
+    \addlinespace
+    AgentDojo: Evaluating Attacks and Defenses for LLM Agents & Debenedetti et al., 2024 & A benchmark of realistic, stateful, multi-turn agent tasks with injected attacks, used to measure agent prompt-injection defenses. \\
+    \addlinespace
+    Defending Against Indirect Prompt Injection With Spotlighting & Hines et al., 2024 & A prompting defense that marks tool-data boundaries so the model can better separate trusted instructions from untrusted content. \\
+    \addlinespace
+    \bottomrule
+  \end{tabular}
+\end{frame}
+
+\section{Motivation}
+\begin{frame}{Motivation}
+\begin{itemize}
+  \item Existing defenses only prompt or detect, adding no hard limits
+  \item Agents keep unrestricted access to every available tool
+  \item Strong attacks bypass model-level safety guardrails
+  \item We need to block malicious tool calls at their source
+\end{itemize}
+\end{frame}
+
+\section{Problem Statement}
+\begin{frame}{Problem Statement}
+  \begin{block}{}
+  Injected instructions hidden inside tool responses can make an LLM agent invoke unintended tools and perform malicious actions. The challenge is to stop these unauthorized tool calls without crippling the agent's ability to complete legitimate user tasks.
+  \end{block}
+\end{frame}
+
+\section{Objectives}
+\begin{frame}{Objectives}
+\begin{itemize}
+  \item Prevent malicious tool invocations at their source
+  \item Decouple action planning from reading untrusted external data
+  \item Preserve utility on normal, legitimate user tasks
+  \item Handle unknown arguments and dynamic information needs
+  \item Defend robustly across many models and attack types
+\end{itemize}
+\end{frame}
+
+\section{Methodology}
+\begin{frame}[allowframebreaks]{Methodology / Approach}
+\begin{itemize}
+  \item Plan all tool calls before reading any external data
+  \item Represent the plan as a Tool Dependency Graph (a DAG)
+  \item Allow only pre-approved planned tools during execution
+  \item Estimate unknown arguments from earlier tool outputs
+  \item Permit only read-only query tools to be added later
+  \item Absorb overlap attacks with a fake tool invocation
+\end{itemize}
+\end{frame}
+
+\section{Key Concepts}
+\begin{frame}[allowframebreaks]{Key Concepts}
+  \begin{description}
+    \item[Tool Dependency Graph (TDG)] Directed acyclic graph of planned tool calls and their data dependencies, fixed before any untrusted data is read.
+    \item[Deterministic vs Pending Nodes] Deterministic nodes have all arguments known upfront; pending nodes hold placeholders filled in during execution.
+    \item[Argument Estimation] Infers a pending node's unknown arguments from the responses of the earlier tools it depends on.
+    \item[Node Expansion] Lets the agent add only read-only query tools mid-task, never world-changing command tools.
+    \item[Fake Tool Invocation] Runs a harmless simulated tool to absorb injected commands that overlap the user's own planned tools.
+  \end{description}
+\end{frame}
+
+\section{System Architecture}
+\begin{frame}{System Architecture / How It Works}
+  \begin{block}{Overview}
+  IPIGuard runs in two phases. In the planning phase, only trusted inputs (the user instruction, tool descriptions, and user profile) go into the LLM, which outputs a Tool Dependency Graph of nodes representing tool calls connected by dependency arrows, with each node marked deterministic or pending. In the execution phase, the agent traverses this graph in topological order and executes only the planned tools; argument estimation resolves pending nodes from earlier outputs, node expansion can attach extra read-only query nodes, and fake tool invocation intercepts injected instructions that overlap existing tools. The final resolved outputs are combined into the agent's answer, while untrusted tool responses are never allowed to spawn new action-taking tools.
+  \end{block}
+  % TIP: insert a diagram here, e.g.:
+  % \begin{center}\includegraphics[width=0.7\textwidth]{your-figure.png}\end{center}
+\end{frame}
+
+\section{Results}
+\begin{frame}[allowframebreaks]{Results / Findings}
+\begin{itemize}
+  \item Average attack success rate fell to 0.69 percent, from 13.16 percent
+  \item Attack success stayed below 1 percent on all four attacks
+  \item Utility under attack was the best of all defenses, 58.77 percent
+  \item Benign no-attack utility about 67 percent, near 68 percent baseline
+  \item Overhead was roughly double the tokens and time versus no defense
+\end{itemize}
+\end{frame}
+
+\section{Discussion}
+\begin{frame}{Discussion}
+\begin{itemize}
+  \item Structural constraints beat prompt-only defenses against strong attacks
+  \item IPIGuard gave the best security-versus-utility balance tested
+  \item Shifts agent security from model-centric to execution-centric
+  \item Using separate planner and executor models improves the cost trade-off
+\end{itemize}
+\end{frame}
+
+\section{Challenges}
+\begin{frame}{Limitations \& Challenges}
+\begin{itemize}
+  \item Targets tool-based attacks, not text-only output manipulation
+  \item Requires a backend model with reasonably strong planning ability
+  \item Adds roughly double the token cost and response latency
+  \item Experiments limited in scale due to high LLM query cost
+\end{itemize}
+\end{frame}
+
+\section{Future Work}
+\begin{frame}{Future Work}
+\begin{itemize}
+  \item Eliminate the residual attack success in rare corner cases
+  \item Evaluate on more and larger models such as newer reasoners
+  \item Extend the defense to output-manipulation style attacks
+  \item Reduce overhead for cost-sensitive real-world deployments
+\end{itemize}
+\end{frame}
+
+\section{Conclusion}
+\begin{frame}{Conclusion}
+\begin{itemize}
+  \item IPIGuard plans an agent's tool use as a dependency graph
+  \item Locking the plan blocks injected tool calls at their source
+  \item It delivers strong security with utility near no-defense levels
+  \item It points toward execution-centric, verifiable agent security
+\end{itemize}
+\end{frame}
+
+\section{References}
+\begin{frame}[allowframebreaks]{References}
+  \footnotesize
+  \begin{enumerate}
+    \item IPIGuard: A Novel Tool Dependency Graph-Based Defense Against Indirect Prompt Injection in LLM Agents, Hengyu An, Jinghuai Zhang, Tianyu Du, Chunyi Zhou, Qingming Li, Tao Lin, Shouling Ji, EMNLP 2025 (arXiv:2508.15310), 2025
+    \item AgentDojo: A Dynamic Environment to Evaluate Attacks and Defenses for LLM Agents, Edoardo Debenedetti et al., NeurIPS Datasets and Benchmarks Track, 2024
+    \item Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection, Kai Greshake et al., ACM Workshop on Artificial Intelligence and Security (AISec), 2023
+    \item InjecAgent: Benchmarking Indirect Prompt Injections in Tool-Integrated Large Language Model Agents, Qiusi Zhan et al., Findings of ACL, 2024
+    \item Defending Against Indirect Prompt Injection Attacks With Spotlighting, Keegan Hines et al., arXiv preprint, 2024
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[plain]
+  \begin{center}
+    {\Huge Thank You}\\[1em]
+    {\large Questions?}
+  \end{center}
+\end{frame}
+
+\end{document}

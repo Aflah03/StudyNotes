@@ -1,0 +1,199 @@
+\documentclass[10pt]{beamer}
+\usetheme{Madrid}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[T1]{fontenc}
+\setbeamertemplate{navigation symbols}{}
+
+% ======================= EDIT YOUR DETAILS =======================
+\newcommand{\studentname}{Aflah Muhammed P}
+% Change the university roll/registration number:
+\newcommand{\rollno}{TVE23CSXXX}
+% Change your class roll number:
+\newcommand{\rollclass}{Roll No: XX}
+% Change your guide name:
+\newcommand{\guidename}{Prof. Guide Name}
+% Change department / college / short-institute if needed:
+\newcommand{\deptname}{Department of Computer Science and Engineering}
+\newcommand{\collegename}{College of Engineering Trivandrum}
+\newcommand{\shortinst}{CET}
+% Change the seminar date:
+\newcommand{\seminardate}{\today}
+% =================================================================
+
+\title[B.Tech Seminar]{How Do We Know an AI Agent Is Any Good? A Survey on Evaluating LLM-Based Agents}
+\subtitle{Based on: Survey on Evaluation of LLM-based Agents (arXiv:2503.16416, 2025)}
+\author[\studentname\ (\shortinst)]{\studentname \\ \small \rollno \\ \small \rollclass \\ \small Guide: \guidename}
+\institute[]{\deptname \\ \collegename}
+\date{\seminardate}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+\begin{frame}{Table of Contents}
+  \tableofcontents
+\end{frame}
+
+\section{Introduction}
+\begin{frame}{Introduction}
+\begin{itemize}
+  \item AI is shifting from chatbots to agents that plan and act
+  \item Agents call tools, browse the web, and write code autonomously
+  \item Measuring whether an agent is good is surprisingly hard
+  \item Evaluation research is scattered across many separate benchmarks
+  \item This paper is the first comprehensive survey mapping that landscape
+\end{itemize}
+\end{frame}
+
+\section{Literature Survey}
+\begin{frame}{Literature Survey / Background}
+  \small
+  \begin{tabular}{@{}p{2.7cm}p{2.3cm}p{5.6cm}@{}}
+    \toprule
+    \textbf{Title} & \textbf{Author} & \textbf{Summary} \\
+    \midrule
+    SWE-bench & Jimenez et al., 2024 & Tests whether coding agents can resolve real GitHub issues in large open-source projects, a widely used software-engineering benchmark. \\
+    \addlinespace
+    WebArena & Zhou et al., 2024 & A realistic, self-hosted web environment where agents complete practical tasks on functioning websites like shopping and forums. \\
+    \addlinespace
+    GAIA & Mialon et al., 2023 & A benchmark of real-world questions that are easy for humans but require agents to reason, browse, and use tools together. \\
+    \addlinespace
+    \bottomrule
+  \end{tabular}
+\end{frame}
+
+\section{Motivation}
+\begin{frame}{Motivation}
+\begin{itemize}
+  \item Agents are being deployed fast but reliably measured slowly
+  \item Single-answer tests cannot capture multi-step agent behavior
+  \item Benchmarks and tools are fragmented and hard to navigate
+  \item Newcomers lack a shared map and vocabulary for evaluation
+\end{itemize}
+\end{frame}
+
+\section{Problem Statement}
+\begin{frame}{Problem Statement}
+  \begin{block}{}
+  There is no unified, organized understanding of how to evaluate LLM-based agents, whose multi-step, tool-using, environment-interacting behavior is far harder to measure than a single model output. This survey aims to map, categorize, and critique the fast-growing but scattered field of agent evaluation.
+  \end{block}
+\end{frame}
+
+\section{Objectives}
+\begin{frame}{Objectives}
+\begin{itemize}
+  \item Provide the first comprehensive survey of agent evaluation methods
+  \item Organize evaluation into five clear perspectives
+  \item Catalog benchmarks for core skills and application domains
+  \item Analyze the shared dimensions of agent benchmarks
+  \item Identify current trends and critical gaps for future research
+\end{itemize}
+\end{frame}
+
+\section{Methodology}
+\begin{frame}[allowframebreaks]{Methodology / Approach}
+\begin{itemize}
+  \item Review and synthesize a large body of agent-evaluation research
+  \item Perspective 1: core skills, planning, tool use, memory, reflection
+  \item Perspective 2: domain benchmarks for web, coding, conversational agents
+  \item Perspective 3: evaluation of broad generalist agents
+  \item Perspective 4: analyze benchmarks' core underlying dimensions
+  \item Perspective 5: survey developer frameworks and evaluation tools
+\end{itemize}
+\end{frame}
+
+\section{Key Concepts}
+\begin{frame}[allowframebreaks]{Key Concepts}
+  \begin{description}
+    \item[Core capability evaluation] Separately testing planning, tool use, memory, and self-reflection, the fundamental skills agents combine to complete tasks.
+    \item[Application-specific benchmarks] Domain-focused tests such as web agents, coding (SWE) agents, and customer-service agents in realistic settings.
+    \item[Generalist agent evaluation] Assessing broad agents across diverse mixed tasks rather than one narrow specialty, using suites like GAIA and AgentBench.
+    \item[Benchmark dimensions] Cross-cutting properties of tests: task domain, scoring method, capabilities stressed, realism, and reproducibility.
+    \item[Live and trajectory-based evaluation] Continuously updated tasks plus scoring the full action sequence, not just the final answer.
+  \end{description}
+\end{frame}
+
+\section{System Architecture}
+\begin{frame}{System Architecture / How It Works}
+  \begin{block}{Overview}
+  The survey can be drawn as a central node labeled "Agent Evaluation" branching into five perspectives. Branch one, Core Capabilities, splits into planning, tool use, memory, and self-reflection, each with example benchmarks. Branch two, Application Domains, splits into web agents (WebArena, Mind2Web, WebVoyager), coding agents (SWE-bench), and conversational agents (tau-bench). Branch three is Generalist Agents (GAIA, AgentBench, OSWorld, AppWorld). Branch four, Benchmark Dimensions, feeds analysis of task domain, methodology, capabilities, and design. Branch five, Frameworks and Tools (LangSmith, Langfuse, BrowserGym), supports actually running evaluations, with trends and gaps flowing out as conclusions.
+  \end{block}
+  % TIP: insert a diagram here, e.g.:
+  % \begin{center}\includegraphics[width=0.7\textwidth]{your-figure.png}\end{center}
+\end{frame}
+
+\section{Results}
+\begin{frame}[allowframebreaks]{Results / Findings}
+\begin{itemize}
+  \item First comprehensive survey organizing agent evaluation into five perspectives
+  \item Catalogs dozens of benchmarks across skills and domains
+  \item Web agents evaluated by WebArena, Mind2Web, WebVoyager
+  \item Coding agents evaluated by SWE-bench and its Verified and Lite variants
+  \item Clear trend toward realistic, continuously updated live benchmarks
+\end{itemize}
+\end{frame}
+
+\section{Discussion}
+\begin{frame}{Discussion}
+\begin{itemize}
+  \item Evaluation is shifting from final answers to full trajectories
+  \item Live benchmarks reduce memorization and reflect real conditions
+  \item LLM-as-a-judge is emerging for scalable automatic grading
+  \item A shared taxonomy helps builders pick the right benchmark
+\end{itemize}
+\end{frame}
+
+\section{Challenges}
+\begin{frame}{Limitations \& Challenges}
+\begin{itemize}
+  \item Most benchmarks poorly measure cost-efficiency of agent runs
+  \item Safety and robustness remain under-evaluated across the field
+  \item Fine-grained, scalable evaluation methods are still lacking
+  \item A survey reflects a fast-moving field and dates quickly
+\end{itemize}
+\end{frame}
+
+\section{Future Work}
+\begin{frame}{Future Work}
+\begin{itemize}
+  \item Build benchmarks that measure cost, safety, and robustness
+  \item Develop fine-grained, scalable, automated evaluation methods
+  \item Expand live, continuously updated benchmark environments
+  \item Improve reliability and standardization of LLM-as-a-judge scoring
+\end{itemize}
+\end{frame}
+
+\section{Conclusion}
+\begin{frame}{Conclusion}
+\begin{itemize}
+  \item Agents demand richer evaluation than single-answer AI tests
+  \item This survey gives a five-perspective map of the field
+  \item Trend is toward realistic, live, trajectory-based evaluation
+  \item Key gaps remain in cost, safety, robustness, and scalability
+\end{itemize}
+\end{frame}
+
+\section{References}
+\begin{frame}[allowframebreaks]{References}
+  \footnotesize
+  \begin{enumerate}
+    \item Survey on Evaluation of LLM-based Agents, Asaf Yehudai, Lilach Eden, Alan Li, Guy Uziel, Yilun Zhao, Roy Bar-Haim, Arman Cohan, Michal Shmueli-Scheuer, arXiv:2503.16416, 2025.
+    \item SWE-bench: Can Language Models Resolve Real-World GitHub Issues?, Carlos E. Jimenez, John Yang, et al., ICLR, 2024.
+    \item WebArena: A Realistic Web Environment for Building Autonomous Agents, Shuyan Zhou, Frank F. Xu, et al., ICLR, 2024.
+    \item GAIA: A Benchmark for General AI Assistants, Gregoire Mialon, Clementine Fourrier, et al., arXiv:2311.12983, 2023.
+    \item tau-bench: A Benchmark for Tool-Agent-User Interaction in Real-World Domains, Shunyu Yao, Noah Shinn, et al., arXiv:2406.12045, 2024.
+    \item AgentBench: Evaluating LLMs as Agents, Xiao Liu, Hao Yu, et al., ICLR, 2024.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[plain]
+  \begin{center}
+    {\Huge Thank You}\\[1em]
+    {\large Questions?}
+  \end{center}
+\end{frame}
+
+\end{document}

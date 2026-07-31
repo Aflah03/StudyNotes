@@ -1,0 +1,45 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{times}
+\usepackage{parskip}
+\usepackage[hidelinks]{hyperref}
+
+% ======================= EDIT YOUR DETAILS =======================
+\newcommand{\studentname}{Aflah Muhammed P}
+% Change the roll number below:
+\newcommand{\rollno}{TVE23CSXXX}
+% Change your guide name below:
+\newcommand{\guidename}{Prof. Guide Name}
+% Change the date below (e.g. August 20, 2026):
+\newcommand{\seminardate}{\today}
+% =================================================================
+
+\begin{document}
+\begin{center}
+  {\LARGE\bfseries Old Rules for New Agents: Applying Classic Security Principles to LLM Agents}\\[8pt]
+  {\large\bfseries Seminar Abstract}\\[6pt]
+  {\normalsize \seminardate}
+\end{center}
+\vspace{1.5em}
+
+\section*{Abstract}
+Large language model (LLM) agents are programs that use an LLM to plan, reason, and take real actions on a user's behalf, such as booking travel, sending emails, or making payments. To do useful work, these agents often hold sensitive personal data and talk to outside services and other agents. This openness creates a serious weakness: an attacker who controls an external tool can hide malicious instructions inside ordinary-looking replies, a trick called prompt injection. Because an LLM blends instructions and data in the same stream of text, the agent can be fooled into leaking private information or performing harmful actions. Studies cited in this paper report that even advanced LLMs fail to resist prompt injection roughly 85 percent of the time, and popular quick fixes offer only partial protection. Emerging agent standards like the Model Context Protocol and Agent2Agent mostly cover low-level concerns such as authentication, leaving these higher-level manipulation threats largely unaddressed.
+
+This position paper argues that we should stop inventing ad hoc patches and instead reuse the well-established security design principles that have guided computer security for fifty years, namely defense-in-depth, least privilege, complete mediation, and psychological acceptability. To show what this looks like in practice, the authors propose AgentSandbox, a conceptual framework that splits an agent into five cooperating parts and embeds these principles across the agent's whole life cycle. The design keeps a protected personal agent away from the outside world, spins up disposable throwaway agents for each task, and gives them only the minimum data they need. Every internal and external message passes through checking layers, and policies tune themselves automatically to reduce manual setup. Evaluated on the AgentDojo benchmark with GPT-4o, AgentSandbox cut the average attack success rate from about 59 percent with no defense down to roughly 4.3 percent, while keeping benign usefulness near the undefended baseline. This talk will explain the four principles, walk through the AgentSandbox architecture and a travel-booking example, and review the results, strengths, and limitations.
+
+\section*{Key Reference Papers}
+\begin{enumerate}
+  \item LLM Agents Should Employ Security Principles, Kaiyuan Zhang, Zian Su, Pin-Yu Chen, Elisa Bertino, Xiangyu Zhang, Ninghui Li, arXiv:2505.24019, 2025.
+  \item The Protection of Information in Computer Systems, Jerome H. Saltzer and Michael D. Schroeder, Proceedings of the IEEE, 1975.
+  \item AgentDojo: A Dynamic Environment to Evaluate Prompt Injection Attacks and Defenses for LLM Agents, Edoardo Debenedetti et al., arXiv:2406.13352, 2024.
+\end{enumerate}
+\vspace{1.5em}
+
+\noindent\textbf{Submitted By}\\
+\studentname\\
+\rollno
+
+\vspace{1em}
+\noindent\textbf{Guide}\\
+\guidename
+\end{document}

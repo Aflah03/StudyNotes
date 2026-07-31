@@ -1,0 +1,199 @@
+\documentclass[10pt]{beamer}
+\usetheme{Madrid}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[T1]{fontenc}
+\setbeamertemplate{navigation symbols}{}
+
+% ======================= EDIT YOUR DETAILS =======================
+\newcommand{\studentname}{Aflah Muhammed P}
+% Change the university roll/registration number:
+\newcommand{\rollno}{TVE23CSXXX}
+% Change your class roll number:
+\newcommand{\rollclass}{Roll No: XX}
+% Change your guide name:
+\newcommand{\guidename}{Prof. Guide Name}
+% Change department / college / short-institute if needed:
+\newcommand{\deptname}{Department of Computer Science and Engineering}
+\newcommand{\collegename}{College of Engineering Trivandrum}
+\newcommand{\shortinst}{CET}
+% Change the seminar date:
+\newcommand{\seminardate}{\today}
+% =================================================================
+
+\title[B.Tech Seminar]{When Agents Break: What 1.8 Million Attacks Reveal About AI Agent Security}
+\subtitle{Based on: Security Challenges in AI Agent Deployment: Insights from a Large Scale Public Competition (arXiv:2507.20526, 2025)}
+\author[\studentname\ (\shortinst)]{\studentname \\ \small \rollno \\ \small \rollclass \\ \small Guide: \guidename}
+\institute[]{\deptname \\ \collegename}
+\date{\seminardate}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+\begin{frame}{Table of Contents}
+  \tableofcontents
+\end{frame}
+
+\section{Introduction}
+\begin{frame}{Introduction}
+\begin{itemize}
+  \item AI agents now take real actions, not just generate text
+  \item Prompt injection can hijack an agent's behavior
+  \item Little large-scale evidence existed on real agent robustness
+  \item Largest public red-teaming competition run against 22 agents
+  \item Motivates a shared benchmark for agent security
+\end{itemize}
+\end{frame}
+
+\section{Literature Survey}
+\begin{frame}{Literature Survey / Background}
+  \small
+  \begin{tabular}{@{}p{2.7cm}p{2.3cm}p{5.6cm}@{}}
+    \toprule
+    \textbf{Title} & \textbf{Author} & \textbf{Summary} \\
+    \midrule
+    Indirect Prompt Injection in LLM Apps & Greshake et al., 2023 & Showed attackers can hide instructions in external data that LLM-integrated apps read, hijacking their behavior. \\
+    \addlinespace
+    AgentDojo Benchmark & Debenedetti et al., 2024 & Introduced a dynamic environment to evaluate attacks and defenses for tool-using LLM agents. \\
+    \addlinespace
+    Universal and Transferable Adversarial Attacks & Zou et al., 2023 & Demonstrated automated attacks that transfer across many aligned language models without per-model tuning. \\
+    \addlinespace
+    \bottomrule
+  \end{tabular}
+\end{frame}
+
+\section{Motivation}
+\begin{frame}{Motivation}
+\begin{itemize}
+  \item Agents are being deployed in finance, support, and coding
+  \item A hijacked agent causes real harm, not just bad text
+  \item Prior security tests were small, private, or narrow
+  \item Need realistic, large-scale evidence at frontier scale
+\end{itemize}
+\end{frame}
+
+\section{Problem Statement}
+\begin{frame}{Problem Statement}
+  \begin{block}{}
+  Can frontier AI agents be trusted to follow their deployment policies in realistic settings when facing determined adversaries? This paper measures, at large scale, how easily agents can be driven to violate those policies.
+  \end{block}
+\end{frame}
+
+\section{Objectives}
+\begin{frame}{Objectives}
+\begin{itemize}
+  \item Stress-test 22 frontier agents in realistic scenarios
+  \item Collect large-scale, real-world prompt-injection attack data
+  \item Curate high-impact attacks into a reusable benchmark
+  \item Measure robustness, transferability, and effect of scale
+  \item Release the ART benchmark and evaluation framework
+\end{itemize}
+\end{frame}
+
+\section{Methodology}
+\begin{frame}[allowframebreaks]{Methodology / Approach}
+\begin{itemize}
+  \item Define 44 realistic deployment scenarios with clear rules
+  \item Host a public red-teaming competition on Gray Swan Arena
+  \item Invite thousands to attack via direct and indirect injection
+  \item Log 1.8 million attacks and score policy violations
+  \item Distill strongest attacks into ART benchmark of \textasciitilde{}4,700 prompts
+  \item Re-evaluate the ART benchmark across 19 modern models
+\end{itemize}
+\end{frame}
+
+\section{Key Concepts}
+\begin{frame}[allowframebreaks]{Key Concepts}
+  \begin{description}
+    \item[Prompt injection] Hiding malicious instructions in text the agent reads to make it disobey its rules.
+    \item[Direct vs indirect injection] Direct comes from the user; indirect is planted in external content the agent later reads.
+    \item[Policy violation] Agent doing a forbidden action like data leaks, illicit payments, or regulatory noncompliance.
+    \item[ART benchmark] Curated set of about 4,700 high-impact attacks spanning 44 policy-violating behaviors.
+    \item[Attack transferability] A single successful attack often works across multiple models and tasks.
+  \end{description}
+\end{frame}
+
+\section{System Architecture}
+\begin{frame}{System Architecture / How It Works}
+  \begin{block}{Overview}
+  The pipeline starts with 44 scenario environments, each wrapping a frontier agent that has a system policy, tools, and access to both user input and external content. During the competition, human red teamers feed attacks through two entry points, direct user prompts and indirect content channels such as web pages, emails, or files, while an automated judge checks whether the agent's resulting action counts as a policy violation. All attacks and outcomes flow into a large results database, which is then filtered and curated into the ART benchmark. Finally, the benchmark is replayed against 19 models through the evaluation framework to produce robustness and transferability scores.
+  \end{block}
+  % TIP: insert a diagram here, e.g.:
+  % \begin{center}\includegraphics[width=0.7\textwidth]{your-figure.png}\end{center}
+\end{frame}
+
+\section{Results}
+\begin{frame}[allowframebreaks]{Results / Findings}
+\begin{itemize}
+  \item 1.8 million attacks; over 60,000 successful policy violations
+  \item Nearly all agents broke within 10 to 100 queries
+  \item Attacks transferred widely across models and tasks
+  \item Robustness not correlated with size, capability, or compute
+  \item ART benchmark: \textasciitilde{}4,700 attacks, 44 behaviors, 19 models
+\end{itemize}
+\end{frame}
+
+\section{Discussion}
+\begin{frame}{Discussion}
+\begin{itemize}
+  \item Current frontier agents are broadly insecure under attack
+  \item Scaling models alone will not fix agent security
+  \item Dedicated defenses and layered safeguards are needed
+  \item Shared benchmark enables rigorous, comparable evaluation
+\end{itemize}
+\end{frame}
+
+\section{Challenges}
+\begin{frame}{Limitations \& Challenges}
+\begin{itemize}
+  \item Competition scenarios may not cover every real deployment
+  \item Benchmark reflects attacks known at the time of the contest
+  \item Released attacks carry some dual-use misuse risk
+  \item Automated violation judging can miss edge cases
+\end{itemize}
+\end{frame}
+
+\section{Future Work}
+\begin{frame}{Future Work}
+\begin{itemize}
+  \item Develop and test dedicated agent defenses
+  \item Extend the benchmark to new scenarios and behaviors
+  \item Study why model scale fails to improve robustness
+  \item Track agent robustness over time as models evolve
+\end{itemize}
+\end{frame}
+
+\section{Conclusion}
+\begin{frame}{Conclusion}
+\begin{itemize}
+  \item Largest public agent red-teaming effort to date
+  \item Nearly every frontier agent is easily breakable
+  \item Model scale is not a reliable safety guarantee
+  \item ART benchmark released to drive safer agent deployment
+\end{itemize}
+\end{frame}
+
+\section{References}
+\begin{frame}[allowframebreaks]{References}
+  \footnotesize
+  \begin{enumerate}
+    \item Security Challenges in AI Agent Deployment: Insights from a Large Scale Public Competition, Andy Zou, Maxwell Lin, Eliot Jones, Xander Davies, Robert Kirk, Yarin Gal, Dan Hendrycks, J. Zico Kolter, Matt Fredrikson, et al., arXiv:2507.20526, 2025
+    \item Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection, Kai Greshake et al., ACM AISec Workshop, 2023
+    \item AgentDojo: A Dynamic Environment to Evaluate Attacks and Defenses for LLM Agents, Edoardo Debenedetti et al., NeurIPS Datasets and Benchmarks Track, 2024
+    \item Universal and Transferable Adversarial Attacks on Aligned Language Models, Andy Zou et al., arXiv:2307.15043, 2023
+    \item Ignore Previous Prompt: Attack Techniques For Language Models, Fabio Perez and Ian Ribeiro, NeurIPS ML Safety Workshop, 2022
+    \item HarmBench: A Standardized Evaluation Framework for Automated Red Teaming and Robust Refusal, Mantas Mazeika et al., ICML, 2024
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[plain]
+  \begin{center}
+    {\Huge Thank You}\\[1em]
+    {\large Questions?}
+  \end{center}
+\end{frame}
+
+\end{document}

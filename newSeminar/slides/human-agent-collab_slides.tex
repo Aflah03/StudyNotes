@@ -1,0 +1,198 @@
+\documentclass[10pt]{beamer}
+\usetheme{Madrid}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[T1]{fontenc}
+\setbeamertemplate{navigation symbols}{}
+
+% ======================= EDIT YOUR DETAILS =======================
+\newcommand{\studentname}{Aflah Muhammed P}
+% Change the university roll/registration number:
+\newcommand{\rollno}{TVE23CSXXX}
+% Change your class roll number:
+\newcommand{\rollclass}{Roll No: XX}
+% Change your guide name:
+\newcommand{\guidename}{Prof. Guide Name}
+% Change department / college / short-institute if needed:
+\newcommand{\deptname}{Department of Computer Science and Engineering}
+\newcommand{\collegename}{College of Engineering Trivandrum}
+\newcommand{\shortinst}{CET}
+% Change the seminar date:
+\newcommand{\seminardate}{\today}
+% =================================================================
+
+\title[B.Tech Seminar]{Humans in the Loop: How People and LLM Agents Work Better Together}
+\subtitle{Based on: LLM-Based Human-Agent Collaboration and Interaction Systems: A Survey (arXiv:2505.00753, 2025)}
+\author[\studentname\ (\shortinst)]{\studentname \\ \small \rollno \\ \small \rollclass \\ \small Guide: \guidename}
+\institute[]{\deptname \\ \collegename}
+\date{\seminardate}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+\begin{frame}{Table of Contents}
+  \tableofcontents
+\end{frame}
+
+\section{Introduction}
+\begin{frame}{Introduction}
+\begin{itemize}
+  \item LLM agents can now plan, use tools, and act autonomously
+  \item Fully autonomous agents remain unreliable and sometimes unsafe
+  \item Keeping humans in the loop boosts performance and trust
+  \item Prior research on human roles is scattered and inconsistent
+  \item This survey is the first structured map of the field
+\end{itemize}
+\end{frame}
+
+\section{Literature Survey}
+\begin{frame}{Literature Survey / Background}
+  \small
+  \begin{tabular}{@{}p{2.7cm}p{2.3cm}p{5.6cm}@{}}
+    \toprule
+    \textbf{Title} & \textbf{Author} & \textbf{Summary} \\
+    \midrule
+    MetaGPT & Hong et al. & Multi-agent framework where LLM agents coordinate through a shared message pool to collaboratively build software from a single prompt. \\
+    \addlinespace
+    MINT & Wang et al. & Benchmark evaluating how well LLMs use tools and improve across multiple turns of natural-language human feedback. \\
+    \addlinespace
+    tau-bench & Yao et al. & Benchmark testing agents in realistic tool-use conversations with a simulated user across domains like retail and airline support. \\
+    \addlinespace
+    \bottomrule
+  \end{tabular}
+\end{frame}
+
+\section{Motivation}
+\begin{frame}{Motivation}
+\begin{itemize}
+  \item Hallucinations make unsupervised agents risky in real tasks
+  \item Complex, long-horizon tasks exceed current agent reliability
+  \item Humans and agents have complementary strengths worth combining
+  \item Field lacks shared concepts to compare collaboration designs
+\end{itemize}
+\end{frame}
+
+\section{Problem Statement}
+\begin{frame}{Problem Statement}
+  \begin{block}{}
+  Fully autonomous LLM agents are not yet reliable or safe enough for many real-world tasks. The field needs a unified framework describing how humans can be integrated into agent systems to improve performance, reliability, and safety.
+  \end{block}
+\end{frame}
+
+\section{Objectives}
+\begin{frame}{Objectives}
+\begin{itemize}
+  \item Provide the first structured survey of LLM-HAS
+  \item Define the core components shaping human-agent systems
+  \item Classify human feedback and interaction types
+  \item Catalog applications, benchmarks, and building strategies
+  \item Identify open challenges and research opportunities
+\end{itemize}
+\end{frame}
+
+\section{Methodology}
+\begin{frame}[allowframebreaks]{Methodology / Approach}
+\begin{itemize}
+  \item Organize systems around environment and participant profiling
+  \item Categorize human feedback into four distinct types
+  \item Classify interaction as collaboration, competition, or coopetition
+  \item Describe orchestration: turn-taking versus simultaneous, sync versus async
+  \item Map communication structure and message-exchange modes
+  \item Rate human involvement on a five-level agency scale
+\end{itemize}
+\end{frame}
+
+\section{Key Concepts}
+\begin{frame}[allowframebreaks]{Key Concepts}
+  \begin{description}
+    \item[Human feedback types] Evaluative, corrective, guidance, and implicit signals people give to steer agent behavior.
+    \item[Interaction types] Collaboration, competition, and coopetition, describing how humans and agents relate while working.
+    \item[Orchestration] Timing rules: one-by-one or simultaneous action, and synchronous or asynchronous communication.
+    \item[Communication] Centralized, decentralized, or hierarchical structure, using conversation, observation, or a shared message pool.
+    \item[Human Agency Scale] Five levels (A1 to A5) rating how much a task depends on people.
+  \end{description}
+\end{frame}
+
+\section{System Architecture}
+\begin{frame}{System Architecture / How It Works}
+  \begin{block}{Overview}
+  Picture a loop between a human and one or more LLM agents operating inside an environment that is real or simulated. The human profiles the task and sends feedback (evaluative, corrective, guidance, or implicit), while agents plan and act, either taking turns with the human or working in parallel, and either live or with delay. Messages flow through a chosen structure — a central coordinator, peer-to-peer links, or a hierarchy — and a chosen mode such as conversation or a shared message pool. Where this loop sits on the five-level Human Agency Scale determines how much control the human keeps versus the agent.
+  \end{block}
+  % TIP: insert a diagram here, e.g.:
+  % \begin{center}\includegraphics[width=0.7\textwidth]{your-figure.png}\end{center}
+\end{frame}
+
+\section{Results}
+\begin{frame}[allowframebreaks]{Results / Findings}
+\begin{itemize}
+  \item First comprehensive, structured survey of LLM-HAS
+  \item Four human-feedback types: evaluative, corrective, guidance, implicit
+  \item Five-level Human Agency Scale, from full automation to human-driven
+  \item Three build strategies compared: prompting, fine-tuning, reinforcement learning
+  \item Applications span coding, embodied AI, gaming, and finance
+\end{itemize}
+\end{frame}
+
+\section{Discussion}
+\begin{frame}{Discussion}
+\begin{itemize}
+  \item Structured human involvement outperforms full autonomy today
+  \item Most systems still treat humans as passive evaluators
+  \item Shared vocabulary enables comparing and combining designs
+  \item Complementary strengths make teams stronger than either alone
+\end{itemize}
+\end{frame}
+
+\section{Challenges}
+\begin{frame}{Limitations \& Challenges}
+\begin{itemize}
+  \item Human variability poorly handled; many studies simulate users
+  \item Evaluation ignores human effort, measuring only agent accuracy
+  \item Safety, privacy, and error-containment remain under-studied
+  \item Little testing in high-stakes domains like healthcare
+\end{itemize}
+\end{frame}
+
+\section{Future Work}
+\begin{frame}{Future Work}
+\begin{itemize}
+  \item Build human-centered evaluation measuring workload and cost
+  \item Study bidirectional feedback where agents also guide humans
+  \item Extend to healthcare, education, and scientific research
+  \item Strengthen safety and privacy during live collaboration
+\end{itemize}
+\end{frame}
+
+\section{Conclusion}
+\begin{frame}{Conclusion}
+\begin{itemize}
+  \item Fully autonomous agents remain unreliable for real tasks
+  \item Structured human collaboration improves performance, reliability, and safety
+  \item Survey unifies concepts, components, applications, and challenges
+  \item Aims to guide future human-agent system research
+\end{itemize}
+\end{frame}
+
+\section{References}
+\begin{frame}[allowframebreaks]{References}
+  \footnotesize
+  \begin{enumerate}
+    \item LLM-Based Human-Agent Collaboration and Interaction Systems: A Survey, Henry Peng Zou, Wei-Chieh Huang, Yaozu Wu, et al., arXiv:2505.00753, 2025 (ACL 2026 Findings).
+    \item MetaGPT: Meta Programming for a Multi-Agent Collaborative Framework, Sirui Hong et al., ICLR, 2024.
+    \item MINT: Evaluating LLMs in Multi-turn Interaction with Tools and Language Feedback, Xingyao Wang et al., ICLR, 2024.
+    \item tau-bench: A Benchmark for Tool-Agent-User Interaction in Real-World Domains, Shunyu Yao et al., arXiv, 2024.
+    \item Collaborative Gym: A Framework for Enabling and Evaluating Human-Agent Collaboration, Yijia Shao et al., arXiv, 2025.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[plain]
+  \begin{center}
+    {\Huge Thank You}\\[1em]
+    {\large Questions?}
+  \end{center}
+\end{frame}
+
+\end{document}

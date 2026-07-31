@@ -1,0 +1,199 @@
+\documentclass[10pt]{beamer}
+\usetheme{Madrid}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[T1]{fontenc}
+\setbeamertemplate{navigation symbols}{}
+
+% ======================= EDIT YOUR DETAILS =======================
+\newcommand{\studentname}{Aflah Muhammed P}
+% Change the university roll/registration number:
+\newcommand{\rollno}{TVE23CSXXX}
+% Change your class roll number:
+\newcommand{\rollclass}{Roll No: XX}
+% Change your guide name:
+\newcommand{\guidename}{Prof. Guide Name}
+% Change department / college / short-institute if needed:
+\newcommand{\deptname}{Department of Computer Science and Engineering}
+\newcommand{\collegename}{College of Engineering Trivandrum}
+\newcommand{\shortinst}{CET}
+% Change the seminar date:
+\newcommand{\seminardate}{\today}
+% =================================================================
+
+\title[B.Tech Seminar]{How AI Agents Think: A Beginner's Map of LLM Agentic Reasoning Frameworks}
+\subtitle{Based on: LLM-based Agentic Reasoning Frameworks: A Survey from Methods to Scenarios (arXiv:2508.17692, 2025)}
+\author[\studentname\ (\shortinst)]{\studentname \\ \small \rollno \\ \small \rollclass \\ \small Guide: \guidename}
+\institute[]{\deptname \\ \collegename}
+\date{\seminardate}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+\begin{frame}{Table of Contents}
+  \tableofcontents
+\end{frame}
+
+\section{Introduction}
+\begin{frame}{Introduction}
+\begin{itemize}
+  \item LLMs alone give one answer; agents act in a loop
+  \item AI agents now power coding, healthcare, and science tools
+  \item Many competing reasoning designs, but no shared vocabulary
+  \item Survey builds one map from methods to real scenarios
+  \item Goal: understand each design's strengths, fit, and evaluation
+\end{itemize}
+\end{frame}
+
+\section{Literature Survey}
+\begin{frame}{Literature Survey / Background}
+  \small
+  \begin{tabular}{@{}p{2.7cm}p{2.3cm}p{5.6cm}@{}}
+    \toprule
+    \textbf{Title} & \textbf{Author} & \textbf{Summary} \\
+    \midrule
+    ReAct: Reasoning and Acting in Language Models & Shunyu Yao et al. & Combines step-by-step reasoning with actions so an agent thinks, calls a tool, observes the result, then continues toward its goal. \\
+    \addlinespace
+    Chain-of-Thought Prompting & Jason Wei et al. & Prompts a model to show its intermediate reasoning steps, sharply improving performance on math and logic problems. \\
+    \addlinespace
+    MetaGPT: Multi-Agent Collaborative Framework & Sirui Hong et al. & Assigns software-team roles to multiple agents so they collaborate to turn one requirement into working code. \\
+    \addlinespace
+    \bottomrule
+  \end{tabular}
+\end{frame}
+
+\section{Motivation}
+\begin{frame}{Motivation}
+\begin{itemize}
+  \item Agent research scattered across hundreds of inconsistent papers
+  \item Hard to compare frameworks without a shared language
+  \item Beginners cannot tell which design fits which task
+  \item Evaluation practices differ widely across domains
+\end{itemize}
+\end{frame}
+
+\section{Problem Statement}
+\begin{frame}{Problem Statement}
+  \begin{block}{}
+  There is no unified way to describe, categorize, and compare the many LLM-based agentic reasoning frameworks, making it hard to know which design suits a given task and how to evaluate it fairly. This survey addresses that gap with a common formal language and a clear taxonomy.
+  \end{block}
+\end{frame}
+
+\section{Objectives}
+\begin{frame}{Objectives}
+\begin{itemize}
+  \item Introduce a unified formal language for describing agents
+  \item Build a taxonomy of agentic reasoning frameworks
+  \item Classify methods as single-agent, tool-based, or multi-agent
+  \item Map each method family to real application scenarios
+  \item Summarize evaluation strategies across the domains
+\end{itemize}
+\end{frame}
+
+\section{Methodology}
+\begin{frame}[allowframebreaks]{Methodology / Approach}
+\begin{itemize}
+  \item Model an agent as a context updated by actions
+  \item Define an action space: reason, tool-use, and reflect
+  \item Loop until the goal or a stopping condition is met
+  \item Group all frameworks into three main families
+  \item Break each family into concrete sub-types
+  \item Connect the families to five real-world domains
+\end{itemize}
+\end{frame}
+
+\section{Key Concepts}
+\begin{frame}[allowframebreaks]{Key Concepts}
+  \begin{description}
+    \item[Single-agent methods] One agent reasons alone, using prompt-engineering tricks and self-improvement like reflection and iterative optimization.
+    \item[Tool-based methods] Agents call external tools; covers how tools are integrated, selected, and used in sequence or parallel.
+    \item[Multi-agent methods] Multiple agents organized centrally or hierarchically, interacting through cooperation, competition, or negotiation.
+    \item[Unified formal language] A simple shared notation describing any agent as a context plus reason, tool, and reflect actions.
+    \item[Application scenarios] Five domains studied: science, healthcare, software engineering, social simulation, and economics.
+  \end{description}
+\end{frame}
+
+\section{System Architecture}
+\begin{frame}{System Architecture / How It Works}
+  \begin{block}{Overview}
+  The core pipeline is a loop. An agent starts with a context that holds the user goal, then repeatedly chooses an action of one of three types: reason (think), tool-use (call an external resource), or reflect (critique itself). Each action updates the context, and the loop continues until a termination condition is satisfied and the answer is returned. A diagram can show one central Context box with arrows cycling out to Reason, Tool, and Reflect blocks and back, then branching into the three framework families (single-agent, tool-based, multi-agent) and finally into the five application domains.
+  \end{block}
+  % TIP: insert a diagram here, e.g.:
+  % \begin{center}\includegraphics[width=0.7\textwidth]{your-figure.png}\end{center}
+\end{frame}
+
+\section{Results}
+\begin{frame}[allowframebreaks]{Results / Findings}
+\begin{itemize}
+  \item Three-family taxonomy unifies scattered agent designs
+  \item No single framework is best for every task
+  \item Tool use expands ability but adds selection complexity
+  \item Multi-agent suits collaborative tasks at higher cost
+  \item Survey spans 51 pages, 10 figures, and 8 tables
+\end{itemize}
+\end{frame}
+
+\section{Discussion}
+\begin{frame}{Discussion}
+\begin{itemize}
+  \item Shared language makes different frameworks directly comparable
+  \item Choice of family should match task complexity and cost
+  \item Explicit tool and action steps clarify safety and failure points
+  \item Bridges method-level research and real deployment needs
+\end{itemize}
+\end{frame}
+
+\section{Challenges}
+\begin{frame}{Limitations \& Challenges}
+\begin{itemize}
+  \item A survey, not new experiments or head-to-head benchmarks
+  \item Fast-moving field; new frameworks appear constantly
+  \item Evaluation practices remain inconsistent across domains
+  \item Real-world reliability and safety are still open problems
+\end{itemize}
+\end{frame}
+
+\section{Future Work}
+\begin{frame}{Future Work}
+\begin{itemize}
+  \item Standardize evaluation across agent frameworks
+  \item Improve reliability, cost, and coordination of agents
+  \item Extend the taxonomy as new methods emerge
+  \item Strengthen safety and robustness in deployment
+\end{itemize}
+\end{frame}
+
+\section{Conclusion}
+\begin{frame}{Conclusion}
+\begin{itemize}
+  \item Provides a clear map of LLM agent reasoning
+  \item Three families: single-agent, tool-based, and multi-agent
+  \item A shared formal language enables fair comparison
+  \item Links methods to real scenarios and their evaluation
+\end{itemize}
+\end{frame}
+
+\section{References}
+\begin{frame}[allowframebreaks]{References}
+  \footnotesize
+  \begin{enumerate}
+    \item LLM-based Agentic Reasoning Frameworks: A Survey from Methods to Scenarios, Bingxi Zhao, Lin Geng Foo, Ping Hu, Christian Theobalt, Hossein Rahmani, Jun Liu, arXiv:2508.17692, 2025
+    \item ReAct: Synergizing Reasoning and Acting in Language Models, Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak Shafran, Karthik Narasimhan, Yuan Cao, ICLR, 2023
+    \item Chain-of-Thought Prompting Elicits Reasoning in Large Language Models, Jason Wei et al., NeurIPS, 2022
+    \item Reflexion: Language Agents with Verbal Reinforcement Learning, Noah Shinn et al., NeurIPS, 2023
+    \item MetaGPT: Meta Programming for a Multi-Agent Collaborative Framework, Sirui Hong et al., ICLR, 2024
+    \item Tree of Thoughts: Deliberate Problem Solving with Large Language Models, Shunyu Yao et al., NeurIPS, 2023
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[plain]
+  \begin{center}
+    {\Huge Thank You}\\[1em]
+    {\large Questions?}
+  \end{center}
+\end{frame}
+
+\end{document}

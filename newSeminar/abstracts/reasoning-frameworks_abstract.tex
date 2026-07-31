@@ -1,0 +1,45 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{times}
+\usepackage{parskip}
+\usepackage[hidelinks]{hyperref}
+
+% ======================= EDIT YOUR DETAILS =======================
+\newcommand{\studentname}{Aflah Muhammed P}
+% Change the roll number below:
+\newcommand{\rollno}{TVE23CSXXX}
+% Change your guide name below:
+\newcommand{\guidename}{Prof. Guide Name}
+% Change the date below (e.g. August 20, 2026):
+\newcommand{\seminardate}{\today}
+% =================================================================
+
+\begin{document}
+\begin{center}
+  {\LARGE\bfseries How AI Agents Think: A Beginner's Map of LLM Agentic Reasoning Frameworks}\\[8pt]
+  {\large\bfseries Seminar Abstract}\\[6pt]
+  {\normalsize \seminardate}
+\end{center}
+\vspace{1.5em}
+
+\section*{Abstract}
+Large language models (LLMs) like ChatGPT can write text and answer questions, but on their own they simply respond once and then stop. An AI agent wraps an LLM in a loop so it can plan, take actions, use tools, and adjust based on what it observes, letting it tackle multi-step tasks with little human help. As these agents spread into coding assistants, medical helpers, and scientific tools, researchers have invented many different reasoning frameworks that shape how an agent thinks and acts. The problem is that these frameworks are scattered across hundreds of papers, described with inconsistent language, and hard to compare. A newcomer struggles to see which design fits which job, or how to test one fairly. This survey steps back and organizes the whole landscape into a single, coherent picture. It aims to give students and practitioners a clear map of how modern LLM agents reason.
+
+This paper is a survey that proposes a taxonomy dividing LLM agentic reasoning into three families: single-agent methods (one agent reasoning on its own), tool-based methods (agents that call external tools and APIs), and multi-agent methods (several agents working together). It introduces a shared, lightweight formal language that describes any agent as a context which updates through reason, tool-use, and reflect actions until a goal is reached, making different frameworks directly comparable. It then connects each reasoning style to five real application areas, scientific discovery, healthcare, software engineering, social simulation, and economics, and summarizes how each is evaluated using benchmarks and human judgment. The talk will walk through the taxonomy with familiar examples such as ReAct, Reflexion, and MetaGPT, explain the trade-offs between the three families, and show where each shines in practice. Attendees will leave with a mental map for choosing and evaluating an agent design. No heavy math is required.
+
+\section*{Key Reference Papers}
+\begin{enumerate}
+  \item LLM-based Agentic Reasoning Frameworks: A Survey from Methods to Scenarios, Bingxi Zhao, Lin Geng Foo, Ping Hu, Christian Theobalt, Hossein Rahmani, Jun Liu, arXiv:2508.17692, 2025
+  \item ReAct: Synergizing Reasoning and Acting in Language Models, Shunyu Yao et al., ICLR, 2023
+  \item Chain-of-Thought Prompting Elicits Reasoning in Large Language Models, Jason Wei et al., NeurIPS, 2022
+\end{enumerate}
+\vspace{1.5em}
+
+\noindent\textbf{Submitted By}\\
+\studentname\\
+\rollno
+
+\vspace{1em}
+\noindent\textbf{Guide}\\
+\guidename
+\end{document}

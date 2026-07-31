@@ -1,0 +1,45 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{times}
+\usepackage{parskip}
+\usepackage[hidelinks]{hyperref}
+
+% ======================= EDIT YOUR DETAILS =======================
+\newcommand{\studentname}{Aflah Muhammed P}
+% Change the roll number below:
+\newcommand{\rollno}{TVE23CSXXX}
+% Change your guide name below:
+\newcommand{\guidename}{Prof. Guide Name}
+% Change the date below (e.g. August 20, 2026):
+\newcommand{\seminardate}{\today}
+% =================================================================
+
+\begin{document}
+\begin{center}
+  {\LARGE\bfseries Progent: Least-Privilege Security for AI Agents}\\[8pt]
+  {\large\bfseries Seminar Abstract}\\[6pt]
+  {\normalsize \seminardate}
+\end{center}
+\vspace{1.5em}
+
+\section*{Abstract}
+Modern AI agents do more than chat: they take actions by calling external tools, such as sending emails, running code, moving files, or making payments. This makes them useful, but it also opens a dangerous door. An attacker can hide malicious instructions inside a web page, email, or document that the agent reads, and the agent may obey those hidden instructions as if they came from its real user. This trick is called indirect prompt injection, and it can push an agent into unauthorized actions like transferring money or deleting files. Defending agents is hard because they act autonomously, their behavior is probabilistic rather than fully predictable, and what counts as safe depends on the specific task at hand. On top of that, there is a constant tug-of-war between being secure and being useful, since locking an agent down too tightly stops it from getting real work done. Existing defenses often try to detect bad instructions, but detection is imperfect and attackers keep finding ways around it.
+
+This paper introduces Progent, a framework that secures AI agents by controlling their privileges instead of trying to spot every attack. Progent uses a small policy language to write down exactly which tool calls a task actually needs, and it deterministically blocks any tool call that is not on that whitelist. An LLM automatically writes the starting policy from the user's task and updates it as the agent learns new information during execution. A logic engine called an SMT solver checks each proposed update: if it only tightens the rules it is applied automatically, but if it would loosen them it requires explicit human approval, so the agent's powers can only shrink on their own. This design, which the authors call monotonic confinement, preserves usefulness while preventing silent privilege escalation even when the input is adversarial. On the AgentDojo and ASB benchmarks, Progent cut attack success rates from 39.9 percent to 1.0 percent and from 70.3 percent to 3.9 percent while keeping utility high. The talk will explain the threat, walk through how the policy language and solver work, review the results, and show how Progent plugs into real frameworks like LangChain and the OpenAI Agents SDK.
+
+\section*{Key Reference Papers}
+\begin{enumerate}
+  \item Progent: Securing AI Agents with Privilege Control, Tianneng Shi, Jingxuan He, Zhun Wang, Hongwei Li, Linyu Wu, Wenbo Guo, Dawn Song, arXiv:2504.11703, 2025
+  \item AgentDojo: A Dynamic Environment to Evaluate Prompt Injection Attacks and Defenses for LLM Agents, Debenedetti et al., NeurIPS Datasets and Benchmarks, 2024
+  \item Agent Security Bench (ASB): Formalizing and Benchmarking Attacks and Defenses in LLM-based Agents, Zhang et al., 2025
+\end{enumerate}
+\vspace{1.5em}
+
+\noindent\textbf{Submitted By}\\
+\studentname\\
+\rollno
+
+\vspace{1em}
+\noindent\textbf{Guide}\\
+\guidename
+\end{document}

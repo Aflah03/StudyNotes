@@ -1,0 +1,199 @@
+\documentclass[10pt]{beamer}
+\usetheme{Madrid}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[T1]{fontenc}
+\setbeamertemplate{navigation symbols}{}
+
+% ======================= EDIT YOUR DETAILS =======================
+\newcommand{\studentname}{Aflah Muhammed P}
+% Change the university roll/registration number:
+\newcommand{\rollno}{TVE23CSXXX}
+% Change your class roll number:
+\newcommand{\rollclass}{Roll No: XX}
+% Change your guide name:
+\newcommand{\guidename}{Prof. Guide Name}
+% Change department / college / short-institute if needed:
+\newcommand{\deptname}{Department of Computer Science and Engineering}
+\newcommand{\collegename}{College of Engineering Trivandrum}
+\newcommand{\shortinst}{CET}
+% Change the seminar date:
+\newcommand{\seminardate}{\today}
+% =================================================================
+
+\title[B.Tech Seminar]{Large Language Models for Planning: How AI Agents Turn a Goal into Step-by-Step Actions}
+\subtitle{Based on: Large Language Models for Planning: A Comprehensive and Systematic Survey (arXiv:2505.19683, 2025)}
+\author[\studentname\ (\shortinst)]{\studentname \\ \small \rollno \\ \small \rollclass \\ \small Guide: \guidename}
+\institute[]{\deptname \\ \collegename}
+\date{\seminardate}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+\begin{frame}{Table of Contents}
+  \tableofcontents
+\end{frame}
+
+\section{Introduction}
+\begin{frame}{Introduction}
+\begin{itemize}
+  \item Planning means turning a high-level goal into ordered, executable actions
+  \item Intelligent agents need planning to complete real multi-step tasks
+  \item LLMs can plan from plain-language goals without hand-written rules
+  \item But LLMs hallucinate steps and struggle on long tasks
+  \item This survey maps the fast-growing field of LLM-based planning
+\end{itemize}
+\end{frame}
+
+\section{Literature Survey}
+\begin{frame}{Literature Survey / Background}
+  \small
+  \begin{tabular}{@{}p{2.7cm}p{2.3cm}p{5.6cm}@{}}
+    \toprule
+    \textbf{Title} & \textbf{Author} & \textbf{Summary} \\
+    \midrule
+    Chain-of-Thought Prompting Elicits Reasoning in LLMs & Wei et al., 2022 & Shows that prompting a model to reason step by step greatly improves multi-step reasoning, a foundation for LLM planning. \\
+    \addlinespace
+    ReAct: Synergizing Reasoning and Acting in Language Models & Yao et al., 2023 & Interleaves reasoning with actions so an LLM agent can plan and interact with an environment at the same time. \\
+    \addlinespace
+    Tree of Thoughts: Deliberate Problem Solving with LLMs & Yao et al., 2023 & Lets an LLM explore and evaluate multiple reasoning branches like a search tree instead of one linear guess. \\
+    \addlinespace
+    \bottomrule
+  \end{tabular}
+\end{frame}
+
+\section{Motivation}
+\begin{frame}{Motivation}
+\begin{itemize}
+  \item LLM agents are moving into web, coding, and robotics tasks
+  \item Hundreds of planning methods exist with no shared map
+  \item Each method makes different trade-offs and assumptions
+  \item Beginners and researchers need one organized, systematic overview
+\end{itemize}
+\end{frame}
+
+\section{Problem Statement}
+\begin{frame}{Problem Statement}
+  \begin{block}{}
+  LLMs can generate plans from natural-language goals but often produce invalid, inefficient, or incomplete action sequences, and the many proposed fixes lack a unified organization and evaluation view. This survey systematically categorizes LLM-based planning methods and their benchmarks and metrics.
+  \end{block}
+\end{frame}
+
+\section{Objectives}
+\begin{frame}{Objectives}
+\begin{itemize}
+  \item Establish clear definitions and categories of automated planning
+  \item Provide a systematic taxonomy of LLM-based planning methods
+  \item Organize methods into three principal approach families
+  \item Summarize benchmarks, metrics, and performance comparisons
+  \item Discuss enabling mechanisms and future research directions
+\end{itemize}
+\end{frame}
+
+\section{Methodology}
+\begin{frame}[allowframebreaks]{Methodology / Approach}
+\begin{itemize}
+  \item Survey and taxonomy paper, not a single new algorithm
+  \item Start with foundations of classical automated planning
+  \item Family 1: External Module Augmented, add planners or tools
+  \item Family 2: Finetuning-based, train on trajectories and feedback
+  \item Family 3: Searching-based, decompose tasks and search plan space
+  \item Consolidate evaluation benchmarks, metrics, and open challenges
+\end{itemize}
+\end{frame}
+
+\section{Key Concepts}
+\begin{frame}[allowframebreaks]{Key Concepts}
+  \begin{description}
+    \item[External Module Augmented] Pair the LLM with outside helpers like classical planners, tools, or memory to improve plans.
+    \item[Finetuning-based Methods] Adjust the LLM weights using planning trajectories and success or failure feedback signals.
+    \item[Searching-based Methods] Decompose complex tasks and explore multiple candidate plans via search or better decoding.
+    \item[Task decomposition] Split a hard goal into smaller subtasks that are easier to solve step by step.
+    \item[Evaluation framework] Shared benchmarks and metrics used to compare planning methods fairly.
+  \end{description}
+\end{frame}
+
+\section{System Architecture}
+\begin{frame}{System Architecture / How It Works}
+  \begin{block}{Overview}
+  A diagram can show a single natural-language goal entering an LLM planner at the top. From the LLM, three parallel branches represent the three families: one branch sends structured output to an external classical planner or tool and returns a validated plan; a second branch shows the LLM being fine-tuned offline on trajectory and feedback data before it plans; a third branch shows the LLM decomposing the goal into subtasks and expanding a search tree of candidate steps that are scored and pruned. All three branches converge on a produced action sequence, which is then executed in an environment and scored by an evaluation block measuring success rate, executability, and efficiency.
+  \end{block}
+  % TIP: insert a diagram here, e.g.:
+  % \begin{center}\includegraphics[width=0.7\textwidth]{your-figure.png}\end{center}
+\end{frame}
+
+\section{Results}
+\begin{frame}[allowframebreaks]{Results / Findings}
+\begin{itemize}
+  \item Consolidates LLM planning research into three clear families
+  \item External modules add guarantees but need formal task descriptions
+  \item Fine-tuning bakes in planning skill but needs trajectory data
+  \item Search improves plan quality at extra computation cost
+  \item Reviews benchmarks like Blocksworld, ALFWorld, WebShop, TravelPlanner
+\end{itemize}
+\end{frame}
+
+\section{Discussion}
+\begin{frame}{Discussion}
+\begin{itemize}
+  \item No single family wins; each trades off cost, data, and guarantees
+  \item Combining families often yields the strongest agents
+  \item Reliable planning is key to safe, useful autonomous agents
+  \item Shared benchmarks and metrics enable fair method comparison
+\end{itemize}
+\end{frame}
+
+\section{Challenges}
+\begin{frame}{Limitations \& Challenges}
+\begin{itemize}
+  \item LLM planners still hallucinate invalid or unsafe steps
+  \item Performance drops on long-horizon and highly complex tasks
+  \item Benchmarks may not reflect messy real-world environments
+  \item Search and fine-tuning add computational or data cost
+\end{itemize}
+\end{frame}
+
+\section{Future Work}
+\begin{frame}{Future Work}
+\begin{itemize}
+  \item Scale planning to longer horizons and harder domains
+  \item Improve robustness when environments shift unexpectedly
+  \item Build richer, more realistic evaluation benchmarks
+  \item Blend classical planning guarantees with neural flexibility
+\end{itemize}
+\end{frame}
+
+\section{Conclusion}
+\begin{frame}{Conclusion}
+\begin{itemize}
+  \item LLMs make planning accessible directly from plain-language goals
+  \item The field fits into three families: external modules, fine-tuning, search
+  \item Shared benchmarks and metrics let us compare methods fairly
+  \item Reliable LLM planning is central to future capable, safe agents
+\end{itemize}
+\end{frame}
+
+\section{References}
+\begin{frame}[allowframebreaks]{References}
+  \footnotesize
+  \begin{enumerate}
+    \item Large Language Models for Planning: A Comprehensive and Systematic Survey, Cao P., Men T., Liu W., Zhang J., Li X., Lin X., Sui D., Cao Y., Liu K., Zhao J., arXiv:2505.19683, 2025
+    \item ReAct: Synergizing Reasoning and Acting in Language Models, Yao S. et al., ICLR, 2023
+    \item Tree of Thoughts: Deliberate Problem Solving with Large Language Models, Yao S. et al., NeurIPS, 2023
+    \item Chain-of-Thought Prompting Elicits Reasoning in Large Language Models, Wei J. et al., NeurIPS, 2022
+    \item LLM+P: Empowering Large Language Models with Optimal Planning Proficiency, Liu B. et al., arXiv:2304.11477, 2023
+    \item Reflexion: Language Agents with Verbal Reinforcement Learning, Shinn N. et al., NeurIPS, 2023
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[plain]
+  \begin{center}
+    {\Huge Thank You}\\[1em]
+    {\large Questions?}
+  \end{center}
+\end{frame}
+
+\end{document}

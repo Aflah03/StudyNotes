@@ -1,0 +1,198 @@
+\documentclass[10pt]{beamer}
+\usetheme{Madrid}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[T1]{fontenc}
+\setbeamertemplate{navigation symbols}{}
+
+% ======================= EDIT YOUR DETAILS =======================
+\newcommand{\studentname}{Aflah Muhammed P}
+% Change the university roll/registration number:
+\newcommand{\rollno}{TVE23CSXXX}
+% Change your class roll number:
+\newcommand{\rollclass}{Roll No: XX}
+% Change your guide name:
+\newcommand{\guidename}{Prof. Guide Name}
+% Change department / college / short-institute if needed:
+\newcommand{\deptname}{Department of Computer Science and Engineering}
+\newcommand{\collegename}{College of Engineering Trivandrum}
+\newcommand{\shortinst}{CET}
+% Change the seminar date:
+\newcommand{\seminardate}{\today}
+% =================================================================
+
+\title[B.Tech Seminar]{When Helpful Agents Overshare: How Simple Hidden Prompts Leak Personal Data}
+\subtitle{Based on: Simple Prompt Injection Attacks Can Leak Personal Data Observed by LLM Agents During Task Execution (arXiv:2506.01055, 2025)}
+\author[\studentname\ (\shortinst)]{\studentname \\ \small \rollno \\ \small \rollclass \\ \small Guide: \guidename}
+\institute[]{\deptname \\ \collegename}
+\date{\seminardate}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+\begin{frame}{Table of Contents}
+  \tableofcontents
+\end{frame}
+
+\section{Introduction}
+\begin{frame}{Introduction}
+\begin{itemize}
+  \item AI agents now call real tools, not just chat
+  \item Agents must read outside, possibly untrusted content
+  \item Hidden instructions can hijack what agents do
+  \item Agents see personal data while doing normal tasks
+  \item This work measures how easily that data leaks
+\end{itemize}
+\end{frame}
+
+\section{Literature Survey}
+\begin{frame}{Literature Survey / Background}
+  \small
+  \begin{tabular}{@{}p{2.7cm}p{2.3cm}p{5.6cm}@{}}
+    \toprule
+    \textbf{Title} & \textbf{Author} & \textbf{Summary} \\
+    \midrule
+    AgentDojo: A Dynamic Environment to Evaluate Attacks and Defenses for LLM Agents & Debenedetti et al. (2024) & Standard benchmark with realistic tool-using tasks and injection tests across banking, email, Slack, and travel; this paper extends its banking suite. \\
+    \addlinespace
+    Not What You've Signed Up For: Compromising LLM-Integrated Applications with Indirect Prompt Injection & Greshake et al. (2023) & Showed attackers can hide instructions in content apps retrieve, hijacking real-world LLM applications without any direct access to the user. \\
+    \addlinespace
+    Defeating Prompt Injections by Design (CaMeL) & Debenedetti et al. (2025) & Proposes a design-based defense separating trusted control from untrusted data flow; the paper notes it is not yet tested against these attacks. \\
+    \addlinespace
+    \bottomrule
+  \end{tabular}
+\end{frame}
+
+\section{Motivation}
+\begin{frame}{Motivation}
+\begin{itemize}
+  \item Agents are entering sensitive domains like banking
+  \item Prior benchmarks tested generic tasks, not data leakage
+  \item Personal data is observed during ordinary task execution
+  \item Even simple, non-technical attacks may succeed
+\end{itemize}
+\end{frame}
+
+\section{Problem Statement}
+\begin{frame}{Problem Statement}
+  \begin{block}{}
+  Can short, plain-language instructions hidden in content that a tool-calling agent reads trick it into leaking personal data it observed while doing a legitimate task, and how well do existing defenses stop this?
+  \end{block}
+\end{frame}
+
+\section{Objectives}
+\begin{frame}{Objectives}
+\begin{itemize}
+  \item Measure data-leakage risk in a realistic banking agent
+  \item Design data flow based prompt injection attacks
+  \item Integrate these attacks into the AgentDojo benchmark
+  \item Compare vulnerability across six different language models
+  \item Evaluate whether built-in defenses prevent leakage
+\end{itemize}
+\end{frame}
+
+\section{Methodology}
+\begin{frame}[allowframebreaks]{Methodology / Approach}
+\begin{itemize}
+  \item Build a fictitious tool-calling banking agent
+  \item Create a synthetic human-AI banking conversation dataset
+  \item Extend AgentDojo banking suite with leakage attacks
+  \item Inject an Important message style malicious instruction
+  \item Vary requested data, wording, and attacker knowledge
+  \item Test four AgentDojo defenses and measure trade-offs
+\end{itemize}
+\end{frame}
+
+\section{Key Concepts}
+\begin{frame}[allowframebreaks]{Key Concepts}
+  \begin{description}
+    \item[Tool-calling agent] LLM that invokes external tools to read data and take actions on a user's behalf.
+    \item[Indirect prompt injection] Hidden malicious instructions placed in content the agent reads, not typed by the user.
+    \item[Data flow based attack] Injection that redirects personal data the agent observed toward an attacker-controlled destination.
+    \item[Attack success rate (ASR)] Share of cases where the agent actually performs the attacker's intended data leak.
+    \item[Utility trade-off] Defenses lower attack success but often reduce how many real tasks succeed.
+  \end{description}
+\end{frame}
+
+\section{System Architecture}
+\begin{frame}{System Architecture / How It Works}
+  \begin{block}{Overview}
+  The pipeline starts with a user giving the banking agent a normal instruction, such as summarizing recent transactions. The agent, powered by a language model, calls banking tools that return data like statements or messages, and one of those tool outputs secretly contains a hidden injected instruction. The agent reads the combined content and decides its next action; if it obeys the injection, it calls a tool such as send email to forward the user's personal data to an attacker address. A defense layer can sit between the tool outputs and the model, for example wrapping data in delimiters, scanning it with a detector, repeating the user's request, or limiting available tools, so only clean or allowed content reaches the model.
+  \end{block}
+  % TIP: insert a diagram here, e.g.:
+  % \begin{center}\includegraphics[width=0.7\textwidth]{your-figure.png}\end{center}
+\end{frame}
+
+\section{Results}
+\begin{frame}[allowframebreaks]{Results / Findings}
+\begin{itemize}
+  \item About 20 percent average attack success on 16 tasks
+  \item Task success drops 15 to 50 percentage points under attack
+  \item Extended 48-task set shows about 15 percent average ASR
+  \item Llama-4 (17B) worst near 40 percent; GPT-4o most resilient
+  \item Data-extraction and authorization tasks are most vulnerable
+\end{itemize}
+\end{frame}
+
+\section{Discussion}
+\begin{frame}{Discussion}
+\begin{itemize}
+  \item Safety training blocks passwords but not all personal data
+  \item Vulnerability depends on task type, not only the model
+  \item Defenses trade security against completing legitimate tasks
+  \item No built-in defense fully stopped leakage on extended tasks
+\end{itemize}
+\end{frame}
+
+\section{Challenges}
+\begin{frame}{Limitations \& Challenges}
+\begin{itemize}
+  \item Fictitious banking setup, not the full adversarial range
+  \item Results depend on chosen benchmark, dataset, and models
+  \item Synthetic conversations may miss real user behavior
+  \item Design-based defenses like CaMeL not yet evaluated
+\end{itemize}
+\end{frame}
+
+\section{Future Work}
+\begin{frame}{Future Work}
+\begin{itemize}
+  \item Map which sensitive data types models inherently resist leaking
+  \item Evaluate design-based defenses such as CaMeL
+  \item Extend testing to insurance, stock, and cryptocurrency domains
+  \item Develop and test more sophisticated injection attacks
+\end{itemize}
+\end{frame}
+
+\section{Conclusion}
+\begin{frame}{Conclusion}
+\begin{itemize}
+  \item Simple hidden prompts can make agents leak observed personal data
+  \item Average attack success roughly 15 to 20 percent across banking tasks
+  \item Task structure and data type strongly shape vulnerability
+  \item Current defenses help but sacrifice task performance
+\end{itemize}
+\end{frame}
+
+\section{References}
+\begin{frame}[allowframebreaks]{References}
+  \footnotesize
+  \begin{enumerate}
+    \item Simple Prompt Injection Attacks Can Leak Personal Data Observed by LLM Agents During Task Execution, Meysam Alizadeh, Zeynab Samei, Daria Stetsenko, Fabrizio Gilardi, arXiv:2506.01055, 2025
+    \item AgentDojo: A Dynamic Environment to Evaluate Attacks and Defenses for LLM Agents, Edoardo Debenedetti, Jie Zhang, Mislav Balunovic, Luca Beurer-Kellner, Marc Fischer, Florian Tramer, arXiv:2406.13352, 2024
+    \item Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection, Kai Greshake et al., ACM Workshop on AI and Security, 2023
+    \item Defeating Prompt Injections by Design, Edoardo Debenedetti et al., arXiv:2503.18813, 2025
+    \item Defending Against Indirect Prompt Injection Attacks With Spotlighting, Keegan Hines et al., arXiv:2403.14720, 2024
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[plain]
+  \begin{center}
+    {\Huge Thank You}\\[1em]
+    {\large Questions?}
+  \end{center}
+\end{frame}
+
+\end{document}

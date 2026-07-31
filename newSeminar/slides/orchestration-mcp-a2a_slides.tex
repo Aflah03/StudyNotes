@@ -1,0 +1,199 @@
+\documentclass[10pt]{beamer}
+\usetheme{Madrid}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[T1]{fontenc}
+\setbeamertemplate{navigation symbols}{}
+
+% ======================= EDIT YOUR DETAILS =======================
+\newcommand{\studentname}{Aflah Muhammed P}
+% Change the university roll/registration number:
+\newcommand{\rollno}{TVE23CSXXX}
+% Change your class roll number:
+\newcommand{\rollclass}{Roll No: XX}
+% Change your guide name:
+\newcommand{\guidename}{Prof. Guide Name}
+% Change department / college / short-institute if needed:
+\newcommand{\deptname}{Department of Computer Science and Engineering}
+\newcommand{\collegename}{College of Engineering Trivandrum}
+\newcommand{\shortinst}{CET}
+% Change the seminar date:
+\newcommand{\seminardate}{\today}
+% =================================================================
+
+\title[B.Tech Seminar]{Orchestrating Teams of AI Agents: Architectures, the MCP and A2A Protocols, and Enterprise Adoption}
+\subtitle{Based on: The Orchestration of Multi-Agent Systems: Architectures, Protocols, and Enterprise Adoption (arXiv:2601.13671, 2026)}
+\author[\studentname\ (\shortinst)]{\studentname \\ \small \rollno \\ \small \rollclass \\ \small Guide: \guidename}
+\institute[]{\deptname \\ \collegename}
+\date{\seminardate}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+\begin{frame}{Table of Contents}
+  \tableofcontents
+\end{frame}
+
+\section{Introduction}
+\begin{frame}{Introduction}
+\begin{itemize}
+  \item AI is shifting from single agents to coordinated teams of agents
+  \item Value comes from orchestrated collaboration, not one model alone
+  \item Many autonomous agents need coordination plus shared communication standards
+  \item Paper unifies planning, governance, state, and two key protocols
+  \item Focus on MCP for tools and A2A for agent collaboration
+\end{itemize}
+\end{frame}
+
+\section{Literature Survey}
+\begin{frame}{Literature Survey / Background}
+  \small
+  \begin{tabular}{@{}p{2.7cm}p{2.3cm}p{5.6cm}@{}}
+    \toprule
+    \textbf{Title} & \textbf{Author} & \textbf{Summary} \\
+    \midrule
+    HALO: Hierarchical Autonomous Logic-Oriented Orchestration for Multi-Agent LLM Systems & Z. Hou, J. Tang, Y. Wang (arXiv:2505.13516, 2025) & Proposes hierarchical orchestration so multiple LLM agents coordinate logic-driven tasks reliably, motivating structured control over agent collectives. \\
+    \addlinespace
+    Multi-Agent Collaboration via Evolving Orchestration & Y. Dang et al. (arXiv:2505.19591, 2025) & Shows distributed collectives of smaller agents can outperform costly all-purpose deployments, supporting the economic case for orchestration. \\
+    \addlinespace
+    AgentMaster: A Multi-Agent Framework Using A2A and MCP Protocols & C. C. Liao, D. Liao, S. S. Gadiraju (arXiv:2507.21105, 2025) & Combines MCP and A2A for multimodal information retrieval, demonstrating the two protocols working together in one system. \\
+    \addlinespace
+    \bottomrule
+  \end{tabular}
+\end{frame}
+
+\section{Motivation}
+\begin{frame}{Motivation}
+\begin{itemize}
+  \item Single agents lack scalability for complex, dynamic tasks
+  \item Uncoordinated agents duplicate work or violate policies
+  \item Enterprises need auditable, compliant, and secure agent behavior
+  \item Emerging standards (MCP, A2A) are scattered and need consolidation
+\end{itemize}
+\end{frame}
+
+\section{Problem Statement}
+\begin{frame}{Problem Statement}
+  \begin{block}{}
+  Teams of autonomous AI agents fail without a coordinating control layer and shared communication standards, leading to conflicting actions, unsafe tool use, and untraceable behavior. The paper asks how to unify orchestration, tool access, and inter-agent communication into one coherent, enterprise-ready blueprint.
+  \end{block}
+\end{frame}
+
+\section{Objectives}
+\begin{frame}{Objectives}
+\begin{itemize}
+  \item Formalize a unified architecture for orchestrated multi-agent systems
+  \item Define specialized agent roles: worker, service, and support agents
+  \item Explain MCP as the standard for agent-to-tool communication
+  \item Explain A2A as the standard for agent-to-agent collaboration
+  \item Provide governance, observability, and enterprise deployment guidance
+\end{itemize}
+\end{frame}
+
+\section{Methodology}
+\begin{frame}[allowframebreaks]{Methodology / Approach}
+\begin{itemize}
+  \item Organize agents by role: worker, service, and support agents
+  \item Central orchestration layer plans, executes, and validates tasks
+  \item Planning and policy units turn goals into rule-bound subtasks
+  \item Shared state and knowledge component acts as team memory
+  \item MCP standardizes secure agent-to-tool calls (client-server)
+  \item A2A standardizes peer negotiation, delegation, and result sharing
+\end{itemize}
+\end{frame}
+
+\section{Key Concepts}
+\begin{frame}[allowframebreaks]{Key Concepts}
+  \begin{description}
+    \item[Specialized agents] Worker agents execute tasks, service agents provide utilities like QA and recovery, support agents monitor and analyze.
+    \item[Orchestration layer] Control plane with planning, execution/control, state/knowledge, and quality units that coordinate all agents.
+    \item[Model Context Protocol (MCP)] Client-server standard for agents to discover and call tools with schema checks, access control, and audit logs.
+    \item[Agent-to-Agent (A2A) protocol] Peer protocol for delegation and coordination, direct or orchestrator-mediated, with signing and role-based routing.
+    \item[Governance and observability] Guardrails, audit trails, least-privilege access, and monitoring of latency, throughput, and drift for trust.
+  \end{description}
+\end{frame}
+
+\section{System Architecture}
+\begin{frame}{System Architecture / How It Works}
+  \begin{block}{Overview}
+  At the center sits the orchestration layer (the control plane) containing four parts: a planning-and-policy unit, an execution-and-control unit, a state-and-knowledge unit that serves as shared memory, and a quality-and-operations unit for validation. Around it are three kinds of specialized agents: worker agents that do the tasks, service agents that provide utilities like compliance and healing, and support agents that monitor and analyze. Agents reach external tools, data services, and repositories through MCP (drawn as arrows from agents to tools), while agents coordinate with one another through A2A (arrows between agents), all supervised by the orchestration layer. Wrapping everything is a governance-and-observability layer providing audit logs, access control, and continuous monitoring.
+  \end{block}
+  % TIP: insert a diagram here, e.g.:
+  % \begin{center}\includegraphics[width=0.7\textwidth]{your-figure.png}\end{center}
+\end{frame}
+
+\section{Results}
+\begin{frame}[allowframebreaks]{Results / Findings}
+\begin{itemize}
+  \item Unified architecture plus clear MCP-versus-A2A separation of concerns
+  \item Insurance agents parse applications with over 95 percent accuracy (cited)
+  \item Mortgage lender: about 20x faster approvals, roughly 80 percent lower costs
+  \item Bank software 'digital factory': over 50 percent less development time and effort
+  \item Customer service: up to 80 percent of incidents handled by agents, 60-90 percent faster resolution
+\end{itemize}
+\end{frame}
+
+\section{Discussion}
+\begin{frame}{Discussion}
+\begin{itemize}
+  \item Reliability comes from the orchestration layer, not agents alone
+  \item MCP and A2A together form a complete communication substrate
+  \item Built-in governance makes agents auditable and enterprise-ready
+  \item Open, standardized protocols enable interoperability across vendors and frameworks
+\end{itemize}
+\end{frame}
+
+\section{Challenges}
+\begin{frame}{Limitations \& Challenges}
+\begin{itemize}
+  \item Coordination overhead can cause message congestion and bottlenecks
+  \item Adoption is costly: orchestration software, engineering, and monitoring
+  \item Decentralized autonomy complicates oversight and accountability
+  \item LLM risks (hallucination, bias, data leakage) are magnified across agents
+\end{itemize}
+\end{frame}
+
+\section{Future Work}
+\begin{frame}{Future Work}
+\begin{itemize}
+  \item Hybrid and federated designs balancing central control and flexibility
+  \item Semantic orchestration to match tasks with the most capable agents
+  \item Federated learning for secure cross-domain knowledge sharing
+  \item Standardized benchmarks, simulation testbeds, and open-source frameworks
+\end{itemize}
+\end{frame}
+
+\section{Conclusion}
+\begin{frame}{Conclusion}
+\begin{itemize}
+  \item Agents have evolved from single tools to orchestrated collectives
+  \item Orchestration layer plus MCP and A2A make agent teams reliable
+  \item Reported case studies show measurable enterprise productivity gains
+  \item Open protocols and shared benchmarks are the path to scale
+\end{itemize}
+\end{frame}
+
+\section{References}
+\begin{frame}[allowframebreaks]{References}
+  \footnotesize
+  \begin{enumerate}
+    \item A. Adimulam, R. Gupta, and S. Kumar, The Orchestration of Multi-Agent Systems: Architectures, Protocols, and Enterprise Adoption, arXiv:2601.13671, 2026.
+    \item Z. Hou, J. Tang, and Y. Wang, HALO: Hierarchical Autonomous Logic-Oriented Orchestration for Multi-Agent LLM Systems, arXiv:2505.13516, 2025.
+    \item Y. Dang et al., Multi-Agent Collaboration via Evolving Orchestration, arXiv:2505.19591, 2025.
+    \item Model Context Protocol, What is the Model Context Protocol (MCP)?, Documentation, 2025.
+    \item The Linux Foundation (A2A Project), Agent2Agent (A2A) Protocol Documentation, 2025.
+    \item C. C. Liao, D. Liao, and S. S. Gadiraju, AgentMaster: A Multi-Agent Conversational Framework Using A2A and MCP Protocols, arXiv:2507.21105, 2025.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[plain]
+  \begin{center}
+    {\Huge Thank You}\\[1em]
+    {\large Questions?}
+  \end{center}
+\end{frame}
+
+\end{document}

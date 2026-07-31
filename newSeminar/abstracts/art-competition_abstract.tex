@@ -1,0 +1,45 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{times}
+\usepackage{parskip}
+\usepackage[hidelinks]{hyperref}
+
+% ======================= EDIT YOUR DETAILS =======================
+\newcommand{\studentname}{Aflah Muhammed P}
+% Change the roll number below:
+\newcommand{\rollno}{TVE23CSXXX}
+% Change your guide name below:
+\newcommand{\guidename}{Prof. Guide Name}
+% Change the date below (e.g. August 20, 2026):
+\newcommand{\seminardate}{\today}
+% =================================================================
+
+\begin{document}
+\begin{center}
+  {\LARGE\bfseries When Agents Break: What 1.8 Million Attacks Reveal About AI Agent Security}\\[8pt]
+  {\large\bfseries Seminar Abstract}\\[6pt]
+  {\normalsize \seminardate}
+\end{center}
+\vspace{1.5em}
+
+\section*{Abstract}
+AI agents are programs built on large language models that do not just chat but take actions, such as browsing the web, calling software tools, reading files, and handling data or money on a user's behalf. Because they act in the real world, a manipulation is no longer just a wrong answer; it can leak private information or trigger an unauthorized payment. A central threat is prompt injection, where an attacker hides malicious instructions in the text an agent reads and tricks it into ignoring its rules. Until recently there was little large-scale evidence about how easily today's best agents can be pushed to break their own deployment policies. Most security tests were small, private, or narrow, so the true robustness of frontier agents was unclear. This gap matters because companies are already deploying agents in customer service, finance, and coding. Understanding exactly where and how they fail is the first step toward defending them.
+
+This paper reports the largest public red-teaming competition to date, in which thousands of participants attacked 22 frontier AI agents across 44 realistic deployment scenarios. The competition collected 1.8 million prompt-injection attacks, of which more than 60,000 successfully caused policy violations such as leaking data, taking illicit financial actions, or breaking regulations. The authors distill these results into the Agent Red Teaming (ART) benchmark, a curated set of about 4,700 high-impact attacks covering 44 policy-violating behaviors, and evaluate it on 19 state-of-the-art models. They find that nearly every agent can be broken within 10 to 100 attempts, that successful attacks often transfer to other models and tasks, and that being a bigger or more capable model does not reliably make an agent safer. The talk will explain what agents and prompt injection are, how the competition and benchmark were built, and what the results mean for anyone deploying agents. It closes with the paper's call for stronger, dedicated defenses rather than relying on model scale alone.
+
+\section*{Key Reference Papers}
+\begin{enumerate}
+  \item Security Challenges in AI Agent Deployment: Insights from a Large Scale Public Competition, Andy Zou, Maxwell Lin, Eliot Jones, Xander Davies, Robert Kirk, Yarin Gal, Dan Hendrycks, J. Zico Kolter, Matt Fredrikson, et al., arXiv:2507.20526, 2025
+  \item Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection, Kai Greshake et al., ACM AISec Workshop, 2023
+  \item AgentDojo: A Dynamic Environment to Evaluate Attacks and Defenses for LLM Agents, Edoardo Debenedetti et al., NeurIPS Datasets and Benchmarks, 2024
+\end{enumerate}
+\vspace{1.5em}
+
+\noindent\textbf{Submitted By}\\
+\studentname\\
+\rollno
+
+\vspace{1em}
+\noindent\textbf{Guide}\\
+\guidename
+\end{document}

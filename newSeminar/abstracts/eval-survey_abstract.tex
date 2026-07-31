@@ -1,0 +1,45 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{times}
+\usepackage{parskip}
+\usepackage[hidelinks]{hyperref}
+
+% ======================= EDIT YOUR DETAILS =======================
+\newcommand{\studentname}{Aflah Muhammed P}
+% Change the roll number below:
+\newcommand{\rollno}{TVE23CSXXX}
+% Change your guide name below:
+\newcommand{\guidename}{Prof. Guide Name}
+% Change the date below (e.g. August 20, 2026):
+\newcommand{\seminardate}{\today}
+% =================================================================
+
+\begin{document}
+\begin{center}
+  {\LARGE\bfseries How Do We Know an AI Agent Is Any Good? A Survey on Evaluating LLM-Based Agents}\\[8pt]
+  {\large\bfseries Seminar Abstract}\\[6pt]
+  {\normalsize \seminardate}
+\end{center}
+\vspace{1.5em}
+
+\section*{Abstract}
+Large language models (LLMs) like ChatGPT can now be wrapped into "agents" that do more than chat: they plan multi-step tasks, call external tools, browse the web, write and fix code, and act inside changing digital environments with little human help. As these agents move from research demos toward real products, one hard question keeps coming up: how do we actually measure whether an agent is good, reliable, and safe? Traditional AI tests usually check a single answer, but an agent's work is a whole sequence of decisions and actions, which is much harder to score. Researchers have responded with a fast-growing and scattered collection of benchmarks, metrics, and testing tools, making it difficult for a newcomer to see the overall picture. This paper is the first comprehensive survey that maps out how the community evaluates LLM-based agents. It gives students and practitioners a shared vocabulary and a structured map of an otherwise messy and rapidly changing landscape.
+
+The authors organize agent evaluation into five perspectives: the core skills agents need (planning, tool use, memory, and self-reflection), application-specific benchmarks (such as web-browsing agents and software-engineering agents), the evaluation of general-purpose "generalist" agents, an analysis of what agent benchmarks actually measure, and the frameworks and tools developers use to run these tests. Along the way they catalog dozens of well-known benchmarks, including WebArena and Mind2Web for web agents, SWE-bench for coding agents, tau-bench for customer-service agents, and GAIA, AgentBench, and OSWorld for generalist agents. A clear trend emerges: evaluation is moving toward more realistic, harder, "live" benchmarks that are continuously updated so agents cannot simply memorize the answers, along with richer methods that judge the whole trajectory of actions rather than only the final result. The survey also flags critical gaps the field still ignores, especially measuring cost-efficiency, safety, and robustness, and building fine-grained, scalable evaluation methods. This talk will walk through the five-part map, show concrete benchmark examples, explain the shift toward live evaluation, and highlight the open problems that make this an exciting area for newcomers.
+
+\section*{Key Reference Papers}
+\begin{enumerate}
+  \item Survey on Evaluation of LLM-based Agents, Asaf Yehudai, Lilach Eden, Alan Li, Guy Uziel, Yilun Zhao, Roy Bar-Haim, Arman Cohan, Michal Shmueli-Scheuer, arXiv:2503.16416, 2025.
+  \item SWE-bench: Can Language Models Resolve Real-World GitHub Issues?, Carlos E. Jimenez et al., ICLR, 2024.
+  \item WebArena: A Realistic Web Environment for Building Autonomous Agents, Shuyan Zhou et al., ICLR, 2024.
+\end{enumerate}
+\vspace{1.5em}
+
+\noindent\textbf{Submitted By}\\
+\studentname\\
+\rollno
+
+\vspace{1em}
+\noindent\textbf{Guide}\\
+\guidename
+\end{document}

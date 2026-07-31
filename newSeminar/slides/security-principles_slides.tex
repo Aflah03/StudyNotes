@@ -1,0 +1,199 @@
+\documentclass[10pt]{beamer}
+\usetheme{Madrid}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[T1]{fontenc}
+\setbeamertemplate{navigation symbols}{}
+
+% ======================= EDIT YOUR DETAILS =======================
+\newcommand{\studentname}{Aflah Muhammed P}
+% Change the university roll/registration number:
+\newcommand{\rollno}{TVE23CSXXX}
+% Change your class roll number:
+\newcommand{\rollclass}{Roll No: XX}
+% Change your guide name:
+\newcommand{\guidename}{Prof. Guide Name}
+% Change department / college / short-institute if needed:
+\newcommand{\deptname}{Department of Computer Science and Engineering}
+\newcommand{\collegename}{College of Engineering Trivandrum}
+\newcommand{\shortinst}{CET}
+% Change the seminar date:
+\newcommand{\seminardate}{\today}
+% =================================================================
+
+\title[B.Tech Seminar]{Old Rules for New Agents: Applying Classic Security Principles to LLM Agents}
+\subtitle{Based on: LLM Agents Should Employ Security Principles (arXiv:2505.24019, 2025)}
+\author[\studentname\ (\shortinst)]{\studentname \\ \small \rollno \\ \small \rollclass \\ \small Guide: \guidename}
+\institute[]{\deptname \\ \collegename}
+\date{\seminardate}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+\begin{frame}{Table of Contents}
+  \tableofcontents
+\end{frame}
+
+\section{Introduction}
+\begin{frame}{Introduction}
+\begin{itemize}
+  \item LLM agents now plan, reason, and take real actions for users
+  \item They hold private data and talk to external tools and agents
+  \item Prompt injection can hijack them to leak data or misact
+  \item Advanced LLMs fail prompt injection defenses about 85 percent of the time
+  \item Paper urges reusing classic security principles, illustrated by AgentSandbox
+\end{itemize}
+\end{frame}
+
+\section{Literature Survey}
+\begin{frame}{Literature Survey / Background}
+  \small
+  \begin{tabular}{@{}p{2.7cm}p{2.3cm}p{5.6cm}@{}}
+    \toprule
+    \textbf{Title} & \textbf{Author} & \textbf{Summary} \\
+    \midrule
+    The Protection of Information in Computer Systems & Saltzer and Schroeder, 1975 & Landmark paper defining classic security design principles including least privilege and complete mediation that this work reapplies to agents. \\
+    \addlinespace
+    AirGapAgent: Protecting Privacy-Conscious Conversational Agents & Bagdasarian et al., 2024 & Implements context-aware access control for agents, an early example implicitly using least privilege but not a full principled framework. \\
+    \addlinespace
+    Firewalls to Secure Dynamic LLM Agentic Networks & Abdelnabi et al., 2025 & Builds input, data, and trajectory firewalls for agent networks, implicitly aligning with the complete mediation principle. \\
+    \addlinespace
+    \bottomrule
+  \end{tabular}
+\end{frame}
+
+\section{Motivation}
+\begin{frame}{Motivation}
+\begin{itemize}
+  \item Agents increasingly manage finance, health, and business workflows
+  \item One tricked agent can cause real financial or privacy harm
+  \item Existing quick fixes give only partial, unreliable protection
+  \item New standards like MCP and A2A ignore manipulation threats
+\end{itemize}
+\end{frame}
+
+\section{Problem Statement}
+\begin{frame}{Problem Statement}
+  \begin{block}{}
+  LLM agents that hold sensitive data and interact with untrusted external tools are highly vulnerable to prompt injection and context manipulation, leading to privacy leakage and harmful actions. Current ad hoc defenses fail to reliably protect them without sacrificing usefulness.
+  \end{block}
+\end{frame}
+
+\section{Objectives}
+\begin{frame}{Objectives}
+\begin{itemize}
+  \item Argue that classic security principles should govern agent design
+  \item Apply defense-in-depth, least privilege, complete mediation, psychological acceptability
+  \item Propose AgentSandbox to embed these principles across the life cycle
+  \item Preserve useful functionality while sharply cutting privacy leakage
+  \item Encourage building these principles into future agent protocols
+\end{itemize}
+\end{frame}
+
+\section{Methodology}
+\begin{frame}[allowframebreaks]{Methodology / Approach}
+\begin{itemize}
+  \item Split the agent into five cooperating, specialized components
+  \item Keep a Persistent Agent isolated from the outside world
+  \item Spin up disposable Ephemeral Agents for each single task
+  \item Data Minimizer gives each agent only task-essential data
+  \item I/O Firewall and Response Filter check every message
+  \item Reward modeling policy engine auto-tunes sharing policies
+\end{itemize}
+\end{frame}
+
+\section{Key Concepts}
+\begin{frame}[allowframebreaks]{Key Concepts}
+  \begin{description}
+    \item[Persistent Agent (PA)] User's trusted personal agent holding long-term profile and memory, shielded from direct external contact.
+    \item[Ephemeral Agent (EA)] Disposable per-task worker that handles external interactions and is destroyed when the task ends.
+    \item[Data Minimizer (DM)] Context-aware gatekeeper that releases only the minimal data each task truly needs.
+    \item[I/O Firewall] Fixed rule-based layer that mediates and schema-checks every external input and output.
+    \item[Reward modeling policy engine] Self-evolving mechanism that tunes data-sharing policies from task outcomes, reducing manual configuration.
+  \end{description}
+\end{frame}
+
+\section{System Architecture}
+\begin{frame}{System Architecture / How It Works}
+  \begin{block}{Overview}
+  A user's task prompt goes to the Persistent Agent (PA), which retrieves profile and memory context and forwards the request to the Data Minimizer (DM). The DM applies access-control policies and passes only a minimized data subset to a freshly created Ephemeral Agent (EA). The EA interacts with external services, with every incoming and outgoing message mediated and schema-validated by the I/O Firewall. When the task finishes, the Response Filter (RF) sanitizes the EA's response and returns it to the PA, which consolidates the result for the user and then terminates the EA. A separate reward modeling policy engine continually refines the DM, EA, and RF policies, while the I/O Firewall stays a fixed, immutable safeguard.
+  \end{block}
+  % TIP: insert a diagram here, e.g.:
+  % \begin{center}\includegraphics[width=0.7\textwidth]{your-figure.png}\end{center}
+\end{frame}
+
+\section{Results}
+\begin{frame}[allowframebreaks]{Results / Findings}
+\begin{itemize}
+  \item AgentSandbox cut average attack success rate to about 4.34 percent
+  \item No-defense baseline had average attack success rate about 58.84 percent
+  \item Benign usefulness stayed near 82 percent, close to undefended 83.81 percent
+  \item Lowest attack success in every suite, e.g. 0.83 percent on Workspace
+  \item Best security-usefulness trade-off among all tested defenses on AgentDojo
+\end{itemize}
+\end{frame}
+
+\section{Discussion}
+\begin{frame}{Discussion}
+\begin{itemize}
+  \item Old security principles transfer well to modern AI agents
+  \item Disposable, least-privilege agents contain damage effectively
+  \item Strong security need not destroy normal functionality
+  \item Principles should be built into emerging agent standards
+\end{itemize}
+\end{frame}
+
+\section{Challenges}
+\begin{frame}{Limitations \& Challenges}
+\begin{itemize}
+  \item It is a conceptual framework with a preliminary evaluation only
+  \item Extra components and per-task agents add cost and latency
+  \item Evaluation mainly on one benchmark and mostly GPT-4o
+  \item No formal security guarantees are proven
+\end{itemize}
+\end{frame}
+
+\section{Future Work}
+\begin{frame}{Future Work}
+\begin{itemize}
+  \item Build and test full production-grade implementations
+  \item Embed the principles into MCP, A2A, and other protocols
+  \item Broaden evaluation to more models, attacks, and domains
+  \item Improve the self-tuning policy engine and efficiency
+\end{itemize}
+\end{frame}
+
+\section{Conclusion}
+\begin{frame}{Conclusion}
+\begin{itemize}
+  \item Agent security should reuse proven classic design principles
+  \item AgentSandbox embeds four principles across the agent life cycle
+  \item It sharply reduces attacks while keeping usefulness high
+  \item A call to make principled security foundational for agents
+\end{itemize}
+\end{frame}
+
+\section{References}
+\begin{frame}[allowframebreaks]{References}
+  \footnotesize
+  \begin{enumerate}
+    \item LLM Agents Should Employ Security Principles, Kaiyuan Zhang, Zian Su, Pin-Yu Chen, Elisa Bertino, Xiangyu Zhang, Ninghui Li, arXiv:2505.24019, 2025.
+    \item The Protection of Information in Computer Systems, Jerome H. Saltzer and Michael D. Schroeder, Proceedings of the IEEE, 1975.
+    \item AgentDojo: A Dynamic Environment to Evaluate Prompt Injection Attacks and Defenses for LLM Agents, Edoardo Debenedetti, Jie Zhang, Mislav Balunovic, Luca Beurer-Kellner, Marc Fischer, Florian Tramer, arXiv:2406.13352, 2024.
+    \item AirGapAgent: Protecting Privacy-Conscious Conversational Agents, Eugene Bagdasarian et al., ACM SIGSAC Conference on Computer and Communications Security (CCS), 2024.
+    \item Firewalls to Secure Dynamic LLM Agentic Networks, Sahar Abdelnabi, Amr Gomaa, Eugene Bagdasarian, Per Ola Kristensson, Reza Shokri, arXiv:2502.01822, 2025.
+    \item LlamaFirewall: An Open Source Guardrail System for Building Secure AI Agents, Sahana Chennabasappa et al., arXiv:2505.03574, 2025.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[plain]
+  \begin{center}
+    {\Huge Thank You}\\[1em]
+    {\large Questions?}
+  \end{center}
+\end{frame}
+
+\end{document}

@@ -1,0 +1,198 @@
+\documentclass[10pt]{beamer}
+\usetheme{Madrid}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[T1]{fontenc}
+\setbeamertemplate{navigation symbols}{}
+
+% ======================= EDIT YOUR DETAILS =======================
+\newcommand{\studentname}{Aflah Muhammed P}
+% Change the university roll/registration number:
+\newcommand{\rollno}{TVE23CSXXX}
+% Change your class roll number:
+\newcommand{\rollclass}{Roll No: XX}
+% Change your guide name:
+\newcommand{\guidename}{Prof. Guide Name}
+% Change department / college / short-institute if needed:
+\newcommand{\deptname}{Department of Computer Science and Engineering}
+\newcommand{\collegename}{College of Engineering Trivandrum}
+\newcommand{\shortinst}{CET}
+% Change the seminar date:
+\newcommand{\seminardate}{\today}
+% =================================================================
+
+\title[B.Tech Seminar]{JARVIS or Ultron? A Beginner's Guide to the Safety and Security Threats of Computer-Using AI Agents}
+\subtitle{Based on: A Survey on the Safety and Security Threats of Computer-Using Agents: JARVIS or Ultron? (arXiv:2505.10924, 2025)}
+\author[\studentname\ (\shortinst)]{\studentname \\ \small \rollno \\ \small \rollclass \\ \small Guide: \guidename}
+\institute[]{\deptname \\ \collegename}
+\date{\seminardate}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+\begin{frame}{Table of Contents}
+  \tableofcontents
+\end{frame}
+
+\section{Introduction}
+\begin{frame}{Introduction}
+\begin{itemize}
+  \item AI is evolving from chatbots that talk into agents that act
+  \item Computer-Using Agents control desktops, web pages, and mobile apps
+  \item Acting on a real computer creates real-world security risks
+  \item The JARVIS-versus-Ultron metaphor frames helpful versus harmful agents
+  \item This survey maps threats, defenses, and evaluation tools
+\end{itemize}
+\end{frame}
+
+\section{Literature Survey}
+\begin{frame}{Literature Survey / Background}
+  \small
+  \begin{tabular}{@{}p{2.7cm}p{2.3cm}p{5.6cm}@{}}
+    \toprule
+    \textbf{Title} & \textbf{Author} & \textbf{Summary} \\
+    \midrule
+    MobileSafetyBench & Juyong Lee et al. (2024) & Benchmark evaluating the safety of autonomous agents that control mobile devices across realistic and risky task scenarios. \\
+    \addlinespace
+    R-Judge & Tongxin Yuan et al. (2024) & Benchmark measuring whether LLM agents are aware of and can judge safety risks in their own action records. \\
+    \addlinespace
+    AgentDojo & Edoardo Debenedetti et al. (2024) & Dynamic environment for evaluating prompt injection attacks and defenses against tool-using LLM agents on real tasks. \\
+    \addlinespace
+    \bottomrule
+  \end{tabular}
+\end{frame}
+
+\section{Motivation}
+\begin{frame}{Motivation}
+\begin{itemize}
+  \item Agents can now click, type, and browse autonomously
+  \item One trick or slip can leak data or money
+  \item Combining many components multiplies possible failure points
+  \item Threat knowledge is scattered and lacks a shared map
+\end{itemize}
+\end{frame}
+
+\section{Problem Statement}
+\begin{frame}{Problem Statement}
+  \begin{block}{}
+  As Computer-Using Agents gain the power to operate real software autonomously, they introduce novel safety and security risks that are poorly organized and hard to defend against. The field lacks a unified understanding of what these threats are, how to defend against them, and how to measure agent safety.
+  \end{block}
+\end{frame}
+
+\section{Objectives}
+\begin{frame}{Objectives}
+\begin{itemize}
+  \item Define a Computer-Using Agent suited to safety analysis
+  \item Categorize current safety and security threats to agents
+  \item Propose a taxonomy of existing defensive strategies
+  \item Summarize benchmarks, datasets, and evaluation metrics
+  \item Give researchers and practitioners a structured foundation
+\end{itemize}
+\end{frame}
+
+\section{Methodology}
+\begin{frame}[allowframebreaks]{Methodology / Approach}
+\begin{itemize}
+  \item Systematization of knowledge through a structured literature review
+  \item Screened 700-plus candidate papers, analyzed 124 in depth
+  \item Searched arXiv, Semantic Scholar, Google Scholar, OpenReview
+  \item Defined agent as perception, brain, and action components
+  \item Organized threats into intrinsic and extrinsic families
+  \item Built defense taxonomy and catalog of evaluation tools
+\end{itemize}
+\end{frame}
+
+\section{Key Concepts}
+\begin{frame}[allowframebreaks]{Key Concepts}
+  \begin{description}
+    \item[Computer-Using Agent (CUA)] An LLM-powered system that autonomously operates a computer by reading screens and clicking, typing, and browsing.
+    \item[Perception, Brain, Action] The three agent parts: reading the environment, reasoning and planning, then executing real actions.
+    \item[Intrinsic threats] Risks from the agent's own flaws, such as hallucination, misalignment, and screen-grounding errors.
+    \item[Extrinsic threats] Deliberate attacks like prompt injection, jailbreaks, backdoors, and memory attacks from outside adversaries.
+    \item[Defense taxonomy] Fourteen strategy categories, including input validation, sandboxing, output monitoring, and cross-verification.
+  \end{description}
+\end{frame}
+
+\section{System Architecture}
+\begin{frame}{System Architecture / How It Works}
+  \begin{block}{Overview}
+  The survey models a Computer-Using Agent as a loop with three core components. Perception gathers information from the environment through screen reading, system logs, and user input. The brain is the decision-making unit that interprets this information using memory and planning, then chooses an action. The action component executes that decision by interacting with the operating system, applications, or web interface, which changes the environment and feeds back into perception. A safety diagram can place these three components in a cycle, draw intrinsic threats inside each component, show extrinsic attacks entering through perception and the environment, and place the fourteen defenses as protective layers around the loop.
+  \end{block}
+  % TIP: insert a diagram here, e.g.:
+  % \begin{center}\includegraphics[width=0.7\textwidth]{your-figure.png}\end{center}
+\end{frame}
+
+\section{Results}
+\begin{frame}[allowframebreaks]{Results / Findings}
+\begin{itemize}
+  \item Screened 700-plus papers, analyzed 124 in depth
+  \item Threats split into intrinsic and extrinsic families
+  \item Roughly eight threat types in each family cataloged
+  \item Fourteen categories of defense strategies identified
+  \item Around twenty safety benchmarks and key metrics summarized
+\end{itemize}
+\end{frame}
+
+\section{Discussion}
+\begin{frame}{Discussion}
+\begin{itemize}
+  \item Action-taking agents turn AI mistakes into real-world harm
+  \item Documented threats currently outnumber mature, reliable defenses
+  \item A shared vocabulary helps researchers compare and combine work
+  \item Safety must be designed in, not bolted on later
+\end{itemize}
+\end{frame}
+
+\section{Challenges}
+\begin{frame}{Limitations \& Challenges}
+\begin{itemize}
+  \item Fast-moving field means the survey can quickly become outdated
+  \item Taxonomy boundaries overlap and involve some judgment calls
+  \item Many listed defenses are early-stage and not battle-tested
+  \item No single standard benchmark to compare agent safety fairly
+\end{itemize}
+\end{frame}
+
+\section{Future Work}
+\begin{frame}{Future Work}
+\begin{itemize}
+  \item Explore unexamined vulnerabilities the taxonomy reveals
+  \item Build unified, standardized safety benchmarks for agents
+  \item Develop stronger, layered defenses that keep pace with attacks
+  \item Study safety across combined web, desktop, and mobile settings
+\end{itemize}
+\end{frame}
+
+\section{Conclusion}
+\begin{frame}{Conclusion}
+\begin{itemize}
+  \item Computer-Using Agents bring both great utility and new dangers
+  \item Survey organizes threats, defenses, and evaluation into clear taxonomies
+  \item Defenses still lag behind the growing range of threats
+  \item Structured foundation guides safer future agent design
+\end{itemize}
+\end{frame}
+
+\section{References}
+\begin{frame}[allowframebreaks]{References}
+  \footnotesize
+  \begin{enumerate}
+    \item A Survey on the Safety and Security Threats of Computer-Using Agents: JARVIS or Ultron?, Ada Chen, Yongjiang Wu, Junyuan Zhang, Jingyu Xiao, Shu Yang, Jen-tse Huang, Kun Wang, Wenxuan Wang, Shuai Wang, arXiv:2505.10924 (ACL 2026), 2025
+    \item MobileSafetyBench: Evaluating Safety of Autonomous Agents in Mobile Device Control, Juyong Lee et al., arXiv, 2024
+    \item R-Judge: Benchmarking Safety Risk Awareness for LLM Agents, Tongxin Yuan et al., EMNLP Findings, 2024
+    \item AgentDojo: A Dynamic Environment to Evaluate Prompt Injection Attacks and Defenses for LLM Agents, Edoardo Debenedetti et al., NeurIPS, 2024
+    \item InjecAgent: Benchmarking Indirect Prompt Injections in Tool-Integrated Large Language Model Agents, Qiusi Zhan et al., ACL Findings, 2024
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[plain]
+  \begin{center}
+    {\Huge Thank You}\\[1em]
+    {\large Questions?}
+  \end{center}
+\end{frame}
+
+\end{document}

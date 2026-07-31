@@ -1,0 +1,198 @@
+\documentclass[10pt]{beamer}
+\usetheme{Madrid}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[T1]{fontenc}
+\setbeamertemplate{navigation symbols}{}
+
+% ======================= EDIT YOUR DETAILS =======================
+\newcommand{\studentname}{Aflah Muhammed P}
+% Change the university roll/registration number:
+\newcommand{\rollno}{TVE23CSXXX}
+% Change your class roll number:
+\newcommand{\rollclass}{Roll No: XX}
+% Change your guide name:
+\newcommand{\guidename}{Prof. Guide Name}
+% Change department / college / short-institute if needed:
+\newcommand{\deptname}{Department of Computer Science and Engineering}
+\newcommand{\collegename}{College of Engineering Trivandrum}
+\newcommand{\shortinst}{CET}
+% Change the seminar date:
+\newcommand{\seminardate}{\today}
+% =================================================================
+
+\title[B.Tech Seminar]{Defeating Prompt Injections by Design: How CaMeL Protects AI Agents}
+\subtitle{Based on: Defeating Prompt Injections by Design (arXiv:2503.18813, 2025)}
+\author[\studentname\ (\shortinst)]{\studentname \\ \small \rollno \\ \small \rollclass \\ \small Guide: \guidename}
+\institute[]{\deptname \\ \collegename}
+\date{\seminardate}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+\begin{frame}{Table of Contents}
+  \tableofcontents
+\end{frame}
+
+\section{Introduction}
+\begin{frame}{Introduction}
+\begin{itemize}
+  \item AI agents now take real actions using tools, not just chat
+  \item Agents must read untrusted data like emails and web pages
+  \item Prompt injection hides malicious instructions inside that data
+  \item Models cannot reliably separate real instructions from injected text
+  \item CaMeL wraps the model in a protective security layer
+\end{itemize}
+\end{frame}
+
+\section{Literature Survey}
+\begin{frame}{Literature Survey / Background}
+  \small
+  \begin{tabular}{@{}p{2.7cm}p{2.3cm}p{5.6cm}@{}}
+    \toprule
+    \textbf{Title} & \textbf{Author} & \textbf{Summary} \\
+    \midrule
+    AgentDojo Benchmark & Debenedetti et al., 2024 & A realistic environment that evaluates LLM agents against prompt injection attacks and defenses across many tool-using tasks. \\
+    \addlinespace
+    The Dual LLM Pattern & Simon Willison, 2023 & Proposes splitting work between a privileged model and a quarantined model so untrusted content never reaches the trusted planner. \\
+    \addlinespace
+    Indirect Prompt Injection & Greshake et al., 2023 & Shows real LLM applications can be compromised by instructions hidden in external content the model retrieves and reads. \\
+    \addlinespace
+    \bottomrule
+  \end{tabular}
+\end{frame}
+
+\section{Motivation}
+\begin{frame}{Motivation}
+\begin{itemize}
+  \item Agents increasingly handle private email, files, and money
+  \item A hidden instruction can hijack an agent's actions
+  \item Training-based fixes have not reliably stopped injections
+  \item Security must not depend on the model being perfect
+\end{itemize}
+\end{frame}
+
+\section{Problem Statement}
+\begin{frame}{Problem Statement}
+  \begin{block}{}
+  LLM agents cannot reliably distinguish trusted user instructions from malicious instructions hidden in the untrusted data they read, letting attackers redirect the agent's actions or steal private information. The paper asks how to guarantee safety by design even when the underlying model itself is vulnerable.
+  \end{block}
+\end{frame}
+
+\section{Objectives}
+\begin{frame}{Objectives}
+\begin{itemize}
+  \item Protect agents even when the underlying LLM is vulnerable
+  \item Prevent untrusted data from changing the agent's plan
+  \item Stop leakage of private data to unauthorized destinations
+  \item Provide provable, design-based security guarantees
+  \item Achieve this without retraining the language model
+\end{itemize}
+\end{frame}
+
+\section{Methodology}
+\begin{frame}[allowframebreaks]{Methodology / Approach}
+\begin{itemize}
+  \item Privileged model converts trusted request into a small program
+  \item Custom interpreter runs the program step by step
+  \item Quarantined model reads untrusted text without tool access
+  \item Control flow comes only from the trusted request
+  \item Capabilities tag every value with source and readers
+  \item Security policies check each tool call before it runs
+\end{itemize}
+\end{frame}
+
+\section{Key Concepts}
+\begin{frame}[allowframebreaks]{Key Concepts}
+  \begin{description}
+    \item[Privileged LLM (P-LLM)] Sees only the trusted request and writes the plan as code; never touches untrusted content.
+    \item[Quarantined LLM (Q-LLM)] Reads untrusted text to extract structured values but cannot call tools or alter the plan.
+    \item[Custom interpreter] Executes the plan and enforces that data flows only where the trusted code allows.
+    \item[Capabilities] Metadata on each value recording its origin and which parties may read or receive it.
+    \item[Security policies] Rules checked before each tool call that block unauthorized or data-leaking actions.
+  \end{description}
+\end{frame}
+
+\section{System Architecture}
+\begin{frame}{System Architecture / How It Works}
+  \begin{block}{Overview}
+  The user's trusted request goes to the Privileged LLM, which emits a Python-like program representing the plan. A custom interpreter executes this program; whenever it must read untrusted content, it calls the Quarantined LLM to return only a specific structured value, keeping that content away from the planner. Every value carries a capability tag describing its source and allowed readers, and these tags propagate as data moves through the program. Before any real tool such as send\_email runs, a policy gate inspects the involved capabilities and blocks the call if it would violate security, for example sending private data to an unauthorized recipient.
+  \end{block}
+  % TIP: insert a diagram here, e.g.:
+  % \begin{center}\includegraphics[width=0.7\textwidth]{your-figure.png}\end{center}
+\end{frame}
+
+\section{Results}
+\begin{frame}[allowframebreaks]{Results / Findings}
+\begin{itemize}
+  \item Solved 77 percent of AgentDojo tasks with provable security
+  \item Undefended baseline solved 84 percent but had no protection
+  \item About a 7 point utility cost for strong guarantees
+  \item Requires no retraining or fine-tuning of the model
+  \item Blocks injection-driven control changes and data exfiltration by design
+\end{itemize}
+\end{frame}
+
+\section{Discussion}
+\begin{frame}{Discussion}
+\begin{itemize}
+  \item Agent security can be a systems problem, not only a model problem
+  \item Classic security ideas transfer well to LLM agents
+  \item Provable protection is possible on top of imperfect models
+  \item Design-based defense complements, not replaces, better models
+\end{itemize}
+\end{frame}
+
+\section{Challenges}
+\begin{frame}{Limitations \& Challenges}
+\begin{itemize}
+  \item Roughly 7 percent of tasks become harder to complete
+  \item Some legitimate actions are hard to express under strict rules
+  \item Writing good security policies requires manual effort
+  \item Two models plus interpreter add latency and complexity
+\end{itemize}
+\end{frame}
+
+\section{Future Work}
+\begin{frame}{Future Work}
+\begin{itemize}
+  \item Reduce the utility gap versus undefended agents
+  \item Automate or simplify security policy authoring
+  \item Extend the approach to more tools and domains
+  \item Study usability and performance in real deployments
+\end{itemize}
+\end{frame}
+
+\section{Conclusion}
+\begin{frame}{Conclusion}
+\begin{itemize}
+  \item Prompt injection is a core, unsolved agent security risk
+  \item CaMeL separates trusted control flow from untrusted data
+  \item Capabilities and policies prevent unauthorized data leaks
+  \item Provable security reached with no model retraining
+\end{itemize}
+\end{frame}
+
+\section{References}
+\begin{frame}[allowframebreaks]{References}
+  \footnotesize
+  \begin{enumerate}
+    \item Defeating Prompt Injections by Design (CaMeL), Edoardo Debenedetti, Ilia Shumailov, Tianqi Fan, Jamie Hayes, Nicholas Carlini, Daniel Fabian, Christoph Kern, Chongyang Shi, Andreas Terzis, Florian Tramer, arXiv:2503.18813, 2025.
+    \item AgentDojo: A Dynamic Environment to Evaluate Prompt Injection Attacks and Defenses for LLM Agents, Edoardo Debenedetti, Jie Zhang, Mislav Balunovic, Luca Beurer-Kellner, Marc Fischer, Florian Tramer, NeurIPS Datasets and Benchmarks Track, 2024.
+    \item The Dual LLM Pattern for Building AI Assistants That Can Resist Prompt Injection, Simon Willison, blog post, 2023.
+    \item Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection, Kai Greshake, Sahar Abdelnabi, Shailesh Mishra, Christoph Endres, Thorsten Holz, Mario Fritz, ACM AISec Workshop, 2023.
+    \item The Instruction Hierarchy: Training LLMs to Prioritize Privileged Instructions, Eric Wallace, Kai Xiao, Reimar Leike, Lilian Weng, Johannes Heidecke, Alex Beutel, arXiv:2404.13208, 2024.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[plain]
+  \begin{center}
+    {\Huge Thank You}\\[1em]
+    {\large Questions?}
+  \end{center}
+\end{frame}
+
+\end{document}

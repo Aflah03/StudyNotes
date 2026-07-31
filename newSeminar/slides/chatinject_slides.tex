@@ -1,0 +1,198 @@
+\documentclass[10pt]{beamer}
+\usetheme{Madrid}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[T1]{fontenc}
+\setbeamertemplate{navigation symbols}{}
+
+% ======================= EDIT YOUR DETAILS =======================
+\newcommand{\studentname}{Aflah Muhammed P}
+% Change the university roll/registration number:
+\newcommand{\rollno}{TVE23CSXXX}
+% Change your class roll number:
+\newcommand{\rollclass}{Roll No: XX}
+% Change your guide name:
+\newcommand{\guidename}{Prof. Guide Name}
+% Change department / college / short-institute if needed:
+\newcommand{\deptname}{Department of Computer Science and Engineering}
+\newcommand{\collegename}{College of Engineering Trivandrum}
+\newcommand{\shortinst}{CET}
+% Change the seminar date:
+\newcommand{\seminardate}{\today}
+% =================================================================
+
+\title[B.Tech Seminar]{ChatInject: How Forged Chat Formatting Tricks AI Agents into Obeying Attackers}
+\subtitle{Based on: ChatInject: Abusing Chat Templates for Prompt Injection in LLM Agents (arXiv:2509.22830, 2025)}
+\author[\studentname\ (\shortinst)]{\studentname \\ \small \rollno \\ \small \rollclass \\ \small Guide: \guidename}
+\institute[]{\deptname \\ \collegename}
+\date{\seminardate}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+\begin{frame}{Table of Contents}
+  \tableofcontents
+\end{frame}
+
+\section{Introduction}
+\begin{frame}{Introduction}
+\begin{itemize}
+  \item LLM agents now read email, web pages, and tool outputs to act
+  \item This external data creates new prompt-injection attack surfaces
+  \item Indirect injection hides commands inside content agents read
+  \item Prior attacks use plain text, which models increasingly resist
+  \item ChatInject instead forges the model's own chat template
+\end{itemize}
+\end{frame}
+
+\section{Literature Survey}
+\begin{frame}{Literature Survey / Background}
+  \small
+  \begin{tabular}{@{}p{2.7cm}p{2.3cm}p{5.6cm}@{}}
+    \toprule
+    \textbf{Title} & \textbf{Author} & \textbf{Summary} \\
+    \midrule
+    AgentDojo & Debenedetti et al., 2024 & A benchmark environment for evaluating prompt-injection attacks and defenses on tool-using LLM agents in realistic tasks. \\
+    \addlinespace
+    InjecAgent & Zhan et al., 2024 & A benchmark measuring indirect prompt injection against tool-integrated LLM agents across many attacker scenarios. \\
+    \addlinespace
+    AutoHijacker & Liu et al., 2025 & An automated indirect prompt-injection attack on LLM agents, cited as related adaptive attack work. \\
+    \addlinespace
+    \bottomrule
+  \end{tabular}
+\end{frame}
+
+\section{Motivation}
+\begin{frame}{Motivation}
+\begin{itemize}
+  \item Plain-text injections are increasingly blocked by model training
+  \item Chat templates are trusted but rarely studied as an attack surface
+  \item Agents struggle to separate read data from real instructions
+  \item Multi-turn persuasion is underexplored in injection attacks
+\end{itemize}
+\end{frame}
+
+\section{Problem Statement}
+\begin{frame}{Problem Statement}
+  \begin{block}{}
+  LLM agents rely on structured chat templates to tell instructions apart from data, but if attacker-controlled external content can forge those templates, the agent may execute injected instructions as if they were legitimate. The paper investigates how severe this template-based vulnerability is and whether current defenses can stop it.
+  \end{block}
+\end{frame}
+
+\section{Objectives}
+\begin{frame}{Objectives}
+\begin{itemize}
+  \item Expose chat templates as a real prompt-injection attack surface
+  \item Design ChatInject to forge native template formatting
+  \item Build a Multi-turn persuasion variant for suspicious actions
+  \item Measure success across frontier models and two benchmarks
+  \item Test whether existing prompt-based defenses hold up
+\end{itemize}
+\end{frame}
+
+\section{Methodology}
+\begin{frame}[allowframebreaks]{Methodology / Approach}
+\begin{itemize}
+  \item Identify the special role markers used by chat templates
+  \item Craft payloads that mimic system, user, and assistant turns
+  \item Inject forged turns via external tool output or documents
+  \item Add fake assistant replies to build persuasive context
+  \item Extend to a Multi-turn dialogue that primes compliance
+  \item Evaluate on the AgentDojo and InjecAgent benchmarks
+\end{itemize}
+\end{frame}
+
+\section{Key Concepts}
+\begin{frame}[allowframebreaks]{Key Concepts}
+  \begin{description}
+    \item[Chat template mimicry] Formatting injected text with real role markers so it looks like a genuine conversation turn.
+    \item[Indirect prompt injection] Hiding malicious instructions inside external content the agent reads, such as emails or tool outputs.
+    \item[Multi-turn persuasion] Faking a gradual dialogue, including assistant agreement, to normalize and trigger harmful actions.
+    \item[Cross-model transferability] One forged-template payload works across many models, even closed-source ones with hidden templates.
+    \item[Defense evasion] Prompt-based defenses like spotlighting and sandwiching fail to block the forged-template attack.
+  \end{description}
+\end{frame}
+
+\section{System Architecture}
+\begin{frame}{System Architecture / How It Works}
+  \begin{block}{Overview}
+  A user gives the agent a task, and the agent calls an external tool or reads a document whose content includes attacker-controlled text. That attacker text is formatted with forged chat-template markers so it appears as a new user or system turn, or as a fake multi-turn exchange with agreeable assistant replies. When this combined text is fed back into the LLM, the model parses the forged turns as legitimate instructions and performs the attacker's action. A diagram can show the loop: User to Agent to Tool or Environment (poisoned) and back into the LLM context, with the forged template block highlighted in red.
+  \end{block}
+  % TIP: insert a diagram here, e.g.:
+  % \begin{center}\includegraphics[width=0.7\textwidth]{your-figure.png}\end{center}
+\end{frame}
+
+\section{Results}
+\begin{frame}[allowframebreaks]{Results / Findings}
+\begin{itemize}
+  \item AgentDojo average attack success rate rose from 5.18\% to 32.05\%
+  \item InjecAgent average attack success rate rose from 15.13\% to 45.90\%
+  \item Multi-turn variant reached 52.33\% success rate on InjecAgent
+  \item Forged payloads transferred across models, including closed-source ones
+  \item Four prompt-based defenses largely failed, worst against Multi-turn
+\end{itemize}
+\end{frame}
+
+\section{Discussion}
+\begin{frame}{Discussion}
+\begin{itemize}
+  \item Models cannot reliably separate read data from real instructions
+  \item Forged formatting beats plain-text injection by wide margins
+  \item Prompt-only defenses can give a false sense of security
+  \item Risk grows as agents gain more tool and web access
+\end{itemize}
+\end{frame}
+
+\section{Challenges}
+\begin{frame}{Limitations \& Challenges}
+\begin{itemize}
+  \item Success rates vary widely by model and benchmark
+  \item Evaluation focuses on prompt-based, not structural, defenses
+  \item Closed-source template details are inferred, not fully known
+  \item Results are tied to two benchmarks and the tested model set
+\end{itemize}
+\end{frame}
+
+\section{Future Work}
+\begin{frame}{Future Work}
+\begin{itemize}
+  \item Develop structural defenses separating trusted and untrusted input
+  \item Train models to resist forged template markers
+  \item Extend testing to more agents and real deployments
+  \item Study automatic detection of multi-turn persuasion patterns
+\end{itemize}
+\end{frame}
+
+\section{Conclusion}
+\begin{frame}{Conclusion}
+\begin{itemize}
+  \item Chat templates are a powerful, overlooked attack surface
+  \item ChatInject far outperforms plain-text prompt injection
+  \item The attack transfers across models and evades prompt defenses
+  \item Safer agents need structural, not just prompt-based, protections
+\end{itemize}
+\end{frame}
+
+\section{References}
+\begin{frame}[allowframebreaks]{References}
+  \footnotesize
+  \begin{enumerate}
+    \item ChatInject: Abusing Chat Templates for Prompt Injection in LLM Agents, Hwan Chang, Yonghyun Jun, Hwanhee Lee, arXiv:2509.22830 (ICLR 2026), 2025
+    \item AgentDojo: A Dynamic Environment to Evaluate Prompt Injection Attacks and Defenses for LLM Agents, Debenedetti et al., NeurIPS Datasets and Benchmarks, 2024
+    \item InjecAgent: Benchmarking Indirect Prompt Injections in Tool-Integrated Large Language Model Agents, Zhan et al., Findings of ACL, 2024
+    \item AutoHijacker: Automatic Indirect Prompt Injection Against LLM Agents, Liu et al., 2025
+    \item Adaptive Attacks on Prompt Injection Defenses for LLM Agents, Zhan et al., 2025
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[plain]
+  \begin{center}
+    {\Huge Thank You}\\[1em]
+    {\large Questions?}
+  \end{center}
+\end{frame}
+
+\end{document}

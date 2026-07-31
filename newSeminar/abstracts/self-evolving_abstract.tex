@@ -1,0 +1,45 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{times}
+\usepackage{parskip}
+\usepackage[hidelinks]{hyperref}
+
+% ======================= EDIT YOUR DETAILS =======================
+\newcommand{\studentname}{Aflah Muhammed P}
+% Change the roll number below:
+\newcommand{\rollno}{TVE23CSXXX}
+% Change your guide name below:
+\newcommand{\guidename}{Prof. Guide Name}
+% Change the date below (e.g. August 20, 2026):
+\newcommand{\seminardate}{\today}
+% =================================================================
+
+\begin{document}
+\begin{center}
+  {\LARGE\bfseries Self-Evolving AI Agents: How Agents Learn to Improve Themselves (What, When, How, and Where to Evolve)}\\[8pt]
+  {\large\bfseries Seminar Abstract}\\[6pt]
+  {\normalsize \seminardate}
+\end{center}
+\vspace{1.5em}
+
+\section*{Abstract}
+Modern AI assistants are often built on large language models (LLMs), programs trained on huge amounts of text to understand and generate language. When an LLM is wrapped with the ability to plan, take actions, and use external tools, we call it an agent. A key limitation is that these models are static: once training finishes, their internal settings stay frozen, so they cannot truly learn from new tasks, changing information, or ongoing interactions. As agents are increasingly deployed in open-ended, real-world settings, this frozen nature becomes a serious bottleneck. What we really want are agents that can adapt, reason, and improve themselves over time as they gain experience. This idea marks a shift away from simply building bigger static models and toward building agents that continually evolve.
+
+This paper is the first systematic and comprehensive survey of self-evolving agents, agents that upgrade themselves from data, feedback, and interactions rather than staying fixed. It organizes the whole field around four simple questions: what to evolve (the model, memory, tools, or overall architecture), when to evolve (while solving one task versus between tasks), how to evolve (using numeric rewards, natural-language feedback, or cooperation among multiple agents), and where to evolve (application areas such as coding, education, and healthcare). The authors also review how to measure and benchmark such agents, and they highlight open challenges in safety, scalability, and the dynamics of many agents co-evolving together. They connect all of this to the long-term goal of artificial super intelligence, where agents might eventually improve autonomously beyond human-level ability. This talk will walk through the four-question framework, ground each part in concrete prior work like Reflexion-style self-reflection, and close with the open problems that make this an exciting research area.
+
+\section*{Key Reference Papers}
+\begin{enumerate}
+  \item A Survey of Self-Evolving Agents: What, When, How, and Where to Evolve on the Path to Artificial Super Intelligence, Huan-ang Gao, Jiayi Geng, Wenyue Hua, Mengkang Hu, et al., Transactions on Machine Learning Research (arXiv:2507.21046), 2025-2026
+  \item Reflexion: Language Agents with Verbal Reinforcement Learning, Noah Shinn et al., NeurIPS, 2023
+  \item Voyager: An Open-Ended Embodied Agent with Large Language Models, Guanzhi Wang et al., arXiv, 2023
+\end{enumerate}
+\vspace{1.5em}
+
+\noindent\textbf{Submitted By}\\
+\studentname\\
+\rollno
+
+\vspace{1em}
+\noindent\textbf{Guide}\\
+\guidename
+\end{document}

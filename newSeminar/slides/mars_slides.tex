@@ -1,0 +1,198 @@
+\documentclass[10pt]{beamer}
+\usetheme{Madrid}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[T1]{fontenc}
+\setbeamertemplate{navigation symbols}{}
+
+% ======================= EDIT YOUR DETAILS =======================
+\newcommand{\studentname}{Aflah Muhammed P}
+% Change the university roll/registration number:
+\newcommand{\rollno}{TVE23CSXXX}
+% Change your class roll number:
+\newcommand{\rollclass}{Roll No: XX}
+% Change your guide name:
+\newcommand{\guidename}{Prof. Guide Name}
+% Change department / college / short-institute if needed:
+\newcommand{\deptname}{Department of Computer Science and Engineering}
+\newcommand{\collegename}{College of Engineering Trivandrum}
+\newcommand{\shortinst}{CET}
+% Change the seminar date:
+\newcommand{\seminardate}{\today}
+% =================================================================
+
+\title[B.Tech Seminar]{MARS: Peer Review for AI - Making Multi-Agent Reasoning Twice as Efficient}
+\subtitle{Based on: MARS: toward more efficient multi-agent collaboration for LLM reasoning (arXiv:2509.20502, 2025)}
+\author[\studentname\ (\shortinst)]{\studentname \\ \small \rollno \\ \small \rollclass \\ \small Guide: \guidename}
+\institute[]{\deptname \\ \collegename}
+\date{\seminardate}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+\begin{frame}{Table of Contents}
+  \tableofcontents
+\end{frame}
+
+\section{Introduction}
+\begin{frame}{Introduction}
+\begin{itemize}
+  \item LLMs reason well alone but still make multi-step errors
+  \item Multi-agent teamwork improves reasoning accuracy
+  \item Debate-style collaboration is accurate but costly
+  \item MARS reorganizes agents like academic peer review
+  \item Goal: keep accuracy, cut tokens and time in half
+\end{itemize}
+\end{frame}
+
+\section{Literature Survey}
+\begin{frame}{Literature Survey / Background}
+  \small
+  \begin{tabular}{@{}p{2.7cm}p{2.3cm}p{5.6cm}@{}}
+    \toprule
+    \textbf{Title} & \textbf{Author} & \textbf{Summary} \\
+    \midrule
+    Chain-of-Thought Prompting & Wei et al., 2022 & Prompts an LLM to show intermediate reasoning steps, improving accuracy on math and logic tasks over direct answering. \\
+    \addlinespace
+    Multi-Agent Debate (MAD) & Du et al., 2023 & Multiple LLM agents debate over several rounds, exchanging and refining answers to improve factuality and reasoning. \\
+    \addlinespace
+    Reflexion / Self-Reflection & Shinn et al., 2023 & An agent critiques and revises its own output using feedback, improving results without extra models. \\
+    \addlinespace
+    \bottomrule
+  \end{tabular}
+\end{frame}
+
+\section{Motivation}
+\begin{frame}{Motivation}
+\begin{itemize}
+  \item Debate needs many agents and many rounds
+  \item Every agent reads every other agent's text
+  \item Token and time costs grow quickly
+  \item Hard to deploy expensive reasoning at scale
+\end{itemize}
+\end{frame}
+
+\section{Problem Statement}
+\begin{frame}{Problem Statement}
+  \begin{block}{}
+  Multi-Agent Debate improves LLM reasoning, but its heavy agent-to-agent communication makes token usage and inference time too costly. The challenge is to keep debate-level accuracy while sharply cutting that communication overhead.
+  \end{block}
+\end{frame}
+
+\section{Objectives}
+\begin{frame}{Objectives}
+\begin{itemize}
+  \item Design a cheaper multi-agent collaboration structure
+  \item Preserve the accuracy gains of debate
+  \item Remove costly reviewer-to-reviewer communication
+  \item Cut token usage and inference time substantially
+  \item Validate across multiple benchmarks and LLMs
+\end{itemize}
+\end{frame}
+
+\section{Methodology}
+\begin{frame}[allowframebreaks]{Methodology / Approach}
+\begin{itemize}
+  \item Model collaboration on academic peer review
+  \item Author agent drafts an initial solution
+  \item Reviewer agents critique it independently in parallel
+  \item Meta-reviewer synthesizes reviews into one verdict
+  \item Author revises using meta-reviewer guidance
+  \item Repeat for limited rounds, then output final answer
+\end{itemize}
+\end{frame}
+
+\section{Key Concepts}
+\begin{frame}[allowframebreaks]{Key Concepts}
+  \begin{description}
+    \item[Role-based collaboration] Agents hold fixed roles (author, reviewer, meta-reviewer) instead of symmetric debaters, structuring the workflow.
+    \item[Independent review] Reviewers critique the solution without seeing each other, removing cross-talk while keeping diverse feedback.
+    \item[Meta-review synthesis] A single agent merges all reviews into a final decision and concrete revision guidance.
+    \item[Iterative revision] The author rewrites the solution using feedback across a small, bounded number of review rounds.
+  \end{description}
+\end{frame}
+
+\section{System Architecture}
+\begin{frame}{System Architecture / How It Works}
+  \begin{block}{Overview}
+  The pipeline is a directed flow, not a mesh. A question enters the author agent, which produces a draft solution; that draft fans out to several reviewer agents that work in parallel and independently, each returning a decision and comments. Those reviews feed into a single meta-reviewer that outputs a final decision plus revision instructions, which loop back to the author for another round if needed. A diagram should show one author node, a parallel row of reviewer nodes with no links between them, and one meta-reviewer node that closes the loop back to the author.
+  \end{block}
+  % TIP: insert a diagram here, e.g.:
+  % \begin{center}\includegraphics[width=0.7\textwidth]{your-figure.png}\end{center}
+\end{frame}
+
+\section{Results}
+\begin{frame}[allowframebreaks]{Results / Findings}
+\begin{itemize}
+  \item Matches MAD accuracy across MMLU, GPQA, and GSM8K
+  \item Cuts token usage by roughly 50 percent
+  \item Cuts inference time by roughly 50 percent
+  \item Example: GPQA GPT-4o-mini about 48.3 percent vs MAD 47.5 percent
+  \item Example tokens: about 7,900 for MARS vs about 17,000 for MAD
+\end{itemize}
+\end{frame}
+
+\section{Discussion}
+\begin{frame}{Discussion}
+\begin{itemize}
+  \item Communication structure drives cost as much as agent count
+  \item Independent review avoids agents amplifying shared errors
+  \item Clear roles make the system easier to audit and control
+  \item Efficiency makes multi-agent reasoning more deployable
+\end{itemize}
+\end{frame}
+
+\section{Challenges}
+\begin{frame}{Limitations \& Challenges}
+\begin{itemize}
+  \item Still more costly than a single-agent call
+  \item Reviewer feedback may overlap or be redundant
+  \item Tested on selected benchmarks and model sizes
+  \item Bounded rounds may cap gains on very hard problems
+\end{itemize}
+\end{frame}
+
+\section{Future Work}
+\begin{frame}{Future Work}
+\begin{itemize}
+  \item Adapt the number of reviewers or rounds dynamically
+  \item Test on broader tasks and larger models
+  \item Combine with tool use and retrieval
+  \item Explore smarter meta-review synthesis strategies
+\end{itemize}
+\end{frame}
+
+\section{Conclusion}
+\begin{frame}{Conclusion}
+\begin{itemize}
+  \item Peer review is an efficient collaboration blueprint
+  \item MARS matches debate accuracy at about half the cost
+  \item Removing reviewer cross-talk is the key saving
+  \item A practical step toward affordable multi-agent reasoning
+\end{itemize}
+\end{frame}
+
+\section{References}
+\begin{frame}[allowframebreaks]{References}
+  \footnotesize
+  \begin{enumerate}
+    \item MARS: toward more efficient multi-agent collaboration for LLM reasoning. Xiao Wang, Jia Wang, Yijie Wang, Pengtao Dang, Sha Cao, Chi Zhang. arXiv:2509.20502, 2025.
+    \item Improving Factuality and Reasoning in Language Models through Multiagent Debate. Yilun Du, Shuang Li, Antonio Torralba, Joshua B. Tenenbaum, Igor Mordatch. arXiv:2305.14325, 2023.
+    \item Chain-of-Thought Prompting Elicits Reasoning in Large Language Models. Jason Wei, Xuezhi Wang, Dale Schuurmans, et al. NeurIPS, 2022.
+    \item Reflexion: Language Agents with Verbal Reinforcement Learning. Noah Shinn, Federico Cassano, Ashwin Gopinath, et al. NeurIPS, 2023.
+    \item Tree of Thoughts: Deliberate Problem Solving with Large Language Models. Shunyu Yao, Dian Yu, Jeffrey Zhao, et al. NeurIPS, 2023.
+    \item Self-Consistency Improves Chain of Thought Reasoning in Language Models. Xuezhi Wang, Jason Wei, Dale Schuurmans, et al. ICLR, 2023.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[plain]
+  \begin{center}
+    {\Huge Thank You}\\[1em]
+    {\large Questions?}
+  \end{center}
+\end{frame}
+
+\end{document}
