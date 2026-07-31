@@ -1,0 +1,34 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{6pt}
+\input{seminar_details.tex}
+\begin{document}
+\begin{center}
+{\LARGE\bfseries MARS: Efficient Multi-Agent Collaboration via Peer Review}\\[1.1em]
+{\large\bfseries Seminar Abstract}\\[0.6em]
+{\normalsize \seminarDate}
+\end{center}
+\vspace{0.6em}
+\section*{Abstract}
+Large language models reason more reliably when several agents collaborate rather than answering alone. Multi-Agent Debate (MAD) is a leading instance of this idea: multiple agents exchange and critique one another's arguments over successive rounds, improving accuracy on challenging reasoning tasks. However, this benefit comes at a steep price. Because every agent reads and responds to every other agent, the number of cross-agent messages, and therefore the context length, token consumption, and inference time, grows rapidly with the number of agents and rounds. Much of this communication is redundant, and the resulting computational overhead makes debate-based collaboration difficult to deploy at scale, motivating the search for a cheaper yet equally accurate coordination structure.
+
+This seminar presents \emph{MARS} (Multi-Agent Review System), which reorganises collaboration around the academic peer-review process. An \emph{author} agent drafts an initial solution; several \emph{reviewer} agents then independently issue decisions and written comments without communicating with one another; finally a \emph{meta-reviewer} integrates their feedback, decides whether to accept, and guides targeted revision over a small number of rounds. By eliminating costly reviewer-to-reviewer exchanges, MARS curbs token growth while preserving critical feedback. Across the MMLU, GPQA, and GSM8K benchmarks, using both closed-source (GPT-3.5-turbo, GPT-4o-mini) and open-source (Mixtral, Llama3.3-70B) backbones, MARS matches the accuracy of MAD while reducing both token usage and inference time by approximately 50\%. The talk will cover the peer-review architecture, the review-and-revision loop, the empirical results, and the method's limitations, including over-correction and confidence estimation.
+\section*{Key Reference Papers}
+\begin{enumerate}
+  \item X. Wang, J. Wang, Y. Wang, et al., ``MARS: toward more efficient multi-agent collaboration for LLM reasoning,'' arXiv:2509.20502, 2025.
+  \item Y. Du, S. Li, A. Torralba, J. B. Tenenbaum, and I. Mordatch, ``Improving Factuality and Reasoning in Language Models through Multiagent Debate,'' arXiv:2305.14325, 2023.
+  \item J. Wei, X. Wang, D. Schuurmans, et al., ``Chain-of-Thought Prompting Elicits Reasoning in Large Language Models,'' in Proc. NeurIPS, 2022.
+\end{enumerate}
+\vspace{0.8em}
+\noindent\textbf{Submitted By}\\
+\seminarName\\
+\seminarRoll
+
+\vspace{0.6em}
+\noindent\textbf{Guide}\\
+\seminarGuide
+\end{document}

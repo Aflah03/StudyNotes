@@ -1,0 +1,34 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{6pt}
+\input{seminar_details.tex}
+\begin{document}
+\begin{center}
+{\LARGE\bfseries Design Patterns for Securing LLM Agents against Prompt Injection}\\[1.1em]
+{\large\bfseries Seminar Abstract}\\[0.6em]
+{\normalsize \seminarDate}
+\end{center}
+\vspace{0.6em}
+\section*{Abstract}
+Large language model (LLM) agents increasingly act on the world through tools, retrievers, and external APIs, yet the same channels expose them to \emph{prompt injection}: malicious instructions hidden inside file contents, emails, calendar entries, reviews, resumes, documentation, or third-party responses that the agent ingests as ordinary data. Because an LLM cannot reliably separate trusted instructions from untrusted content, an attacker who controls any ingested text can hijack the agent to exfiltrate data, trigger unauthorized tool calls, or corrupt outputs. Prevailing defenses -- prompt engineering, adversarial fine-tuning, and learned injection detectors -- are fundamentally probabilistic: they raise the bar but offer no guarantee, and adaptive attacks repeatedly break them. This leaves practitioners without a principled way to reason about whether a deployed agent is safe.
+
+This seminar presents the work of Beurer-Kellner et al. (arXiv:2506.08837, 2025), which reframes the problem around a single design principle: once an agent has ingested untrusted input, the system must make it \emph{impossible} for that input to trigger consequential actions. From this principle the paper systematizes six reusable design patterns -- \emph{action-selector}, \emph{plan-then-execute}, \emph{LLM map-reduce}, \emph{dual LLM}, \emph{code-then-execute}, and \emph{context-minimization} -- each trading a controlled amount of flexibility for provable containment. Rather than reporting a single accuracy number, the paper analyzes the security-versus-utility trade-off of each pattern and grounds them in ten application case studies, from an email and calendar assistant to a software-engineering agent. The presentation will explain prompt injection and its threat model, walk through each pattern and its guarantee, illustrate the dual-LLM and code-then-execute designs (as instantiated by systems such as CaMeL on the AgentDojo benchmark), and discuss remaining limitations and open directions for building agents that are secure by construction.
+\section*{Key Reference Papers}
+\begin{enumerate}
+  \item L. Beurer-Kellner, B. Buesser, A.-M. Cre\c{t}u, E. Debenedetti, D. Dobos, D. Fabian, M. Fischer, D. Froelicher, K. Grosse, D. Naeff, E. Ozoani, A. Paverd, F. Tram\`er, and V. Volhejn, ``Design Patterns for Securing LLM Agents against Prompt Injections,'' arXiv:2506.08837, 2025.
+  \item E. Debenedetti, I. Shumailov, T. Fan, J. Hayes, N. Carlini, D. Fabian, C. Kern, C. Shi, A. Terzis, and F. Tram\`er, ``Defeating Prompt Injections by Design (CaMeL),'' arXiv:2503.18813, 2025.
+  \item E. Debenedetti, J. Zhang, M. Balunovi\'c, L. Beurer-Kellner, M. Fischer, and F. Tram\`er, ``AgentDojo: A Dynamic Environment to Evaluate Prompt Injection Attacks and Defenses for LLM Agents,'' in Advances in Neural Information Processing Systems (NeurIPS), 2024.
+\end{enumerate}
+\vspace{0.8em}
+\noindent\textbf{Submitted By}\\
+\seminarName\\
+\seminarRoll
+
+\vspace{0.6em}
+\noindent\textbf{Guide}\\
+\seminarGuide
+\end{document}

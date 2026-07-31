@@ -1,0 +1,34 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{6pt}
+\input{seminar_details.tex}
+\begin{document}
+\begin{center}
+{\LARGE\bfseries CaMeL: Defeating Prompt Injection by Design}\\[1.1em]
+{\large\bfseries Seminar Abstract}\\[0.6em]
+{\normalsize \seminarDate}
+\end{center}
+\vspace{0.6em}
+\section*{Abstract}
+Large language models are increasingly deployed as agents that call tools, read email, browse the web, and act on the results. To be useful, these agents must consume untrusted external data, yet current systems feed trusted instructions and untrusted content into the same context window. This lets an attacker hide directives inside the data, a class of attack known as \emph{prompt injection}, and thereby hijack the agent's actions, redirect tool calls, or exfiltrate private information. Existing defenses are largely probabilistic, relying on adversarial fine-tuning, injection detectors, or prompt-level tricks such as delimiters and spotlighting. Because they depend on the model behaving correctly under attack, adaptive adversaries can bypass them, and none provide a guarantee that untrusted data cannot alter what the agent does.
+
+This seminar presents CaMeL (Capabilities for Machine Learning), a protective system layer that defeats prompt injection \emph{by design} rather than by retraining the model. Building on the Dual-LLM pattern, a privileged LLM converts the trusted user query into an explicit program that captures the control and data flow, while a quarantined LLM only parses untrusted data and is denied tool access, so injected text can never change the program's logic. A custom Python interpreter tracks the provenance of every value as a capability and enforces user-defined security policies before each tool call, blocking unauthorized data flows and exfiltration by construction. On the AgentDojo agent-security benchmark, CaMeL solves about 77\% of tasks with provable security, against roughly 84\% for an undefended agent, a modest utility cost for a strong guarantee. The talk covers the threat model, the dual-LLM and interpreter design, the capability and policy mechanism, the AgentDojo results, and the practical limitations such as policy-authoring effort and user-confirmation fatigue.
+\section*{Key Reference Papers}
+\begin{enumerate}
+  \item E. Debenedetti, I. Shumailov, T. Fan, J. Hayes, N. Carlini, D. Fabian, C. Kern, C. Shi, A. Terzis, and F. Tram\`{e}r, ``Defeating Prompt Injections by Design,'' arXiv:2503.18813, 2025.
+  \item E. Debenedetti, J. Zhang, M. Balunovi\'{c}, L. Beurer-Kellner, M. Fischer, and F. Tram\`{e}r, ``AgentDojo: A Dynamic Environment to Evaluate Prompt Injection Attacks and Defenses for LLM Agents,'' in Proc. NeurIPS Datasets and Benchmarks, arXiv:2406.13352, 2024.
+  \item S. Willison, ``The Dual LLM pattern for building AI assistants that can resist prompt injection,'' simonwillison.net, 2023.
+\end{enumerate}
+\vspace{0.8em}
+\noindent\textbf{Submitted By}\\
+\seminarName\\
+\seminarRoll
+
+\vspace{0.6em}
+\noindent\textbf{Guide}\\
+\seminarGuide
+\end{document}

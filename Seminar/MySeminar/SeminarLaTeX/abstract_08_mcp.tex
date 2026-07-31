@@ -1,0 +1,34 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{6pt}
+\input{seminar_details.tex}
+\begin{document}
+\begin{center}
+{\LARGE\bfseries Model Context Protocol: Landscape, Security Threats, and Directions}\\[1.1em]
+{\large\bfseries Seminar Abstract}\\[0.6em]
+{\normalsize \seminarDate}
+\end{center}
+\vspace{0.6em}
+\section*{Abstract}
+Large language model (LLM) agents increasingly need to act in the world -- querying databases, calling APIs, and manipulating files -- yet historically each integration required bespoke, tightly coupled connectors that did not generalise across models or tools. The Model Context Protocol (MCP), introduced by Anthropic in late 2024 and often called a ``USB-C port for AI applications,'' tackles this fragmentation with a unified, bidirectional protocol for the dynamic discovery of tools and resources between AI hosts and external services. Its rapid, community-driven adoption, however, has outpaced any systematic study of its security. Because MCP servers run largely untrusted code and expose tool descriptions that the model implicitly trusts, and because they are distributed through loosely curated marketplaces, the protocol opens attack surfaces -- poisoned tools, injection hidden inside metadata, over-privileged access -- that prior agent-security work does not fully characterise.
+
+This seminar presents what the authors describe as the first in-depth analysis of the MCP ecosystem. The paper formalises the architecture -- host, client, and server exposing \emph{tools}, \emph{resources}, and \emph{prompts} -- and defines a four-phase server lifecycle (creation, deployment, operation, and maintenance) spanning sixteen key activities. Against this lifecycle it builds a threat taxonomy of sixteen scenarios grouped under four attacker types (malicious developers, external attackers, malicious users, and latent security flaws), covering concrete attacks such as tool poisoning, rug pulls, cross-server shadowing, installer spoofing, indirect prompt injection, and over-privileged access. For each phase and threat category the authors propose actionable safeguards, from cryptographically signed server manifests and namespace governance to runtime anomaly detection and reproducible builds. The presentation walks through the architecture, the lifecycle-aligned threat model, illustrative real-world exploits, the proposed defences, and the open challenges around trust boundaries, standardisation, and sustainable ecosystem growth.
+\section*{Key Reference Papers}
+\begin{enumerate}
+  \item X. Hou, Y. Zhao, S. Wang, and H. Wang, ``Model Context Protocol (MCP): Landscape, Security Threats, and Future Research Directions,'' arXiv:2503.23278, 2025.
+  \item Anthropic, ``Introducing the Model Context Protocol,'' Anthropic, 2024. [Online]. Available: \url{https://www.anthropic.com/news/model-context-protocol}
+  \item B. Radosevich and J. T. Halloran, ``MCP Safety Audit: LLMs with the Model Context Protocol Allow Major Security Exploits,'' arXiv:2504.03767, 2025.
+\end{enumerate}
+\vspace{0.8em}
+\noindent\textbf{Submitted By}\\
+\seminarName\\
+\seminarRoll
+
+\vspace{0.6em}
+\noindent\textbf{Guide}\\
+\seminarGuide
+\end{document}

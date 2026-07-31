@@ -1,0 +1,34 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{6pt}
+\input{seminar_details.tex}
+\begin{document}
+\begin{center}
+{\LARGE\bfseries SWE-Fixer: Open-Source LLMs for GitHub Issue Resolution}\\[1.1em]
+{\large\bfseries Seminar Abstract}\\[0.6em]
+{\normalsize \seminarDate}
+\end{center}
+\vspace{0.6em}
+\section*{Abstract}
+Resolving real-world GitHub issues -- localizing the faulty files inside a large repository and then producing a correct patch -- has emerged as a demanding test of large language models, exemplified by the SWE-Bench benchmark. Yet many of the strongest systems depend on proprietary models such as GPT-4 and Claude, which undermines reproducibility, accessibility, and transparency. These systems typically wrap the model in elaborate agent frameworks that explore the repository through long interaction trajectories, issuing many model calls per issue and incurring substantial latency and cost. Fully open-source alternatives have historically trailed well behind, leaving a gap between what practitioners can freely deploy and what closed systems achieve.
+
+This seminar presents \emph{SWE-Fixer}, an open-source pipeline that resolves issues both effectively and efficiently using only two model calls per instance. It couples a code-file retrieval module -- BM25 for coarse candidate selection followed by a fine-tuned 7B ranker for fine-grained file identification -- with a 72B code-editing module that emits structured edits automatically convertible into patches. Both modules are trained on \emph{SWE-Fixer-Train-110K}, a newly curated corpus of 110K GitHub issues with gold patches and GPT-4o-generated chain-of-thought rationales. Built on the open Qwen2.5 series, SWE-Fixer reaches competitive accuracy -- up to 24.7\% on SWE-Bench Lite and 32.8\% on SWE-Bench Verified -- rivaling much heavier agent systems while remaining lightweight. The talk covers the two-module design, the data-construction pipeline, the training choices, empirical comparisons against open- and closed-source baselines, and the approach's current limitations.
+\section*{Key Reference Papers}
+\begin{enumerate}
+  \item C. Xie, B. Li, C. Gao, et al., ``SWE-Fixer: Training Open-Source LLMs for Effective and Efficient GitHub Issue Resolution,'' arXiv:2501.05040, 2025.
+  \item C. E. Jimenez, J. Yang, A. Wettig, et al., ``SWE-bench: Can Language Models Resolve Real-World GitHub Issues?,'' in Proc. Int. Conf. Learn. Represent. (ICLR), 2024, arXiv:2310.06770.
+  \item Qwen Team, ``Qwen2.5 Technical Report,'' arXiv:2412.15115, 2024.
+\end{enumerate}
+\vspace{0.8em}
+\noindent\textbf{Submitted By}\\
+\seminarName\\
+\seminarRoll
+
+\vspace{0.6em}
+\noindent\textbf{Guide}\\
+\seminarGuide
+\end{document}

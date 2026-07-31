@@ -1,0 +1,34 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{6pt}
+\input{seminar_details.tex}
+\begin{document}
+\begin{center}
+{\LARGE\bfseries SWE-smith: Scaling Data for Software-Engineering Agents}\\[1.1em]
+{\large\bfseries Seminar Abstract}\\[0.6em]
+{\normalsize \seminarDate}
+\end{center}
+\vspace{0.6em}
+\section*{Abstract}
+Language-model agents are increasingly able to resolve real-world software issues, but their progress is gated by the availability of training data. Benchmarks such as SWE-bench are built by mining task instances from historical GitHub pull requests, a process that is slow, labor-intensive, and storage-hungry: reproducing an execution environment for every instance can demand tens to hundreds of terabytes. As a result, publicly available training sets have been limited to a few thousand instances, capping the performance of open-weight coding agents and leaving a wide gap behind proprietary systems.
+
+This seminar presents \emph{SWE-smith}, an automated data factory that converts any Python repository into hundreds to thousands of verifiable bug-fixing tasks. SWE-smith builds a single execution environment per repository and then synthetically introduces bugs -- through LM rewriting, LM modification, procedural AST edits, and pull-request mirroring -- that break existing passing tests; the untouched original code together with its passing tests forms a self-labeled, execution-verified fix, while an LM drafts a realistic issue description from the diff and failing test. The pipeline yields roughly 50{,}000 task instances from 128 repositories using only about 295 GB, on the order of 500x less storage than comparable pipelines. Fine-tuning Qwen2.5-Coder-32B on 5{,}016 agent trajectories produces \emph{SWE-agent-LM-32B}, which resolves 40.2\% of SWE-bench Verified in a single attempt without inference-time scaling -- a new state of the art among open models. The presentation walks through the pipeline, the bug-generation strategies, the training recipe, and the empirical results and limitations.
+\section*{Key Reference Papers}
+\begin{enumerate}
+  \item J. Yang, K. Lieret, C. E. Jimenez, A. Wettig, K. Khandpur, Y. Zhang, B. Hui, O. Press, L. Schmidt, and D. Yang, ``SWE-smith: Scaling Data for Software Engineering Agents,'' arXiv:2504.21798, 2025.
+  \item C. E. Jimenez, J. Yang, A. Wettig, S. Yao, K. Pei, O. Press, and K. Narasimhan, ``SWE-bench: Can Language Models Resolve Real-World GitHub Issues?,'' in Proc. Int. Conf. Learning Representations (ICLR), 2024.
+  \item J. Yang, C. E. Jimenez, A. Wettig, K. Lieret, S. Yao, K. Narasimhan, and O. Press, ``SWE-agent: Agent-Computer Interfaces Enable Automated Software Engineering,'' in Proc. Advances in Neural Information Processing Systems (NeurIPS), 2024.
+\end{enumerate}
+\vspace{0.8em}
+\noindent\textbf{Submitted By}\\
+\seminarName\\
+\seminarRoll
+
+\vspace{0.6em}
+\noindent\textbf{Guide}\\
+\seminarGuide
+\end{document}

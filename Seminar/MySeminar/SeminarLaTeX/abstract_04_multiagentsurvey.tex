@@ -1,0 +1,34 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{6pt}
+\input{seminar_details.tex}
+\begin{document}
+\begin{center}
+{\LARGE\bfseries Multi-Agent Collaboration Mechanisms in LLMs: A Survey}\\[1.1em]
+{\large\bfseries Seminar Abstract}\\[0.6em]
+{\normalsize \seminarDate}
+\end{center}
+\vspace{0.6em}
+\section*{Abstract}
+Large language models have become capable individual agents, yet many real-world tasks -- software engineering, scientific reasoning, negotiation, and societal simulation -- exceed what a single model can plan, remember, and execute alone. A lone LLM is constrained by limited context, hallucination, and a lack of role specialisation, and naively scaling one model yields diminishing returns. Multi-agent systems (MAS) composed of LLM-based agents promise division of labour, debate, and tool use, but the literature is fragmented: individual frameworks such as ChatDev, MetaGPT, AutoGen, and CAMEL each describe bespoke designs without a shared vocabulary for \emph{how} agents actually collaborate, making results difficult to compare, reuse, or generalise.
+
+This survey by Tran et al. (arXiv:2501.06322, 2025) places collaboration at the centre of analysis, shifting attention from isolated models to collaboration-centric design. It formalises an agent as a compact tuple of model, objective, environment, input, and output, and proposes an extensible framework that characterises any collaboration mechanism along five dimensions: the \emph{actors} involved, the \emph{type} of interaction (cooperation, competition, or coopetition), the organisational \emph{structure} (peer-to-peer, centralized, distributed, or hierarchical), the \emph{strategy} (rule-based, role-based, or model-based), and the \emph{coordination protocol}. Using role-based exemplars such as a simulated software company, it shows how these choices shape emergent behaviour, and it reviews applications spanning 5G/6G networks, Industry 5.0, and question answering. This seminar walks through the taxonomy, its illustrative frameworks, and the open challenges and lessons the authors identify on the path toward artificial collective intelligence.
+\section*{Key Reference Papers}
+\begin{enumerate}
+  \item K.-T. Tran, D. Dao, M.-D. Nguyen, Q.-V. Pham, B. O'Sullivan, and H. D. Nguyen, ``Multi-Agent Collaboration Mechanisms: A Survey of LLMs,'' arXiv:2501.06322, 2025.
+  \item C. Qian, W. Liu, H. Liu, et al., ``ChatDev: Communicative Agents for Software Development,'' in Proc. ACL, 2024; arXiv:2307.07924.
+  \item S. Hong, X. Zheng, J. Chen, et al., ``MetaGPT: Meta Programming for a Multi-Agent Collaborative Framework,'' in Proc. ICLR, 2024; arXiv:2308.00352.
+\end{enumerate}
+\vspace{0.8em}
+\noindent\textbf{Submitted By}\\
+\seminarName\\
+\seminarRoll
+
+\vspace{0.6em}
+\noindent\textbf{Guide}\\
+\seminarGuide
+\end{document}

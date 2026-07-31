@@ -1,0 +1,34 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{6pt}
+\input{seminar_details.tex}
+\begin{document}
+\begin{center}
+{\LARGE\bfseries APIGen-MT: Generating Multi-Turn Tool-Use Data via Agent-Human Simulation}\\[1.1em]
+{\large\bfseries Seminar Abstract}\\[0.6em]
+{\normalsize \seminarDate}
+\end{center}
+\vspace{0.6em}
+\section*{Abstract}
+Large language model (LLM) agents increasingly operate in interactive, multi-turn settings where they must call external tools and APIs, track evolving state, and cooperate with a human user across an entire conversation. Training such agents demands large volumes of high-quality multi-turn tool-use trajectories, yet this data is scarce and difficult to obtain. Human annotation is expensive, slow, and inconsistent, while existing synthetic pipelines, such as single-turn function-calling generators, capture isolated API calls but ignore the dialogue dynamics, partial user intent, and long-horizon dependencies that characterise realistic agentic tasks. Crucially, most approaches lack a rigorous way to verify that generated trajectories are actually correct with respect to ground-truth actions, which limits their reliability as a training signal.
+
+This seminar presents \emph{APIGen-MT}, an agentic two-phase pipeline for generating verified multi-turn tool-use data. In the first phase, a data-generation agent proposes detailed task blueprints with ground-truth actions, which are filtered through format and execution checks and a committee of LLM reviewers, with an iterative feedback loop refining rejected candidates. In the second phase, each validated blueprint is realised as a full conversation through simulated agent-human interplay, retaining only trajectories whose executed actions and outputs match the blueprint. Using 5,000 released trajectories, the authors train the open \emph{xLAM-2} family (1B--70B, built on Llama 3.1/3.2 and Qwen 2.5). xLAM-2-70b reaches 56.2\% on $\tau$-bench and 78.19\% on BFCL v3, surpassing GPT-4o and rivalling Claude 3.5 Sonnet, while smaller models often outperform larger ones in multi-turn settings. The talk covers the pipeline, architecture, results, and limitations.
+\section*{Key Reference Papers}
+\begin{enumerate}
+  \item A. Prabhakar, Z. Liu, M. Zhu, et al., ``APIGen-MT: Agentic Pipeline for Multi-Turn Data Generation via Simulated Agent-Human Interplay,'' arXiv:2504.03601, 2025.
+  \item Z. Liu, T. Hoang, J. Zhang, et al., ``APIGen: Automated Pipeline for Generating Verifiable and Diverse Function-Calling Datasets,'' in Proc. NeurIPS, 2024, arXiv:2406.18518.
+  \item S. Yao, N. Shinn, P. Razavi, and K. Narasimhan, ``$\tau$-bench: A Benchmark for Tool-Agent-User Interaction in Real-World Domains,'' arXiv:2406.12045, 2024.
+\end{enumerate}
+\vspace{0.8em}
+\noindent\textbf{Submitted By}\\
+\seminarName\\
+\seminarRoll
+
+\vspace{0.6em}
+\noindent\textbf{Guide}\\
+\seminarGuide
+\end{document}

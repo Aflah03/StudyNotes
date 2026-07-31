@@ -1,0 +1,34 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{6pt}
+\input{seminar_details.tex}
+\begin{document}
+\begin{center}
+{\LARGE\bfseries Agentic Retrieval-Augmented Generation: A Survey}\\[1.1em]
+{\large\bfseries Seminar Abstract}\\[0.6em]
+{\normalsize \seminarDate}
+\end{center}
+\vspace{0.6em}
+\section*{Abstract}
+Large language models encode vast knowledge yet remain bounded by static training data, producing hallucinations and stale answers on dynamic queries. Retrieval-Augmented Generation (RAG) mitigates this by grounding responses in externally retrieved evidence, and advanced variants add re-ranking, query rewriting, and graph structure. However, both na\"ive and advanced RAG rely on fixed, single-shot pipelines: they retrieve once, cannot judge whether the evidence is sufficient, and lack the adaptability required for multi-step reasoning, cross-source synthesis, and complex task orchestration. This rigidity limits their usefulness in real-world, open-ended settings.
+
+This seminar presents \emph{Agentic Retrieval-Augmented Generation}, a survey by Singh, Ehtesham, Kumar, Talaei Khoei, and Vasilakos (arXiv:2501.09136, 2025) that maps how autonomous-agent capabilities are embedded into RAG. The survey organizes the field around four agentic design patterns -- reflection, planning, tool use, and multi-agent collaboration -- and a principled taxonomy spanning agent cardinality, control structure, autonomy, and knowledge representation. It catalogs seven architectural families, from single-agent routers to multi-agent, hierarchical, corrective, adaptive, graph-based, and document-workflow systems, and reviews enabling frameworks, evaluation benchmarks, and applications in healthcare, finance, education, and enterprise document processing. The presentation will walk through this taxonomy, the agentic RAG loop, representative architectures, and the open challenges of coordination, scalability, evaluation, and governance that define the research frontier.
+\section*{Key Reference Papers}
+\begin{enumerate}
+  \item A. Singh, A. Ehtesham, S. Kumar, T. Talaei Khoei, and A. V. Vasilakos, ``Agentic Retrieval-Augmented Generation: A Survey on Agentic RAG,'' arXiv:2501.09136, 2025.
+  \item P. Lewis et al., ``Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks,'' in Proc. NeurIPS, 2020.
+  \item A. Asai, Z. Wu, Y. Wang, A. Sil, and H. Hajishirzi, ``Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection,'' in Proc. ICLR, 2024.
+\end{enumerate}
+\vspace{0.8em}
+\noindent\textbf{Submitted By}\\
+\seminarName\\
+\seminarRoll
+
+\vspace{0.6em}
+\noindent\textbf{Guide}\\
+\seminarGuide
+\end{document}

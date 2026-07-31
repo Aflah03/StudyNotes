@@ -1,0 +1,34 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{6pt}
+\input{seminar_details.tex}
+\begin{document}
+\begin{center}
+{\LARGE\bfseries The Berkeley Function-Calling Leaderboard: Benchmarking Tool Use}\\[1.1em]
+{\large\bfseries Seminar Abstract}\\[0.6em]
+{\normalsize \seminarDate}
+\end{center}
+\vspace{0.6em}
+\section*{Abstract}
+Function calling, or tool use, is the ability of a large language model (LLM) to invoke external functions, APIs, and user-defined tools in response to a query, and it underpins virtually every agentic LLM application. Despite its importance, the community lacked a standard way to measure it. Judging whether a generated call is correct is genuinely hard: executable evaluation demands live, stateful API access that is brittle, costly, and difficult to reproduce, while many earlier benchmarks cover only a narrow slice of behaviour, focus on a single call at a time, and are prone to data contamination. Crucially, existing evaluations rarely tested parallel or multiple calls, a model's ability to abstain when no supplied function is relevant, or stateful multi-turn agentic interactions.
+
+This seminar presents the Berkeley Function-Calling Leaderboard (BFCL), which standardises this evaluation. Its central idea is an execution-free \emph{Abstract Syntax Tree} (AST) matching metric that parses a predicted call and checks the function name, required parameters, and value and type constraints against ground truth, scaling to thousands of functions across multiple programming languages without ever running the API. BFCL spans expert-curated (non-live) categories for single, multiple, parallel, and parallel-multiple calls, live user-contributed prompts that reduce contamination, relevance detection for abstention, and stateful multi-turn agentic tasks with missing-function, missing-parameter, and long-context variants. It has become a de-facto standard leaderboard. A key finding is that state-of-the-art models excel at single-turn calls yet remain weak at memory, dynamic decision-making, and long-horizon multi-step reasoning. The talk covers BFCL's methodology, category architecture, data construction, headline results, and open challenges.
+\section*{Key Reference Papers}
+\begin{enumerate}
+  \item S. G. Patil, H. Mao, F. Yan, C. Ji, V. Suresh, I. Stoica, and J. E. Gonzalez, ``The Berkeley Function Calling Leaderboard (BFCL): From Tool Use to Agentic Evaluation of Large Language Models,'' in Proc. 42nd Int. Conf. on Machine Learning (ICML), PMLR, vol. 267, 2025.
+  \item S. G. Patil, T. Zhang, X. Wang, and J. E. Gonzalez, ``Gorilla: Large Language Model Connected with Massive APIs,'' arXiv:2305.15334, 2023.
+  \item Y. Qin et al., ``ToolLLM: Facilitating Large Language Models to Master 16000+ Real-world APIs,'' in Proc. Int. Conf. on Learning Representations (ICLR), 2024.
+\end{enumerate}
+\vspace{0.8em}
+\noindent\textbf{Submitted By}\\
+\seminarName\\
+\seminarRoll
+
+\vspace{0.6em}
+\noindent\textbf{Guide}\\
+\seminarGuide
+\end{document}

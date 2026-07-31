@@ -1,0 +1,20 @@
+Lint smoke-check (brace/environment balance). 18/18 topics clean.
+
+OK   01_deeprag
+OK   02_searchr1
+OK   03_agenticrag
+OK   04_multiagentsurvey
+OK   05_mars
+OK   06_culturaldebate
+OK   07_bfcl
+OK   08_mcp
+OK   09_apigenmt
+OK   10_evalsurvey
+OK   11_rigorousbench
+OK   12_agentrewardbench
+OK   13_camel
+OK   14_designpatterns
+OK   15_gemini
+OK   16_swebenchpro
+OK   17_swefixer
+OK   18_swesmith

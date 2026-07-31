@@ -1,0 +1,34 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{6pt}
+\input{seminar_details.tex}
+\begin{document}
+\begin{center}
+{\LARGE\bfseries Building Rigorous Agentic Benchmarks}\\[1.1em]
+{\large\bfseries Seminar Abstract}\\[0.6em]
+{\normalsize \seminarDate}
+\end{center}
+\vspace{0.6em}
+\section*{Abstract}
+As autonomous LLM agents advance, agentic benchmarks have become the primary yardstick for claims about coding, web-navigation, and cybersecurity capability. Yet these benchmarks are far harder to build correctly than static question-answer datasets: they couple a task environment, a multi-step agent, and an automated grader, and a flaw in any component can silently corrupt the reported score. Recent work shows that many popular benchmarks admit \emph{task-validity} failures, where a trivial or shortcut-taking agent passes without the intended competence, and \emph{outcome-validity} failures, where the grader credits wrong or empty answers. Because such errors are rarely audited, headline leaderboard numbers may reflect measurement artefacts rather than genuine agent ability.
+
+This seminar presents \emph{Establishing Best Practices for Building Rigorous Agentic Benchmarks}, which audits ten widely used agentic benchmarks and distils the findings into the Agentic Benchmark Checklist (ABC). ABC organises concrete, actionable guidelines under three pillars: task validity (a task is solvable if and only if the agent has the target skill), outcome validity (the grader correctly decides whether the task is solved), and transparent benchmark reporting. The audit finds task-setup and reward-design flaws that distort measured performance by up to 100\% in relative terms; for example, weak test suites in SWE-bench Verified and empty responses scored as success in TAU-bench. Applying ABC to CVE-Bench cut performance overestimation by roughly 33\%. The talk will explain the two validity notions, walk through the checklist, examine the CVE-Bench case study, and discuss how ABC can make future agent evaluation more trustworthy and reproducible.
+\section*{Key Reference Papers}
+\begin{enumerate}
+  \item Y. Zhu, T. Jin, D. Kang, et al., ``Establishing Best Practices for Building Rigorous Agentic Benchmarks,'' arXiv:2507.02825, 2025.
+  \item C. E. Jimenez, J. Yang, et al., ``SWE-bench: Can Language Models Resolve Real-World GitHub Issues?,'' in Proc. ICLR, 2024; arXiv:2310.06770.
+  \item S. Zhou, F. F. Xu, et al., ``WebArena: A Realistic Web Environment for Building Autonomous Agents,'' in Proc. ICLR, 2024; arXiv:2307.13854.
+\end{enumerate}
+\vspace{0.8em}
+\noindent\textbf{Submitted By}\\
+\seminarName\\
+\seminarRoll
+
+\vspace{0.6em}
+\noindent\textbf{Guide}\\
+\seminarGuide
+\end{document}

@@ -1,0 +1,34 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{6pt}
+\input{seminar_details.tex}
+\begin{document}
+\begin{center}
+{\LARGE\bfseries DeepRAG: Teaching Language Models When to Retrieve}\\[1.1em]
+{\large\bfseries Seminar Abstract}\\[0.6em]
+{\normalsize \seminarDate}
+\end{center}
+\vspace{0.6em}
+\section*{Abstract}
+Large language models reason fluently yet remain prone to factual hallucination, motivating retrieval-augmented generation (RAG), which grounds responses in external documents. Conventional RAG pipelines, however, retrieve indiscriminately, often fetching passages for every query or every reasoning step. This uniform strategy injects irrelevant or noisy context, inflates latency and API cost, and can even corrupt answers the model already knew. Recent adaptive and iterative variants try to trigger retrieval selectively, but they typically depend on hand-tuned confidence thresholds or prompting heuristics, suffer from ineffective task decomposition, and are not trained end-to-end to reason about \emph{when} external knowledge is genuinely required.
+
+This seminar presents \emph{DeepRAG}, which formulates retrieval-augmented reasoning as a Markov Decision Process. DeepRAG decomposes a question into a sequence of atomic sub-queries and, at each step, makes two decisions: whether to keep decomposing (the termination action) and whether to answer from parametric memory or retrieve external documents (the atomic decision). Training proceeds in three stages: a binary tree search that synthesizes cost-efficient retrieval trajectories, imitation learning on these retrieval narratives, and a chain-of-calibration stage that sharpens the model's awareness of its own knowledge boundaries. Across factual question-answering benchmarks and two backbones, Llama-3-8B and Qwen-2.5-7B, DeepRAG improves answer accuracy by roughly 21.99\% while issuing fewer retrievals than always-retrieve baselines. The talk covers the MDP formulation, the three-stage training pipeline, the empirical accuracy and efficiency gains, and the method's limitations and future directions.
+\section*{Key Reference Papers}
+\begin{enumerate}
+  \item X. Guan, J. Zeng, F. Meng, et al., ``DeepRAG: Thinking to Retrieve Step by Step for Large Language Models,'' arXiv:2502.01142, 2025.
+  \item A. Asai, Z. Wu, Y. Wang, A. Sil, and H. Hajishirzi, ``Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection,'' in Proc. ICLR, 2024.
+  \item Z. Jiang, F. F. Xu, L. Gao, et al., ``Active Retrieval Augmented Generation,'' in Proc. EMNLP, 2023.
+\end{enumerate}
+\vspace{0.8em}
+\noindent\textbf{Submitted By}\\
+\seminarName\\
+\seminarRoll
+
+\vspace{0.6em}
+\noindent\textbf{Guide}\\
+\seminarGuide
+\end{document}

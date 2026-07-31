@@ -1,0 +1,34 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{6pt}
+\input{seminar_details.tex}
+\begin{document}
+\begin{center}
+{\LARGE\bfseries Lessons from Defending Gemini Against Indirect Prompt Injection}\\[1.1em]
+{\large\bfseries Seminar Abstract}\\[0.6em]
+{\normalsize \seminarDate}
+\end{center}
+\vspace{0.6em}
+\section*{Abstract}
+Modern AI assistants such as Gemini are increasingly \emph{agentic}: they invoke tools and read untrusted external content---emails, documents, calendar entries, and web pages---to complete user tasks. This capability exposes them to \emph{indirect prompt injection} (IPI), in which an adversary hides malicious instructions inside that retrieved data and hijacks the model into leaking private information or performing unauthorized actions. Because the injected text is indistinguishable from legitimate content, the assistant cannot reliably separate the user's true instruction from the attacker's. Prior defenses---in-context techniques such as spotlighting, paraphrasing, and warnings, together with classifier-based filters---are typically validated against a fixed, static suite of attacks. This paper argues that such evaluations are misleading: defenses that appear robust under a static test collapse once confronted with an adversary that adapts specifically to them.
+
+This seminar presents \emph{Lessons from Defending Gemini}, a practitioner report from Google DeepMind on hardening a deployed assistant against IPI. The authors build an \emph{adaptive} adversarial-evaluation framework that runs three optimization-based attacks---Actor-Critic, Beam Search, and Tree of Attacks with Pruning (TAP)---continuously against successive Gemini versions. Evaluating eight representative defenses, they find most still admit attack success rates above 70\%, and that adaptive attacks match or exceed their non-adaptive counterparts in 16 of 24 cases. Their central mitigation is adversarial fine-tuning: training Gemini 2.5 on synthetic attack data seeded by these attackers reduces attack success by roughly 47\% on average relative to Gemini 2.0, though it does not eliminate the threat. The key lesson is that no single fix suffices; durable robustness demands defense-in-depth that combines adversarial training, guardrail classifiers, and system-level controls. The talk covers the threat model, the adaptive attack framework, the defense evaluation, and the resulting design principles for secure agentic assistants.
+\section*{Key Reference Papers}
+\begin{enumerate}
+  \item C. Shi, S. Lin, S. Song, et al., ``Lessons from Defending Gemini Against Indirect Prompt Injections,'' arXiv:2505.14534, 2025.
+  \item K. Hines, G. Lopez, M. Hall, et al., ``Defending Against Indirect Prompt Injection Attacks With Spotlighting,'' arXiv:2403.14720, 2024.
+  \item A. Mehrotra, M. Zampetakis, P. Kassianik, et al., ``Tree of Attacks: Jailbreaking Black-Box LLMs Automatically,'' arXiv:2312.02119, 2023.
+\end{enumerate}
+\vspace{0.8em}
+\noindent\textbf{Submitted By}\\
+\seminarName\\
+\seminarRoll
+
+\vspace{0.6em}
+\noindent\textbf{Guide}\\
+\seminarGuide
+\end{document}

@@ -1,0 +1,34 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{6pt}
+\input{seminar_details.tex}
+\begin{document}
+\begin{center}
+{\LARGE\bfseries Multi-Agent Debate for Equitable Cultural Alignment}\\[1.1em]
+{\large\bfseries Seminar Abstract}\\[0.6em]
+{\normalsize \seminarDate}
+\end{center}
+\vspace{0.6em}
+\section*{Abstract}
+Large language models are deployed for users worldwide, yet they align unevenly with the social norms of different societies, tending to reflect Western, high-resource cultural values while misjudging etiquette in under-represented regions. This creates an equity problem: a single model may be broadly accurate on average while systematically underserving particular cultural groups. Prior remedies, such as culture-focused prompting, added rule-of-thumb context, fine-tuning, or single-model self-reflection, yield inconsistent gains and rarely close the gap in a balanced way across countries, because one model's skewed cultural priors bound how well it can reason about scenarios far from its training distribution.
+
+This seminar presents \emph{Multiple LLM Agents Debate for Equitable Cultural Alignment} (ACL 2025, Oral), which frames cultural judgement as a collaborative task between two LLM agents that debate a culturally grounded etiquette scenario and jointly decide whether the described behaviour is acceptable. The authors study two variants, a \emph{Debate-Only} protocol and a \emph{Self-Reflect+Debate} protocol in which each agent dynamically chooses to reflect or to challenge its peer, and evaluate them on the NormAd-ETI benchmark of social etiquette stories spanning 75 countries. Across seven open-weight LLMs and 21 model pairings, debate improves both overall accuracy and \emph{cultural group parity} over single-LLM and self-reflection baselines, and lets small 7--9B models rival a much larger 27B model. The talk explains the debate framework and benchmark, walks through the architecture and evaluation, reports the accuracy and fairness trends, and discusses limitations around adjudicating disagreement and inference cost, along with future directions such as agent role assignment and better adjudication strategies.
+\section*{Key Reference Papers}
+\begin{enumerate}
+  \item D. Ki, R. Rudinger, T. Zhou, and M. Carpuat, ``Multiple LLM Agents Debate for Equitable Cultural Alignment,'' in Proc. 63rd Annu. Meeting Assoc. Comput. Linguistics (ACL), Vienna, Austria, 2025, arXiv:2505.24671.
+  \item A. Rao, A. Yerukola, V. Shah, K. Reinecke, and M. Sap, ``NormAd: A Benchmark for Measuring the Cultural Adaptability of Large Language Models,'' arXiv:2404.12464, 2024.
+  \item Y. Du, S. Li, A. Torralba, J. B. Tenenbaum, and I. Mordatch, ``Improving Factuality and Reasoning in Language Models through Multiagent Debate,'' arXiv:2305.14325, 2023.
+\end{enumerate}
+\vspace{0.8em}
+\noindent\textbf{Submitted By}\\
+\seminarName\\
+\seminarRoll
+
+\vspace{0.6em}
+\noindent\textbf{Guide}\\
+\seminarGuide
+\end{document}

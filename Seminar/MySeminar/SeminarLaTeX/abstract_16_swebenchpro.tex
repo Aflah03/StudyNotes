@@ -1,0 +1,34 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{6pt}
+\input{seminar_details.tex}
+\begin{document}
+\begin{center}
+{\LARGE\bfseries SWE-Bench Pro: Can Agents Solve Long-Horizon Software Tasks?}\\[1.1em]
+{\large\bfseries Seminar Abstract}\\[0.6em]
+{\normalsize \seminarDate}
+\end{center}
+\vspace{0.6em}
+\section*{Abstract}
+Autonomous LLM agents can now read repositories, edit source files, and run test suites, and benchmarks such as SWE-bench and its human-curated \emph{Verified} subset have become the standard yardstick for this ability. However, the strongest frontier models already exceed 70\% on SWE-bench Verified, leaving little room to discriminate genuine progress. These benchmarks are also built from public GitHub issues that likely appear in model pretraining, raising contamination concerns, and their tasks are typically small, single-file fixes that poorly reflect the multi-file, long-horizon work of professional software engineering, which can take a human hours to days.
+
+This seminar presents \emph{SWE-Bench Pro}, a contamination-resistant benchmark of 1,865 human-verified GitHub issues drawn from 41 actively maintained repositories, spanning public GPL-licensed projects, a private held-out set, and 18 proprietary commercial codebases. Each task couples an issue with augmented requirements and interface specifications, and is judged objectively by fail-to-pass and pass-to-pass test suites executed inside reproducible Docker environments using the SWE-Agent scaffold. Even the strongest agents solve only a modest fraction: GPT-5 and Claude Opus 4.1 reach roughly 23\% on the public set and drop further on unseen commercial code. The talk covers the benchmark's construction, its agentic evaluation loop, the headline results, and a six-category taxonomy of the observed failure modes.
+\section*{Key Reference Papers}
+\begin{enumerate}
+  \item X. Deng, J. Da, E. Pan, et al., ``SWE-Bench Pro: Can AI Agents Solve Long-Horizon Software Engineering Tasks?,'' arXiv:2509.16941, 2025.
+  \item C. E. Jimenez, J. Yang, A. Wettig, et al., ``SWE-bench: Can Language Models Resolve Real-World GitHub Issues?,'' in Proc. Int. Conf. Learning Representations (ICLR), 2024.
+  \item J. Yang, C. E. Jimenez, A. Wettig, et al., ``SWE-agent: Agent-Computer Interfaces Enable Automated Software Engineering,'' in Proc. Advances in Neural Information Processing Systems (NeurIPS), 2024.
+\end{enumerate}
+\vspace{0.8em}
+\noindent\textbf{Submitted By}\\
+\seminarName\\
+\seminarRoll
+
+\vspace{0.6em}
+\noindent\textbf{Guide}\\
+\seminarGuide
+\end{document}

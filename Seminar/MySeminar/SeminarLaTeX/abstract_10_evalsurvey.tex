@@ -1,0 +1,34 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{6pt}
+\input{seminar_details.tex}
+\begin{document}
+\begin{center}
+{\LARGE\bfseries A Survey on the Evaluation of LLM-based Agents}\\[1.1em]
+{\large\bfseries Seminar Abstract}\\[0.6em]
+{\normalsize \seminarDate}
+\end{center}
+\vspace{0.6em}
+\section*{Abstract}
+Large language model (LLM) based agents have rapidly moved beyond single-shot text generation to autonomous systems that plan, invoke external tools, maintain memory, and act over long, multi-step trajectories in web, software-engineering, and scientific settings. This shift has outpaced the methods used to assess them. Traditional NLP benchmarks reward a single correct output and therefore cannot capture whether an agent reasoned soundly, recovered from errors, or used tools appropriately. Existing agent benchmarks are fragmented across domains, frequently saturate as models improve, and largely ignore practical concerns such as cost, safety, and robustness, leaving the community without a shared map of \emph{what} to measure and \emph{how}.
+
+This seminar presents \emph{Survey on Evaluation of LLM-based Agents} (Yehudai et al., ACL Findings, arXiv:2503.16416), the first systematic review dedicated to agent evaluation. The survey organizes the landscape along four dimensions: core agent capabilities (planning, tool use, self-reflection, memory); application-specific benchmarks for web, software, scientific, and conversational agents; benchmarks for generalist agents; and developer-facing evaluation frameworks. Surveying benchmarks such as WebArena, SWE-bench, $\tau$-bench, and GAIA, it distills two clear trends: a move toward realistic, professionally grounded environments and the rise of live, continuously updated benchmarks. It also identifies critical gaps: cost-efficiency, safety and robustness testing, and fine-grained, trajectory-level assessment. The presentation walks through this taxonomy, the surveyed methods, the empirical trends, and the open challenges shaping how the next generation of agents will be evaluated.
+\section*{Key Reference Papers}
+\begin{enumerate}
+  \item A. Yehudai, L. Eden, A. Li, G. Uziel, Y. Zhao, R. Bar-Haim, A. Cohan, and M. Shmueli-Scheuer, ``Survey on Evaluation of LLM-based Agents,'' Findings of the ACL, arXiv:2503.16416, 2025.
+  \item C. E. Jimenez, J. Yang, A. Wettig, S. Yao, K. Pei, O. Press, and K. Narasimhan, ``SWE-bench: Can Language Models Resolve Real-World GitHub Issues?,'' in Proc. ICLR, 2024.
+  \item S. Yao, N. Shinn, P. Razavi, and K. Narasimhan, ``$\tau$-bench: A Benchmark for Tool-Agent-User Interaction in Real-World Domains,'' arXiv:2406.12045, 2024.
+\end{enumerate}
+\vspace{0.8em}
+\noindent\textbf{Submitted By}\\
+\seminarName\\
+\seminarRoll
+
+\vspace{0.6em}
+\noindent\textbf{Guide}\\
+\seminarGuide
+\end{document}
