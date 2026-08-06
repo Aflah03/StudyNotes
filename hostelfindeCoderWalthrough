@@ -1,0 +1,1646 @@
+# HostelFinder — Full Code Walkthrough
+
+Companion to [EXPLANATION.md](EXPLANATION.md) (which covers the *why*). This
+document goes file-by-file through every class in the backend with the actual
+code and a line-level explanation, in the order a request would actually flow
+through the system. Read this to be able to answer "walk me through this file"
+for anything in the repo.
+
+**Reading order**: `auth` (login/signup) → `config` (how every other request
+gets authenticated) → `college` (simplest CRUD, the template pattern) →
+`hostel` (search/filter/distance/images) → `booking` (the concurrency-critical
+part) → `common` (cross-cutting glue).
+
+---
+
+## 1. `auth` package
+
+### 1.1 `Role.java` — the two-value source of truth
+
+```java
+public enum Role {
+    ADMIN,
+    STUDENT
+}
+```
+Everything downstream — JWT claims, Spring Security authorities, route
+guards — derives from this one enum. There's no third role and no
+inheritance between them; they're deliberately treated as unrelated actor
+types that happen to share a login mechanism.
+
+### 1.2 `AdminUser.java` / `AppUser.java` — the two user tables
+
+```java
+@Entity
+@Table(name = "admin_user")
+@Getter @Setter @NoArgsConstructor
+public class AdminUser {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, unique = true)
+    private String email;
+
+    @Column(name = "password_hash", nullable = false)
+    private String passwordHash;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt = Instant.now();
+}
+```
+Plain JPA entities. `@GeneratedValue(strategy = GenerationType.IDENTITY)`
+delegates ID generation to Postgres's `bigserial` (auto-increment) rather
+than a separate sequence-fetch round trip — the simplest strategy, and fine
+since we don't need pre-insert IDs for anything (e.g. no batch-insert
+optimization needs here).
+
+`passwordHash` is never the raw password — it's always the output of
+`PasswordEncoder.encode(...)` (BCrypt), set once at signup/seed time and
+compared (never decrypted — BCrypt is one-way) at login time by
+`AuthenticationManager`.
+
+`AppUser` is identical in shape but adds `name` and `phone` — fields that
+only make sense for a student, which is the concrete reason these are two
+separate tables rather than one `users` table with a `role` discriminator
+column (see EXPLANATION.md §1.8 for the full reasoning).
+
+### 1.3 `AdminUserRepository.java` / `AppUserRepository.java`
+
+```java
+public interface AdminUserRepository extends JpaRepository<AdminUser, Long> {
+    Optional<AdminUser> findByEmail(String email);
+}
+
+public interface AppUserRepository extends JpaRepository<AppUser, Long> {
+    Optional<AppUser> findByEmail(String email);
+    boolean existsByEmail(String email);
+}
+```
+Spring Data JPA generates the implementation of these at runtime purely from
+the method name — `findByEmail` becomes `SELECT * FROM app_user WHERE
+email = ?`, `existsByEmail` becomes a cheap `SELECT EXISTS(...)` rather than
+fetching a whole row just to check presence (used in signup's duplicate-email
+check).
+
+### 1.4 `UserPrincipal.java` — the object that represents "who is making this request"
+
+```java
+@Getter
+public class UserPrincipal implements UserDetails {
+    private final Long id;
+    private final String email;
+    private final String passwordHash;
+    private final Role role;
+
+    public UserPrincipal(Long id, String email, String passwordHash, Role role) {
+        this.id = id;
+        this.email = email;
+        this.passwordHash = passwordHash;
+        this.role = role;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+    }
+
+    @Override
+    public String getPassword() { return passwordHash; }
+
+    @Override
+    public String getUsername() { return email; }
+}
+```
+This implements Spring Security's `UserDetails` interface — the contract
+Spring Security uses internally to represent an authenticated principal,
+regardless of whether it came from a database, an LDAP server, or (as here)
+decoded straight out of a JWT.
+
+The one line that matters most: `"ROLE_" + role.name()`. Spring Security's
+`hasRole('ADMIN')` check (used in every `@PreAuthorize`) is sugar for
+`hasAuthority('ROLE_ADMIN')` — it silently prepends `ROLE_` for you. This is
+a very common source of "why isn't my role check working" bugs when people
+forget the prefix is implicit — worth mentioning if asked about
+gotchas.
+
+Notice `UserPrincipal` is a **plain POJO, not a JPA entity** — it's a
+security-layer view over either an `AdminUser` or an `AppUser`, built fresh
+on every login and on every JWT-authenticated request (see 2.1). It doesn't
+have a table of its own.
+
+### 1.5 `AuthUserDetailsService.java` — login-time user lookup
+
+```java
+@Service
+@RequiredArgsConstructor
+public class AuthUserDetailsService implements UserDetailsService {
+    private final AdminUserRepository adminUserRepository;
+    private final AppUserRepository appUserRepository;
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        return adminUserRepository.findByEmail(email)
+                .map(a -> (UserDetails) new UserPrincipal(a.getId(), a.getEmail(), a.getPasswordHash(), Role.ADMIN))
+                .or(() -> appUserRepository.findByEmail(email)
+                        .map(u -> new UserPrincipal(u.getId(), u.getEmail(), u.getPasswordHash(), Role.STUDENT)))
+                .orElseThrow(() -> new UsernameNotFoundException("No user with email: " + email));
+    }
+}
+```
+`UserDetailsService` is the interface Spring Security's
+`DaoAuthenticationProvider` calls during `authenticationManager.authenticate(...)`.
+The implementation here checks the admin table first, and if nothing
+matches, falls through to the student table (`Optional.or(...)` — lazily
+evaluated, so a matching admin never even triggers the student query).
+
+**Important scope note**: this class is used **only during the login POST
+requests** (`/api/auth/*/login`). It is *not* consulted on every
+subsequent authenticated request — that's a different, cheaper path,
+covered next.
+
+### 1.6 `JwtService.java` — issuing and verifying tokens
+
+```java
+@Service
+public class JwtService {
+    private final SecretKey key;
+    private final long expirationMs;
+
+    public JwtService(@Value("${app.jwt.secret}") String secret,
+                       @Value("${app.jwt.expiration-ms}") long expirationMs) {
+        this.key = Keys.hmacShaKeyFor(secret.getBytes());
+        this.expirationMs = expirationMs;
+    }
+
+    public String generateToken(UserPrincipal principal) {
+        Date now = new Date();
+        Date expiry = new Date(now.getTime() + expirationMs);
+        return Jwts.builder()
+                .subject(principal.getUsername())
+                .claim("uid", principal.getId())
+                .claim("role", principal.getRole().name())
+                .issuedAt(now)
+                .expiration(expiry)
+                .signWith(key)
+                .compact();
+    }
+
+    public Claims parseClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+}
+```
+`Keys.hmacShaKeyFor(secret.getBytes())` builds a symmetric HMAC signing key
+from the config string `app.jwt.secret` (defaults to a dev placeholder,
+overridable via `JWT_SECRET` env var — this is the *only* secret that
+matters for token integrity; anyone with it can forge admin tokens, so in
+production it must be a long random value from a secrets manager, not the
+committed default).
+
+`generateToken` puts three things in the payload: `sub` (subject = email, a
+JWT-standard claim), and two custom claims — `uid` and `role` — which is
+everything `JwtAuthFilter` needs to reconstruct a `UserPrincipal` without
+touching the database (see 2.1). `signWith(key)` computes the HMAC signature
+over the header+payload — this is what makes the token tamper-evident: if
+anyone changes the `role` claim from `STUDENT` to `ADMIN` without knowing the
+secret, `parseClaims` on the receiving end will throw a signature-verification
+exception.
+
+`parseClaims` does the inverse: verifies the signature (throws
+`io.jsonwebtoken.security.SignatureException`, a subtype of `JwtException`,
+if it doesn't match or the token is expired) and returns the decoded claims.
+
+### 1.7 `AuthDtos.java` — request/response shapes
+
+```java
+public class AuthDtos {
+    public record SignupRequest(
+            @NotBlank String name,
+            @NotBlank @Email String email,
+            @NotBlank @Size(min = 8) String password,
+            String phone
+    ) {}
+
+    public record LoginRequest(
+            @NotBlank @Email String email,
+            @NotBlank String password
+    ) {}
+
+    public record AuthResponse(
+            String token,
+            String role,
+            Long userId,
+            String email
+    ) {}
+}
+```
+Java `record`s used purely as immutable DTOs — no behavior, just data plus
+Jakarta Bean Validation annotations. `@Valid` on the controller parameter
+(see 1.8) triggers these checks automatically before the method body even
+runs; a failure short-circuits into `GlobalExceptionHandler`'s
+`MethodArgumentNotValidException` handler (see 6.1), returning a 400 with a
+field-by-field error map — the controller and service code never see an
+invalid request.
+
+Nesting all the DTOs for a package inside one outer class (`AuthDtos`,
+`CollegeDtos`, `HostelDtos`, `BookingDtos`) is a naming convention used
+throughout this codebase to keep each package's `import static
+...Dtos.*` clean and to avoid a proliferation of tiny top-level files.
+
+### 1.8 `AuthService.java` — the actual login/signup logic
+
+```java
+@Service
+@RequiredArgsConstructor
+public class AuthService {
+    private final AppUserRepository appUserRepository;
+    private final AdminUserRepository adminUserRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
+
+    public AuthResponse studentSignup(SignupRequest request) {
+        if (appUserRepository.existsByEmail(request.email())) {
+            throw new IllegalRequestException("Email already registered: " + request.email());
+        }
+        AppUser user = new AppUser();
+        user.setName(request.name());
+        user.setEmail(request.email());
+        user.setPasswordHash(passwordEncoder.encode(request.password()));
+        user.setPhone(request.phone());
+        appUserRepository.save(user);
+
+        UserPrincipal principal = new UserPrincipal(user.getId(), user.getEmail(), user.getPasswordHash(), Role.STUDENT);
+        String token = jwtService.generateToken(principal);
+        return new AuthResponse(token, Role.STUDENT.name(), user.getId(), user.getEmail());
+    }
+```
+Signup: check-then-insert on email uniqueness (there's also a DB-level
+`unique` constraint as the real backstop against a race between two
+simultaneous signups with the same email — the app-level check is just for a
+friendlier error message in the common case), hash the password, save, and
+**immediately mint a token** — so a successful signup logs the student in
+without a second round trip.
+
+```java
+    public AuthResponse studentLogin(LoginRequest request) {
+        return login(request, Role.STUDENT);
+    }
+
+    public AuthResponse adminLogin(LoginRequest request) {
+        return login(request, Role.ADMIN);
+    }
+
+    private AuthResponse login(LoginRequest request, Role expectedRole) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.email(), request.password()));
+
+        UserPrincipal principal = switch (expectedRole) {
+            case ADMIN -> adminUserRepository.findByEmail(request.email())
+                    .map(a -> new UserPrincipal(a.getId(), a.getEmail(), a.getPasswordHash(), Role.ADMIN))
+                    .orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
+            case STUDENT -> appUserRepository.findByEmail(request.email())
+                    .map(u -> new UserPrincipal(u.getId(), u.getEmail(), u.getPasswordHash(), Role.STUDENT))
+                    .orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
+        };
+
+        String token = jwtService.generateToken(principal);
+        return new AuthResponse(token, principal.getRole().name(), principal.getId(), principal.getUsername());
+    }
+```
+This is doing two checks, not one, and the distinction matters:
+
+1. `authenticationManager.authenticate(...)` — this is Spring Security's
+   standard credential check. Internally it calls
+   `AuthUserDetailsService.loadUserByUsername(email)` (§1.5, which checks
+   *both* tables), then compares the submitted password against the found
+   user's `passwordHash` via `PasswordEncoder.matches(...)`. If the email
+   doesn't exist anywhere, or the password is wrong, this throws
+   `BadCredentialsException` on its own, before we even reach the `switch`.
+2. **The `switch` on `expectedRole`** — this is a second, deliberate check:
+   even if the password was correct, was the email found in the *table that
+   matches the endpoint being called*? Without this, a student with a
+   correct password could technically authenticate successfully against
+   `/api/auth/admin/login` (since `AuthUserDetailsService` checks both
+   tables) and — if step 1 alone decided the outcome — walk away with a
+   token claiming `role: ADMIN`. The `switch` re-derives the principal from
+   *only* the table matching `expectedRole`, so a student hitting the admin
+   login endpoint gets a clean `BadCredentialsException` regardless of how
+   correct their student password is.
+
+### 1.9 `AuthController.java` — the HTTP layer
+
+```java
+@RestController
+@RequestMapping("/api/auth")
+@RequiredArgsConstructor
+public class AuthController {
+    private final AuthService authService;
+
+    @PostMapping("/student/signup")
+    @ResponseStatus(HttpStatus.CREATED)
+    public AuthResponse studentSignup(@Valid @RequestBody SignupRequest request) {
+        return authService.studentSignup(request);
+    }
+
+    @PostMapping("/student/login")
+    public AuthResponse studentLogin(@Valid @RequestBody LoginRequest request) {
+        return authService.studentLogin(request);
+    }
+
+    @PostMapping("/admin/login")
+    public AuthResponse adminLogin(@Valid @RequestBody LoginRequest request) {
+        return authService.adminLogin(request);
+    }
+}
+```
+Deliberately thin — no logic, just routing + validation trigger
+(`@Valid`) + delegation. This is the pattern every controller in the
+codebase follows: **controllers never contain business logic**, they're a
+translation layer between HTTP and the service layer. This makes the
+service layer independently unit-testable without spinning up a servlet
+container, and keeps the same business logic reusable if a second entry
+point (e.g. a CLI, a batch job) ever needed it.
+
+---
+
+## 2. `config` package — how every other request gets authenticated
+
+### 2.1 `JwtAuthFilter.java` — runs once per request, before Spring Security's own filters
+
+```java
+@Component
+@RequiredArgsConstructor
+public class JwtAuthFilter extends OncePerRequestFilter {
+    private final JwtService jwtService;
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+        String header = request.getHeader("Authorization");
+        if (header != null && header.startsWith("Bearer ")) {
+            String token = header.substring(7);
+            try {
+                Claims claims = jwtService.parseClaims(token);
+                Long userId = claims.get("uid", Long.class);
+                Role role = Role.valueOf(claims.get("role", String.class));
+                UserPrincipal principal = new UserPrincipal(userId, claims.getSubject(), null, role);
+                var authToken = new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            } catch (JwtException | IllegalArgumentException ignored) {
+                SecurityContextHolder.clearContext();
+            }
+        }
+        filterChain.doFilter(request, response);
+    }
+}
+```
+Line by line:
+- Extends `OncePerRequestFilter` — a Spring convenience base class that
+  guarantees `doFilterInternal` runs exactly once per request even if the
+  servlet container's dispatch mechanism would otherwise invoke the filter
+  chain more than once (e.g. on an internal forward).
+- Reads the raw `Authorization` header and strips the `Bearer ` prefix
+  (7 characters) to get the token.
+- `jwtService.parseClaims(token)` — this is where signature verification and
+  expiry checking actually happen (§1.6). If the token is invalid, this
+  throws, and the `catch` block clears the security context (so the request
+  proceeds as *anonymous*, not rejected outright by this filter).
+- If parsing succeeds, it rebuilds a `UserPrincipal` **entirely from the
+  claims already inside the token** — `claims.get("uid", ...)`, `claims.get
+  ("role", ...)`, `claims.getSubject()` for email. **No database query
+  happens here.** This is the concrete meaning of "stateless auth": the
+  filter doesn't ask "does this user still exist / what's their current
+  role" — it trusts the signed token's claims, which is a deliberate
+  performance/simplicity tradeoff (see EXPLANATION.md §2.2 for what this
+  costs: a JWT keeps working even if the underlying user is deleted, until
+  it naturally expires).
+- `new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities())`
+  — the second argument (credentials) is `null` because we're not
+  re-checking a password here, just recording who's already been verified.
+  This gets placed into `SecurityContextHolder`, which is thread-local
+  storage Spring Security reads from for the rest of the request's
+  processing (this is what `@AuthenticationPrincipal` and `@PreAuthorize`
+  read from downstream).
+- Critically, this filter **never rejects a request itself** — it either
+  populates the security context or leaves it empty; the actual "you're not
+  allowed here" decision is made later, by `SecurityConfig`'s
+  `authorizeHttpRequests` rules and by `@PreAuthorize`.
+
+### 2.2 `SecurityConfig.java` — wiring it all together
+
+```java
+@Configuration
+@EnableMethodSecurity
+@RequiredArgsConstructor
+public class SecurityConfig {
+    private final JwtAuthFilter jwtAuthFilter;
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/colleges/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/hostels/**").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+        return http.build();
+    }
+}
+```
+- `@EnableMethodSecurity` turns on `@PreAuthorize` support — without this
+  annotation on some `@Configuration` class, every `@PreAuthorize` in the
+  codebase would be silently ignored.
+- `passwordEncoder()` — a single `BCryptPasswordEncoder` bean, injected
+  everywhere a password needs hashing or checking (`AuthService`,
+  `AdminSeeder`). BCrypt is adaptive (configurable work factor) and
+  includes a random salt per hash automatically, which is why two calls to
+  `encode("changeit123")` produce different output strings — this is
+  expected and correct.
+- `csrf.disable()` — CSRF protection defends against a browser being tricked
+  into submitting a form to your app using the *browser's own cookies* for
+  auth. Since this API uses a JWT in an `Authorization` header (not a
+  cookie) and is stateless, there's no ambient credential for CSRF to hijack
+  — disabling it here is standard for token-based APIs, not a security
+  shortcut.
+- `sessionCreationPolicy(STATELESS)` — tells Spring Security to never create
+  or use an `HttpSession`. Combined with no CSRF and JWT auth, this is what
+  makes the API horizontally scalable without sticky sessions.
+- `authorizeHttpRequests(...)` — the URL-level allow-list. Order matters:
+  Spring evaluates these top-to-bottom and uses the *first* match, so the
+  specific `GET` exceptions for `/api/colleges/**` and `/api/hostels/**`
+  must come before the catch-all `anyRequest().authenticated()`. Everything
+  not explicitly listed here — which includes `POST/PUT/DELETE` on those
+  same paths, and all of `/api/bookings/**` — falls through to requiring
+  *some* authenticated principal (role-specific checks happen one layer
+  deeper, via `@PreAuthorize`).
+- `addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)`
+  — registers our custom filter to run before Spring's own default
+  username/password filter in the chain, guaranteeing the security context
+  is populated (or not) before any authorization decision gets made.
+
+### 2.3 `AdminSeeder.java` — bootstrapping the first admin account
+
+```java
+@Component
+@RequiredArgsConstructor
+@Slf4j
+public class AdminSeeder implements CommandLineRunner {
+    private final AdminUserRepository adminUserRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    @Value("${app.admin.seed-email:admin@hostelfinder.local}")
+    private String seedEmail;
+
+    @Value("${app.admin.seed-password:changeit123}")
+    private String seedPassword;
+
+    @Override
+    public void run(String... args) {
+        if (adminUserRepository.findByEmail(seedEmail).isEmpty()) {
+            AdminUser admin = new AdminUser();
+            admin.setEmail(seedEmail);
+            admin.setPasswordHash(passwordEncoder.encode(seedPassword));
+            adminUserRepository.save(admin);
+            log.info("Seeded default admin account: {}", seedEmail);
+        }
+    }
+}
+```
+`CommandLineRunner` is a Spring Boot interface whose `run(...)` method fires
+exactly once, automatically, right after the application context finishes
+starting up (and Flyway migrations have already applied — Spring Boot runs
+Flyway during context initialization, before any `CommandLineRunner`).
+There's no public admin registration endpoint by design (§EXPLANATION.md
+§1.6/2.1 note) — this is the *only* way an admin account comes into
+existence, which is why "how do I change the admin password" requires either
+deleting the row so this seeder recreates it, or updating the DB directly —
+editing `application.yml` alone does nothing once the row already exists,
+because of the `isEmpty()` guard.
+
+---
+
+## 3. `college` package — the CRUD template
+
+This package is the simplest slice in the codebase and demonstrates the
+four-layer pattern (`Entity → Repository → Service → Controller`) used
+throughout, without any of the extra complexity from search/concurrency/files.
+
+### 3.1 `College.java`
+
+```java
+@Entity
+@Table(name = "college")
+@Getter @Setter @NoArgsConstructor
+public class College {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false) private String name;
+    @Column(nullable = false) private String city;
+    @Column(nullable = false) private double latitude;
+    @Column(nullable = false) private double longitude;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt = Instant.now();
+}
+```
+Nothing unusual — `latitude`/`longitude` as plain `double` columns (not
+PostGIS `geography` — see EXPLANATION.md §1.4 for why).
+
+### 3.2 `CollegeRepository.java`
+
+```java
+public interface CollegeRepository extends JpaRepository<College, Long> {
+}
+```
+No custom query methods needed — `findAll()`, `findById()`, `save()`,
+`deleteById()`, `existsById()` all come for free from `JpaRepository`.
+
+### 3.3 `CollegeDtos.java`
+
+```java
+public class CollegeDtos {
+    public record CollegeRequest(
+            @NotBlank String name,
+            @NotBlank String city,
+            @NotNull @Min(-90) @Max(90) Double latitude,
+            @NotNull @Min(-180) @Max(180) Double longitude
+    ) {}
+
+    public record CollegeResponse(Long id, String name, String city, double latitude, double longitude) {
+        public static CollegeResponse from(College college) {
+            return new CollegeResponse(college.getId(), college.getName(), college.getCity(),
+                    college.getLatitude(), college.getLongitude());
+        }
+    }
+}
+```
+Note `latitude`/`longitude` are boxed `Double` in the request DTO (so
+`@NotNull` can actually detect a missing field — a primitive `double` can't
+be `null`, it silently defaults to `0.0`, which would pass validation
+incorrectly) but primitive `double` in the entity and response (where a
+value is always present, so there's no ambiguity to guard against). This is
+a small but common gotcha worth knowing: **use boxed types in
+validated-input DTOs whenever `@NotNull` needs to actually mean something.**
+The `-90..90` / `-180..180` bounds are a real geographic sanity check, not
+an arbitrary range.
+
+### 3.4 `CollegeService.java`
+
+```java
+@Service
+@RequiredArgsConstructor
+public class CollegeService {
+    private final CollegeRepository collegeRepository;
+
+    public List<CollegeResponse> findAll() {
+        return collegeRepository.findAll().stream().map(CollegeResponse::from).toList();
+    }
+
+    public CollegeResponse create(CollegeRequest request) {
+        College college = new College();
+        apply(college, request);
+        return CollegeResponse.from(collegeRepository.save(college));
+    }
+
+    public CollegeResponse update(Long id, CollegeRequest request) {
+        College college = getEntity(id);
+        apply(college, request);
+        return CollegeResponse.from(collegeRepository.save(college));
+    }
+
+    public void delete(Long id) {
+        if (!collegeRepository.existsById(id)) {
+            throw new ResourceNotFoundException("College not found: " + id);
+        }
+        collegeRepository.deleteById(id);
+    }
+
+    College getEntity(Long id) {
+        return collegeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("College not found: " + id));
+    }
+
+    private void apply(College college, CollegeRequest request) {
+        college.setName(request.name());
+        college.setCity(request.city());
+        college.setLatitude(request.latitude());
+        college.setLongitude(request.longitude());
+    }
+}
+```
+`create` and `update` share a private `apply(...)` helper to avoid
+duplicating the five field-copy lines — this pattern repeats in
+`HostelService.applyBasicFields`. `getEntity` is package-private (no
+modifier), intentionally reused by `HostelService` when it needs to resolve
+a `collegeId` filter parameter into a real `College` (see 4.6) — a small,
+deliberate cross-package coupling rather than duplicating the "find or 404"
+logic.
+
+### 3.5 `CollegeController.java`
+
+```java
+@RestController
+@RequestMapping("/api/colleges")
+@RequiredArgsConstructor
+public class CollegeController {
+    private final CollegeService collegeService;
+
+    @GetMapping
+    public List<CollegeResponse> findAll() {
+        return collegeService.findAll();
+    }
+
+    @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    @ResponseStatus(HttpStatus.CREATED)
+    public CollegeResponse create(@Valid @RequestBody CollegeRequest request) {
+        return collegeService.create(request);
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public CollegeResponse update(@PathVariable Long id, @Valid @RequestBody CollegeRequest request) {
+        return collegeService.update(id, request);
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        collegeService.delete(id);
+    }
+}
+```
+`GET` has no `@PreAuthorize` — it's public (backed up at the URL level by
+`SecurityConfig`'s `permitAll()` for `GET /api/colleges/**`). The three
+mutating endpoints are each individually guarded with
+`@PreAuthorize("hasRole('ADMIN')")` — this is **defense in depth**: even
+if `SecurityConfig`'s URL matcher were ever misconfigured to accidentally
+allow `POST` through, the method-level check on the controller itself is a
+second, independent gate.
+
+---
+
+## 4. `hostel` package — search, filtering, distance, images
+
+### 4.1 `Hostel.java`
+
+```java
+@Entity
+@Table(name = "hostel")
+@Getter @Setter @NoArgsConstructor
+public class Hostel {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false) private String name;
+    @Column(columnDefinition = "text") private String description;
+    @Column(nullable = false, length = 500) private String address;
+    @Column(nullable = false) private String city;
+    @Column(nullable = false) private double latitude;
+    @Column(nullable = false) private double longitude;
+
+    @Column(name = "price_per_month", nullable = false) private BigDecimal pricePerMonth;
+    @Column(name = "food_available", nullable = false) private boolean foodAvailable;
+    @Column(name = "total_capacity", nullable = false) private int totalCapacity;
+    @Column(name = "available_capacity", nullable = false) private int availableCapacity;
+    @Column(name = "contact_phone") private String contactPhone;
+
+    @Column(name = "created_at", nullable = false, updatable = false) private Instant createdAt = Instant.now();
+    @Column(name = "updated_at", nullable = false) private Instant updatedAt = Instant.now();
+
+    @PreUpdate
+    public void onUpdate() { this.updatedAt = Instant.now(); }
+}
+```
+`pricePerMonth` is `BigDecimal`, not `double` — this is deliberate:
+floating-point binary representation can't exactly represent most decimal
+fractions (e.g. `0.1 + 0.2 != 0.3` in IEEE 754), which is unacceptable for
+money. `BigDecimal` maps to Postgres's exact `numeric(10,2)` type. Distance
+and lat/long *are* `double`, because approximate geographic math is fine —
+nobody needs their distance-from-college accurate to 15 decimal places.
+
+`@PreUpdate` is a JPA lifecycle callback: Hibernate calls this method
+automatically immediately before issuing an `UPDATE` for this entity,
+keeping `updatedAt` accurate without every service method having to
+remember to set it manually.
+
+### 4.2 `HostelRepository.java` — the atomic capacity operations
+
+```java
+public interface HostelRepository extends JpaRepository<Hostel, Long>, JpaSpecificationExecutor<Hostel> {
+
+    @Modifying
+    @Query("update Hostel h set h.availableCapacity = h.availableCapacity - 1 " +
+            "where h.id = :id and h.availableCapacity > 0")
+    int tryDecrementAvailableCapacity(Long id);
+
+    @Modifying
+    @Query("update Hostel h set h.availableCapacity = h.availableCapacity + 1 " +
+            "where h.id = :id and h.availableCapacity < h.totalCapacity")
+    int incrementAvailableCapacity(Long id);
+}
+```
+`JpaSpecificationExecutor<Hostel>` adds `findAll(Specification<Hostel>)` and
+the paginated overload — this is what lets `HostelSpecifications` (§4.3)
+compose dynamic `WHERE` clauses without hand-written JPQL string
+concatenation.
+
+The two `@Query` methods are hand-written JPQL (`update Hostel h set ...` —
+note it references the *entity* name `Hostel` and its *field* names like
+`h.availableCapacity`, not the table/column names — JPQL operates at the
+object-model level, Hibernate translates it to real SQL against
+`hostel`/`available_capacity`). `@Modifying` is required on any `@Query`
+that isn't a `SELECT` — without it, Spring Data JPA would try to interpret
+the query as returning entities and fail.
+
+**Why these two methods exist at all, instead of a normal
+`findById` + `setAvailableCapacity` + `save`**: this is the fix for the
+booking-confirmation race condition — see §5 (BookingService) for the full
+explanation, since that's where these methods get called and where the
+concurrency bug they prevent is easiest to demonstrate concretely.
+
+### 4.3 `HostelSpecifications.java` — composable dynamic filters
+
+```java
+public final class HostelSpecifications {
+    private HostelSpecifications() {}
+
+    public static Specification<Hostel> minPrice(BigDecimal minPrice) {
+        return (root, query, cb) -> minPrice == null ? null
+                : cb.greaterThanOrEqualTo(root.get("pricePerMonth"), minPrice);
+    }
+
+    public static Specification<Hostel> maxPrice(BigDecimal maxPrice) {
+        return (root, query, cb) -> maxPrice == null ? null
+                : cb.lessThanOrEqualTo(root.get("pricePerMonth"), maxPrice);
+    }
+
+    public static Specification<Hostel> foodAvailable(Boolean food) {
+        return (root, query, cb) -> food == null ? null
+                : cb.equal(root.get("foodAvailable"), food);
+    }
+
+    public static Specification<Hostel> city(String city) {
+        return (root, query, cb) -> (city == null || city.isBlank()) ? null
+                : cb.equal(cb.lower(root.get("city")), city.toLowerCase());
+    }
+
+    public static Specification<Hostel> withinBoundingBox(double centerLat, double centerLon,
+                                                            double latDelta, double lonDelta) {
+        return (root, query, cb) -> cb.and(
+                cb.between(root.get("latitude"), centerLat - latDelta, centerLat + latDelta),
+                cb.between(root.get("longitude"), centerLon - lonDelta, centerLon + lonDelta)
+        );
+    }
+}
+```
+Each method returns a `Specification<Hostel>` — a functional interface
+that's really just `(Root, CriteriaQuery, CriteriaBuilder) -> Predicate`,
+JPA's Criteria API for building type-safe, composable `WHERE` clauses
+without string concatenation (so no SQL-injection surface, and IDE-level
+refactoring safety if a field gets renamed).
+
+The `filterValue == null ? null : predicate` pattern is the key idiom:
+`Specification.allOf(...)` (used in `HostelService.search`, §4.6) silently
+skips any `null` predicate in the list. This is what lets a single
+`search(...)` method handle "no filters," "just food," "price range only,"
+or "everything at once" without a combinatorial explosion of query methods
+or manual `if` branches building a `StringBuilder` of SQL.
+
+`city(...)` lowercases both sides for a case-insensitive match — `"Chennai"`
+should match a stored `"chennai"` or `"CHENNAI"`.
+
+`withinBoundingBox` computes a `WHERE lat BETWEEN ... AND long BETWEEN ...`
+— a rectangle around a point, cheap to evaluate and indexable on plain
+`double` columns (see `idx_hostel_lat_long` in the Flyway migration). This
+is currently **defined but not yet wired into `search(...)`** — it exists
+as the documented next step for when a `maxDistance` API parameter gets
+added (see EXPLANATION.md §1.4 for why it's not urgent yet).
+
+### 4.4 `DistanceService.java`
+
+```java
+@Service
+public class DistanceService {
+    private static final double EARTH_RADIUS_KM = 6371.0;
+
+    public double haversineKm(double lat1, double lon1, double lat2, double lon2) {
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return EARTH_RADIUS_KM * c;
+    }
+
+    public double[] boundingBoxDeltas(double centerLat, double radiusKm) {
+        double latDelta = radiusKm / 111.0;
+        double lonDelta = radiusKm / (111.0 * Math.max(0.1, Math.cos(Math.toRadians(centerLat))));
+        return new double[]{latDelta, lonDelta};
+    }
+}
+```
+`haversineKm` is the textbook [haversine
+formula](https://en.wikipedia.org/wiki/Haversine_formula) for great-circle
+distance on a sphere. Worth being able to explain the shape of it if asked:
+it converts the lat/long difference into radians, computes the squared
+half-chord length `a` between the two points using the haversine trig
+identity, then `c = 2·atan2(√a, √(1-a))` is the angular distance in radians
+— multiplying by Earth's radius converts that angle into an actual distance.
+`atan2` (rather than plain `asin`) is used because it's numerically stable
+across the full range of inputs, including near-antipodal points.
+
+`boundingBoxDeltas` converts a search radius in km into lat/long *degree*
+deltas: **1 degree of latitude is a constant ~111 km everywhere on Earth**,
+but **1 degree of longitude shrinks toward the poles** (the meridians
+converge), which is why the longitude delta divides by `cos(latitude)` —
+at the equator `cos(0°) = 1` so it's the same as latitude; near the poles
+`cos` approaches 0, so the same physical distance spans a much larger
+number of longitude degrees. The `Math.max(0.1, ...)` guards against
+division blowing up to a huge/infinite delta right at the poles (not a
+realistic case for a hostel-finder app, but a defensive floor costs nothing).
+
+### 4.5 `HostelDtos.java`
+
+```java
+public class HostelDtos {
+    public record HostelRequest(
+            @NotBlank String name,
+            String description,
+            @NotBlank String address,
+            @NotBlank String city,
+            @NotNull @Min(-90) @Max(90) Double latitude,
+            @NotNull @Min(-180) @Max(180) Double longitude,
+            @NotNull @DecimalMin("0") BigDecimal pricePerMonth,
+            @NotNull Boolean foodAvailable,
+            @NotNull @Min(0) Integer totalCapacity,
+            String contactPhone
+    ) {}
+
+    public record HostelListItemResponse(
+            Long id, String name, String city, BigDecimal pricePerMonth,
+            boolean foodAvailable, int availableCapacity, Long coverImageId, Double distanceKm
+    ) {}
+
+    public record CollegeDistance(Long collegeId, String collegeName, double distanceKm) {}
+
+    public record HostelDetailResponse(
+            Long id, String name, String description, String address, String city,
+            double latitude, double longitude, BigDecimal pricePerMonth, boolean foodAvailable,
+            int totalCapacity, int availableCapacity, String contactPhone,
+            List<Long> imageIds, List<CollegeDistance> distancesToColleges
+    ) {}
+}
+```
+Three response shapes for three different needs, which is the whole point
+of DTOs (never reuse one shape for everything):
+- **`HostelListItemResponse`** — deliberately *thin*: no `description`, no
+  full `imageIds` list, just a single `coverImageId` and a `distanceKm` that
+  is `null` unless a `collegeId` was part of the search. This is the
+  contract that keeps browsing/search fast (§EXPLANATION.md §1.7) —
+  it's structurally impossible for the list endpoint to leak image bytes
+  because the shape doesn't have a field for them.
+- **`HostelDetailResponse`** — the full picture for a single hostel page,
+  including *every* college's distance (`distancesToColleges`), not just
+  one — a hostel might reasonably be relevant to more than one campus.
+- **`CollegeDistance`** — a small nested value type, reused inside the
+  detail response's list.
+
+`@DecimalMin("0")` on `pricePerMonth` (a `BigDecimal`) — Jakarta Validation
+provides this decimal-aware variant instead of `@Min` (which only works on
+integer types) specifically for `BigDecimal`/`BigInteger` fields.
+
+### 4.6 `HostelService.java` — the search method, walked through in detail
+
+```java
+public PagedResponse<HostelListItemResponse> search(Long collegeId, BigDecimal minPrice, BigDecimal maxPrice,
+                                                      Boolean food, String city, String sortBy,
+                                                      int page, int size) {
+    Specification<Hostel> spec = Specification.allOf(
+            minPrice(minPrice), maxPrice(maxPrice), foodAvailable(food), city(city));
+
+    College college = collegeId != null
+            ? collegeRepository.findById(collegeId)
+                    .orElseThrow(() -> new ResourceNotFoundException("College not found: " + collegeId))
+            : null;
+```
+Builds the composable filter (§4.3) and, if a `collegeId` was supplied,
+eagerly resolves it to a real `College` (404s early if it doesn't exist,
+rather than silently returning zero distances later).
+
+```java
+    if ("distance".equalsIgnoreCase(sortBy) && college != null) {
+        List<Hostel> candidates = hostelRepository.findAll(spec);
+        Map<Long, Double> distances = candidates.stream()
+                .collect(java.util.stream.Collectors.toMap(Hostel::getId,
+                        h -> distanceService.haversineKm(h.getLatitude(), h.getLongitude(),
+                                college.getLatitude(), college.getLongitude())));
+        List<Hostel> sorted = candidates.stream()
+                .sorted(Comparator.comparingDouble(h -> distances.get(h.getId())))
+                .toList();
+        int from = Math.min(page * size, sorted.size());
+        int to = Math.min(from + size, sorted.size());
+        List<HostelListItemResponse> content = sorted.subList(from, to).stream()
+                .map(h -> toListItem(h, distances.get(h.getId())))
+                .toList();
+        return PagedResponse.of(content, page, size, sorted.size());
+    }
+```
+The distance-sort branch, spelled out:
+1. `hostelRepository.findAll(spec)` — fetches **every** hostel matching the
+   price/food/city filters, unpaged, because distance can't be computed or
+   sorted by the database (it's not a stored column).
+2. Precomputes a `Map<hostelId, distanceKm>` **once** rather than calling
+   `haversineKm` repeatedly inside the comparator on every comparison during
+   sorting — `Comparator.comparingDouble` would otherwise re-run the
+   trigonometry `O(n log n)` times instead of `O(n)` times. Small detail,
+   but shows awareness of doing the expensive work once.
+3. Sorts the in-memory list by that precomputed distance.
+4. **Manual pagination via `subList(from, to)`** — since the database can't
+   paginate a sort key it doesn't know about, pagination has to happen in
+   Java after the sort. `Math.min(...)` guards against `from`/`to` running
+   past the list size (e.g. requesting page 50 of a 2-hostel result).
+
+```java
+    Sort sort = "price".equalsIgnoreCase(sortBy)
+            ? Sort.by(Sort.Direction.ASC, "pricePerMonth")
+            : Sort.by(Sort.Direction.DESC, "createdAt");
+    var pageable = org.springframework.data.domain.PageRequest.of(page, size, sort);
+    var result = hostelRepository.findAll(spec, pageable);
+    List<HostelListItemResponse> content = result.getContent().stream()
+            .map(h -> toListItem(h, college == null ? null
+                    : distanceService.haversineKm(h.getLatitude(), h.getLongitude(),
+                    college.getLatitude(), college.getLongitude())))
+            .toList();
+    return PagedResponse.of(content, page, size, result.getTotalElements());
+}
+```
+The **efficient path** — used for price-sort and the default (newest-first):
+the database does both the filtering *and* the sorting *and* the pagination
+in one query (`hostelRepository.findAll(spec, pageable)` — Spring Data
+translates this into a proper SQL `WHERE ... ORDER BY ... LIMIT ... OFFSET`).
+Distance is still computed per-row for display (`distanceKm` in the
+response) if a college was given, but it's not driving the sort or the
+pagination here, so there's no correctness concern — just a per-row
+haversine call on however many rows are on the current page (at most
+`size`, e.g. 20), which is cheap.
+
+```java
+private HostelListItemResponse toListItem(Hostel h, Double distanceKm) {
+    Long coverImageId = hostelImageRepository.findFirstByHostelIdOrderByCoverDescCreatedAtAsc(h.getId())
+            .map(HostelImage::getId).orElse(null);
+    return new HostelListItemResponse(h.getId(), h.getName(), h.getCity(), h.getPricePerMonth(),
+            h.isFoodAvailable(), h.getAvailableCapacity(), coverImageId, distanceKm);
+}
+```
+`findFirstByHostelIdOrderByCoverDescCreatedAtAsc` — a Spring Data
+derived-query method name worth being able to parse on sight:
+`ORDER BY is_cover DESC, created_at ASC LIMIT 1`. Booleans sort with
+`true > false`, so `cover DESC` puts any image marked `isCover = true`
+first; ties (or no cover image at all) fall back to the oldest uploaded
+image. This is what picks the thumbnail shown on the browse page without a
+separate "get cover image" endpoint or a denormalized `coverImageId` column
+on `Hostel` itself.
+
+```java
+private HostelDetailResponse toDetail(Hostel h) {
+    List<Long> imageIds = hostelImageRepository.findByHostelId(h.getId()).stream()
+            .map(HostelImage::getId).toList();
+    List<CollegeDistance> distances = collegeRepository.findAll().stream()
+            .map(c -> new CollegeDistance(c.getId(), c.getName(),
+                    distanceService.haversineKm(h.getLatitude(), h.getLongitude(), c.getLatitude(), c.getLongitude())))
+            .toList();
+    return new HostelDetailResponse(h.getId(), h.getName(), h.getDescription(), h.getAddress(), h.getCity(),
+            h.getLatitude(), h.getLongitude(), h.getPricePerMonth(), h.isFoodAvailable(),
+            h.getTotalCapacity(), h.getAvailableCapacity(), h.getContactPhone(), imageIds, distances);
+}
+```
+For a single hostel's detail page, computes distance to **every** college in
+the system (not just one) — this is the `distancesToColleges` list a
+student sees on the hostel detail page, letting them judge relevance to
+whichever campus matters to them without re-querying per college.
+
+```java
+@Transactional
+public HostelDetailResponse update(Long id, HostelRequest request) {
+    Hostel hostel = getEntity(id);
+    int capacityDelta = request.totalCapacity() - hostel.getTotalCapacity();
+    applyBasicFields(hostel, request);
+    hostel.setTotalCapacity(request.totalCapacity());
+    int newAvailable = hostel.getAvailableCapacity() + capacityDelta;
+    hostel.setAvailableCapacity(Math.max(0, newAvailable));
+    hostelRepository.save(hostel);
+    return toDetail(hostel);
+}
+```
+Worth explaining the capacity-delta math explicitly: if an admin edits a
+6-bed hostel with 2 currently booked (so `availableCapacity = 4`) up to 8
+beds, `capacityDelta = 8 - 6 = 2`, so `newAvailable = 4 + 2 = 6` — the 2
+already-confirmed bookings stay accounted for, and the 2 new beds become
+immediately available. If instead the admin *shrinks* capacity down to 1 bed
+total while 2 are already confirmed, `capacityDelta = 1 - 6 = -5`,
+`newAvailable = 4 - 5 = -1`, and `Math.max(0, -1)` clamps it to `0` rather
+than storing a nonsensical negative number — existing confirmed bookings
+aren't retroactively cancelled (that would need separate admin intervention),
+but no *new* booking can be confirmed until capacity is increased again.
+
+### 4.7 `HostelController.java`
+
+```java
+@RestController
+@RequestMapping("/api/hostels")
+@RequiredArgsConstructor
+public class HostelController {
+    private final HostelService hostelService;
+
+    @GetMapping
+    public PagedResponse<HostelListItemResponse> search(
+            @RequestParam(required = false) Long collegeId,
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false) BigDecimal maxPrice,
+            @RequestParam(required = false) Boolean food,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return hostelService.search(collegeId, minPrice, maxPrice, food, city, sortBy, page, size);
+    }
+    // ...getDetail, create, update, delete — same thin-controller pattern as CollegeController
+}
+```
+Every filter parameter is `@RequestParam(required = false)` — Spring binds
+a missing query param to `null` automatically for object types (`Long`,
+`BigDecimal`, `Boolean`, `String`), which is exactly the sentinel
+`HostelSpecifications` checks for (§4.3). `page`/`size` have real defaults
+(`0`, `20`) since pagination should never silently be "unbounded."
+
+### 4.8 `HostelImage.java`, `HostelImageRepository.java`, `HostelImageService.java`, `HostelImageController.java`
+
+```java
+@Entity
+@Table(name = "hostel_image")
+@Getter @Setter @NoArgsConstructor
+public class HostelImage {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hostel_id", nullable = false)
+    private Hostel hostel;
+
+    @Column(name = "image_data", nullable = false)
+    private byte[] imageData;
+
+    @Column(name = "content_type", nullable = false)
+    private String contentType;
+
+    @Column(name = "is_cover", nullable = false)
+    private boolean cover;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt = Instant.now();
+}
+```
+**A real bug worth telling as a story**: `imageData` is *not* annotated
+`@Lob`. It was originally written with `@Lob @Column(name = "image_data")
+private byte[] imageData;` — the intuitive choice, since `@Lob` is JPA's
+"large object" annotation. But in this Hibernate version, `@Lob` on a
+`byte[]` field maps to Postgres's large-object type (`oid`, a *reference* to
+a separate large-object table, PostgreSQL's older BLOB mechanism), while the
+Flyway migration created the column as `bytea` (a plain inline binary
+column, which is what you actually want for images stored directly in a
+row). This mismatch caused Hibernate's schema validation
+(`spring.jpa.hibernate.ddl-auto: validate`) to fail app startup entirely
+with `SchemaManagementException: wrong column type encountered... found
+[bytea], but expecting [oid]`. **The fix was to remove `@Lob`** — Hibernate's
+*default* mapping for `byte[]` (no annotation at all) is already `bytea`,
+which is what was wanted the whole time. Good interview answer to "tell me
+about a bug you hit": explain the *mechanism* (two different Postgres binary
+storage strategies, JPA annotation choosing between them), not just "I
+removed an annotation and it worked."
+
+```java
+public interface HostelImageRepository extends JpaRepository<HostelImage, Long> {
+    List<HostelImage> findByHostelId(Long hostelId);
+    Optional<HostelImage> findByIdAndHostelId(Long id, Long hostelId);
+    Optional<HostelImage> findFirstByHostelIdOrderByCoverDescCreatedAtAsc(Long hostelId);
+}
+```
+`findByIdAndHostelId` — used by the image-serving and delete endpoints to
+enforce that an image ID actually belongs to the hostel ID in the URL path
+(`/api/hostels/{hostelId}/images/{imageId}`) — without this compound check,
+a client could pass any valid `imageId` regardless of which hostel is named
+in the path and still get/delete it, since image IDs are globally unique
+and don't inherently "belong" to a URL segment without an explicit check.
+
+```java
+@Transactional
+public HostelImage upload(Long hostelId, MultipartFile file, boolean cover) {
+    if (!hostelRepository.existsById(hostelId)) {
+        throw new ResourceNotFoundException("Hostel not found: " + hostelId);
+    }
+    String contentType = file.getContentType();
+    if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
+        throw new IllegalRequestException("Unsupported image type: " + contentType);
+    }
+    Hostel hostelRef = hostelRepository.getReferenceById(hostelId);
+    HostelImage image = new HostelImage();
+    image.setHostel(hostelRef);
+    image.setContentType(contentType);
+    image.setCover(cover);
+    try {
+        image.setImageData(file.getBytes());
+    } catch (IOException e) {
+        throw new IllegalRequestException("Failed to read uploaded image");
+    }
+    return hostelImageRepository.save(image);
+}
+```
+`ALLOWED_CONTENT_TYPES` is a `Set.of("image/jpeg", "image/png",
+"image/webp")` allow-list — rejecting anything else (e.g. someone trying to
+upload an executable renamed to `.png`, or an SVG, which can carry embedded
+`<script>` content and is a real XSS vector if ever rendered inline rather
+than via `<img>`). Note this checks the **client-supplied** `Content-Type`
+header, which a malicious client could lie about — a hardened version would
+sniff the actual file bytes (magic-number check) rather than trusting the
+header; worth mentioning as a known gap if asked "how would you make this
+more secure."
+
+`hostelRepository.getReferenceById(hostelId)` (rather than `findById`) —
+this returns a **lazy proxy** without issuing a `SELECT` at all, since we
+already confirmed the hostel exists via `existsById` and only need its ID
+to set the foreign key on the new `HostelImage` row — fetching the full
+`Hostel` entity here would be a wasted query.
+
+```java
+@GetMapping("/{imageId}")
+public ResponseEntity<byte[]> get(@PathVariable Long hostelId, @PathVariable Long imageId) {
+    HostelImage image = hostelImageService.get(hostelId, imageId);
+    return ResponseEntity.ok()
+            .contentType(MediaType.parseMediaType(image.getContentType()))
+            .cacheControl(org.springframework.http.CacheControl.maxAge(7, TimeUnit.DAYS))
+            .body(image.getImageData());
+}
+```
+Sets `Cache-Control: max-age=604800` (7 days) — since a hostel image is
+essentially immutable content once uploaded (there's no "edit image"
+endpoint, only upload/delete), telling the browser to cache it aggressively
+avoids re-fetching the same BLOB from Postgres on every page view — this is
+the concrete mitigation mentioned in EXPLANATION.md §1.7 for the "no CDN"
+tradeoff of storing images in the database.
+
+---
+
+## 5. `booking` package — the concurrency-critical part
+
+### 5.1 `BookingStatus.java`
+
+```java
+public enum BookingStatus {
+    PENDING,
+    CONFIRMED,
+    REJECTED,
+    CANCELLED
+}
+```
+Four states, and the *only* legal transitions (enforced in `BookingService`,
+not by the enum itself) are: `PENDING → CONFIRMED`, `PENDING → REJECTED`,
+and `PENDING|CONFIRMED → CANCELLED`. There's deliberately no
+`REJECTED → CONFIRMED` or any other path — once a booking leaves `PENDING`
+via reject, it's terminal.
+
+### 5.2 `Booking.java`
+
+```java
+@Entity
+@Table(name = "booking")
+@Getter @Setter @NoArgsConstructor
+public class Booking {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private AppUser user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hostel_id", nullable = false)
+    private Hostel hostel;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private BookingStatus status = BookingStatus.PENDING;
+
+    @Column(name = "move_in_date", nullable = false) private LocalDate moveInDate;
+    @Column(length = 1000) private String notes;
+    @Column(name = "created_at", nullable = false, updatable = false) private Instant createdAt = Instant.now();
+    @Column(name = "updated_at", nullable = false) private Instant updatedAt = Instant.now();
+
+    @PreUpdate
+    public void onUpdate() { this.updatedAt = Instant.now(); }
+}
+```
+`@Enumerated(EnumType.STRING)` — stores `"PENDING"` etc. as text in the
+database, not the enum's ordinal integer (`EnumType.ORDINAL`, the other
+option). This is a deliberate and important choice: with `ORDINAL`, if
+someone ever reorders the `BookingStatus` enum constants (e.g. inserts a new
+status in the middle), every existing row in the database would silently
+mean something different, because the stored integer's meaning depends on
+declaration order in the Java source. `STRING` is immune to that — it's the
+right default for any enum backing persisted data. Both association fields
+(`user`, `hostel`) are `FetchType.LAZY` — this is what causes the
+`LazyInitializationException` bug discussed in §5.4.
+
+### 5.3 `BookingDtos.java`
+
+```java
+public record BookingRequest(
+        @NotNull Long hostelId,
+        @NotNull @FutureOrPresent LocalDate moveInDate,
+        @Size(max = 1000) String notes
+) {}
+
+public record BookingResponse(
+        Long id, Long hostelId, String hostelName, Long userId, BookingStatus status,
+        LocalDate moveInDate, String notes, Instant createdAt, Instant updatedAt
+) {
+    public static BookingResponse from(Booking b) {
+        return new BookingResponse(
+                b.getId(), b.getHostel().getId(), b.getHostel().getName(), b.getUser().getId(),
+                b.getStatus(), b.getMoveInDate(), b.getNotes(), b.getCreatedAt(), b.getUpdatedAt()
+        );
+    }
+}
+```
+`@FutureOrPresent` on `moveInDate` — rejects a booking request for a date
+in the past at the validation layer, before any service logic runs.
+`BookingResponse.from(b)` is the method whose `b.getHostel().getName()` call
+is exactly where the lazy-loading bug (§5.4) manifested — worth pointing at
+this specific line when telling that story.
+
+### 5.4 `BookingService.java` — the full concurrency and lifecycle story
+
+```java
+@Transactional
+public BookingResponse create(Long userId, BookingRequest request) {
+    Hostel hostel = hostelRepository.findById(request.hostelId())
+            .orElseThrow(() -> new ResourceNotFoundException("Hostel not found: " + request.hostelId()));
+
+    Booking booking = new Booking();
+    booking.setUser(appUserRepository.getReferenceById(userId));
+    booking.setHostel(hostel);
+    booking.setMoveInDate(request.moveInDate());
+    booking.setNotes(request.notes());
+    booking.setStatus(BookingStatus.PENDING);
+    return BookingResponse.from(bookingRepository.save(booking));
+}
+```
+Notice **capacity is not touched here at all** — creating a booking never
+checks or decrements `availableCapacity`. This is the "booking request vs
+reservation" distinction from EXPLANATION.md §1.5: a `PENDING` booking is
+just a record of interest, not a hold on a bed. `userId` comes from
+`appUserRepository.getReferenceById(userId)` (a lazy proxy, no query — we
+trust the ID from the authenticated JWT principal, no need to fetch the full
+student record just to set a foreign key), while `hostel` is the *fully
+fetched* entity (`findById`, not `getReferenceById`) because we need to
+confirm it actually exists (404 if not) before creating a booking against it.
+
+```java
+@Transactional(readOnly = true)
+public List<BookingResponse> listForUser(Long userId) {
+    return bookingRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
+            .map(BookingResponse::from)
+            .toList();
+}
+```
+**This is the method that had the real bug.** Originally this method had no
+`@Transactional` annotation at all. Here's the exact mechanism, worth being
+able to explain precisely:
+
+- The project sets `spring.jpa.open-in-view: false` in `application.yml` —
+  a deliberate choice (the Spring Boot default is actually `true`, and
+  disabling it is considered best practice, because leaving it `true` keeps
+  a database connection/session open for the *entire* HTTP request
+  lifecycle just in case a view or serializer touches a lazy field, which
+  masks N+1 query bugs and wastes connection-pool capacity).
+- With `open-in-view: false`, a Hibernate session only exists for the
+  duration of an active `@Transactional` method. `bookingRepository
+  .findByUserIdOrderByCreatedAtDesc(userId)` is itself a Spring Data
+  repository call, which — absent an enclosing transaction — runs in its
+  *own* short-lived, auto-created transaction that commits (and closes its
+  session) the moment the query returns.
+- Without `@Transactional` on `listForUser` itself, the `.stream().map
+  (BookingResponse::from)` line runs **after** that session has already
+  closed. `BookingResponse.from` calls `b.getHostel().getName()` —
+  `getHostel()` returns a Hibernate lazy proxy (since `Booking.hostel` is
+  `FetchType.LAZY`), and calling `.getName()` on an uninitialized proxy
+  with no active session throws `org.hibernate.LazyInitializationException:
+  could not initialize proxy - no session`.
+- **The fix**: add `@Transactional(readOnly = true)` to `listForUser` (and
+  identically to `listAll`, §5.5) — this makes the repository query *and*
+  the subsequent DTO-mapping stream run inside the *same* transaction/
+  session, so the lazy proxy can still fetch on demand when touched.
+  `readOnly = true` is an optimization hint (Hibernate can skip dirty-checking
+  since nothing will be modified) appropriate for a pure read method.
+- **This was found by actually running the app**, not by a unit test — the
+  Playwright-driven browser walkthrough hit `GET /api/bookings/me` for real,
+  and the Spring Boot console logged the exact stack trace, which is what
+  made the root cause traceable. Good evidence, if asked, of debugging by
+  reading real logs from a real running system rather than guessing.
+
+```java
+@Transactional
+public BookingResponse cancel(Long userId, Long bookingId) {
+    Booking booking = getOwnedBooking(userId, bookingId);
+    if (booking.getStatus() != BookingStatus.PENDING && booking.getStatus() != BookingStatus.CONFIRMED) {
+        throw new IllegalRequestException("Only pending or confirmed bookings can be cancelled");
+    }
+    if (booking.getStatus() == BookingStatus.CONFIRMED) {
+        hostelRepository.incrementAvailableCapacity(booking.getHostel().getId());
+    }
+    booking.setStatus(BookingStatus.CANCELLED);
+    return BookingResponse.from(bookingRepository.save(booking));
+}
+```
+The capacity-restoring branch only fires if the booking being cancelled was
+`CONFIRMED` — a `PENDING` cancellation never touched capacity in the first
+place (per `create()` above), so there's nothing to give back. This is the
+mirror image of `confirm()` below, using `incrementAvailableCapacity`
+(§4.2) — also atomic, also guarded (`available_capacity < total_capacity`)
+so a bug elsewhere can never push capacity above the hostel's real total.
+
+```java
+@Transactional
+public BookingResponse confirm(Long bookingId) {
+    Booking booking = getEntity(bookingId);
+    if (booking.getStatus() != BookingStatus.PENDING) {
+        throw new IllegalRequestException("Only pending bookings can be confirmed");
+    }
+    int updated = hostelRepository.tryDecrementAvailableCapacity(booking.getHostel().getId());
+    if (updated == 0) {
+        throw new IllegalRequestException("Hostel is at full capacity");
+    }
+    booking.setStatus(BookingStatus.CONFIRMED);
+    return BookingResponse.from(bookingRepository.save(booking));
+}
+```
+**This is the single most interview-worthy method in the codebase.** Walk
+through it as: "here's a check-then-act race condition, and here's how I
+closed it."
+
+The naive, *wrong* version most people write first:
+```java
+// WRONG — race condition:
+Hostel h = hostelRepository.findById(id).orElseThrow(...);
+if (h.getAvailableCapacity() > 0) {          // (1) CHECK
+    h.setAvailableCapacity(h.getAvailableCapacity() - 1);  // (2) ACT
+    hostelRepository.save(h);
+}
+```
+If two `confirm()` calls for the same 1-bed-remaining hostel run
+concurrently, both can execute step (1) and both see `availableCapacity ==
+1` *before either one has written back the decremented value* — this is
+the textbook **TOCTOU (time-of-check to time-of-use)** race. Both then
+proceed to step (2), and whichever `save()` commits last simply overwrites
+the other's write — the hostel ends up "confirmed" for two different
+bookings while capacity only ever accounted for one bed. This kind of bug
+is notoriously hard to catch in manual testing because it only manifests
+under real concurrent load, not sequential clicking.
+
+The actual, correct implementation instead calls
+`hostelRepository.tryDecrementAvailableCapacity(...)` (§4.2), whose body is:
+```sql
+update hostel set available_capacity = available_capacity - 1
+where id = :id and available_capacity > 0
+```
+This collapses "check" and "act" into **one atomic SQL statement**. The
+database's row-level locking guarantees that if two transactions try to run
+this `UPDATE` against the same row concurrently, they get serialized — the
+second one's `WHERE available_capacity > 0` is evaluated against
+whatever value the *first* transaction already committed, not a stale value
+read earlier. If the first transaction already brought it to `0`, the
+second transaction's `WHERE` clause matches zero rows, and the method
+returns `0` (the JPA `@Modifying` query's return value is the affected row
+count) instead of `1`. `BookingService.confirm` reads that return value
+directly — `if (updated == 0) throw ...` — so **the database itself is the
+concurrency control**, not a lock or `synchronized` block in the Java code.
+This is deliberately simpler and more robust than application-level
+locking: it works correctly even across multiple application server
+instances (a `synchronized` block only protects against races *within one
+JVM*), which matters the moment this app is ever horizontally scaled.
+
+This was verified empirically, not just reasoned about: a manual test
+created two bookings against a hostel with `totalCapacity = 1`, confirmed
+the first (succeeded, capacity → 0), then attempted to confirm the second
+— which deterministically returned `409 Hostel is at full capacity` every
+time, not "occasionally," which is exactly the signature of a correctly
+closed race condition versus one that merely usually works.
+
+```java
+private Booking getOwnedBooking(Long userId, Long bookingId) {
+    Booking booking = getEntity(bookingId);
+    if (!booking.getUser().getId().equals(userId)) {
+        throw new ResourceNotFoundException("Booking not found: " + bookingId);
+    }
+    return booking;
+}
+```
+Notice this throws `ResourceNotFoundException` (404), not an
+`AccessDeniedException` (403), when a student tries to cancel someone
+else's booking. This is a deliberate choice sometimes called **not leaking
+existence** — a 403 confirms to the caller "this resource exists, you're
+just not allowed to touch it," which is itself information disclosure for
+a resource scoped to a specific user. Returning 404 makes "it's not yours"
+indistinguishable from "it doesn't exist at all" from the outside.
+
+### 5.5 `BookingController.java`
+
+```java
+@PostMapping
+@PreAuthorize("hasRole('STUDENT')")
+@ResponseStatus(HttpStatus.CREATED)
+public BookingResponse create(@AuthenticationPrincipal UserPrincipal principal,
+                               @Valid @RequestBody BookingRequest request) {
+    return bookingService.create(principal.getId(), request);
+}
+```
+`@AuthenticationPrincipal UserPrincipal principal` — Spring Security
+resolves this parameter automatically from whatever `JwtAuthFilter` (§2.1)
+placed into `SecurityContextHolder` for this request. This is how a
+controller method gets "who is calling me" without ever touching the
+`Authorization` header or JWT parsing directly — that's all abstracted away
+by the filter chain running before the controller is even invoked.
+
+Every mutating endpoint pairs a `@PreAuthorize` role check with the right
+data-scoping: `create`/`listMine`/`cancel` require `STUDENT` and always
+operate on `principal.getId()` (never a client-supplied user ID — a student
+can never act as another student, by construction, not by a runtime check);
+`listAll`/`confirm`/`reject` require `ADMIN` and aren't scoped to a
+particular user at all, since admins can see/act on everything.
+
+---
+
+## 6. `common` package — cross-cutting glue
+
+### 6.1 `GlobalExceptionHandler.java`
+
+```java
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleNotFound(ResourceNotFoundException ex) {
+        return build(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(IllegalRequestException.class)
+    public ResponseEntity<Map<String, Object>> handleIllegalRequest(IllegalRequestException ex) {
+        return build(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<Map<String, Object>> handleBadCredentials(BadCredentialsException ex) {
+        return build(HttpStatus.UNAUTHORIZED, "Invalid credentials");
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Map<String, Object>> handleAccessDenied(AccessDeniedException ex) {
+        return build(HttpStatus.FORBIDDEN, "Access denied");
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException ex) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", Instant.now());
+        body.put("status", HttpStatus.BAD_REQUEST.value());
+        body.put("error", "Validation failed");
+        Map<String, String> fieldErrors = new LinkedHashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(fe -> fieldErrors.put(fe.getField(), fe.getDefaultMessage()));
+        body.put("fieldErrors", fieldErrors);
+        return ResponseEntity.badRequest().body(body);
+    }
+
+    private ResponseEntity<Map<String, Object>> build(HttpStatus status, String message) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", Instant.now());
+        body.put("status", status.value());
+        body.put("error", message);
+        return ResponseEntity.status(status).body(body);
+    }
+}
+```
+`@RestControllerAdvice` registers this class as a **global interceptor for
+exceptions thrown by any `@RestController`** — it's cross-cutting in the
+truest sense: no controller method anywhere in the codebase has a
+`try/catch`; they just `throw` a domain exception (`ResourceNotFoundException`,
+`IllegalRequestException`) and this class alone decides the HTTP status and
+JSON shape.
+
+Two custom exception types carry the whole app's error semantics:
+`ResourceNotFoundException` → always 404 (used for "no such college/hostel/
+booking/image"), `IllegalRequestException` → always 409 Conflict (used for
+business-rule violations like "email already registered" or "hostel is at
+full capacity" — a 409 is the more semantically correct status for "your
+request is well-formed but conflicts with current state," versus a 400
+which would imply the request itself was malformed).
+
+`MethodArgumentNotValidException` is thrown automatically by Spring's
+`@Valid` machinery (not by any code in this project) when a DTO's Bean
+Validation annotations fail — the handler here walks
+`ex.getBindingResult().getFieldErrors()` to build a `{fieldName: message}`
+map, which is exactly what the React frontend's `extractErrorMessage`
+helper unpacks to show a friendly, field-specific error.
+
+### 6.2 `ResourceNotFoundException.java` / `IllegalRequestException.java`
+
+```java
+public class ResourceNotFoundException extends RuntimeException {
+    public ResourceNotFoundException(String message) { super(message); }
+}
+
+public class IllegalRequestException extends RuntimeException {
+    public IllegalRequestException(String message) { super(message); }
+}
+```
+Both extend `RuntimeException` (unchecked) rather than a checked exception
+— deliberate, since Java's checked-exception model would force every
+service method up the call stack to declare `throws ResourceNotFoundException`
+even when the caller has no meaningful recovery action beyond "let it
+propagate to the global handler." This is standard practice in
+Spring applications.
+
+### 6.3 `PagedResponse.java`
+
+```java
+public record PagedResponse<T>(List<T> content, int page, int size, long totalElements) {
+    public static <T> PagedResponse<T> of(List<T> content, int page, int size, long totalElements) {
+        return new PagedResponse<>(content, page, size, totalElements);
+    }
+}
+```
+A generic record used instead of returning Spring Data's `Page<T>` directly
+from controllers. `Page<T>`'s default JSON serialization includes a lot of
+Spring-internal metadata (`pageable`, `sort`, `numberOfElements`, etc.) that
+the frontend doesn't need and that couples the API's wire format to a
+Spring Data implementation detail. `PagedResponse<T>` is a small, explicit,
+stable contract instead — `content` / `page` / `size` / `totalElements` is
+exactly what `HomePage.tsx` on the frontend consumes to compute
+`totalPages` and render pagination controls.
+
+---
+
+## 7. Quick reference: request flow diagrams
+
+**Public browse (`GET /api/hostels?collegeId=1&sortBy=distance`)**
+```
+HostelController.search
+  → HostelService.search
+      → HostelSpecifications.{minPrice,maxPrice,foodAvailable,city} (build WHERE)
+      → CollegeRepository.findById (resolve college)
+      → HostelRepository.findAll(spec)           [DB: filtered, unpaged]
+      → DistanceService.haversineKm  × N          [Java: compute + sort]
+      → manual subList pagination
+      → HostelImageRepository.findFirst...        [DB: cover image per row]
+  → PagedResponse<HostelListItemResponse>
+```
+
+**Authenticated write (`PATCH /api/bookings/{id}/confirm`, admin)**
+```
+JwtAuthFilter.doFilterInternal        [populates SecurityContext from JWT]
+  → SecurityConfig's authorizeHttpRequests  [passes: not in permitAll list, but authenticated]
+  → @PreAuthorize("hasRole('ADMIN')") on BookingController.confirm  [role check]
+  → BookingController.confirm
+      → BookingService.confirm
+          → BookingRepository.findById           [load booking]
+          → status check (must be PENDING)
+          → HostelRepository.tryDecrementAvailableCapacity  [ATOMIC UPDATE, the race-condition fix]
+          → booking.setStatus(CONFIRMED)
+          → BookingRepository.save
+  → BookingResponse
+```
+
+If asked to draw either of these on a whiteboard, this is the shape to
+reproduce.
